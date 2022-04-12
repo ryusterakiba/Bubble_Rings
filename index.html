@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>
+  body {
+    padding: 100px;
+    width: 1000px;
+    margin: auto;
+    text-align: left;
+    font-weight: 300;
+    font-family: 'Open Sans', sans-serif;
+    color: #121212;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+</style>
+<title>CS 184 Mesh Editor</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+</head>
+
+
+<body>
+
+<h1 align="middle">CS 184: Computer Graphics and Imaging, Spring 2022</h1>
+<h1 align="middle">Project 4: Cloth Simulator</h1>
+<h2 align="middle">Ryu Akiba and Marco Gellecanao, CS184-Spring 2022</h2>
+
+<br><br>
+
+    <div>
+
+        <h2 align="middle">Overview</h2>
+        <p>
+            In this project, we simulate the behavior of cloth using a grid of point masses and springs and applying forces to understand the cloth's motion.
+            We implement collisions with objects and self-collisions of the cloth to simulate a realistic cloth.
+        </p>
+
+        <h2 align="middle">Part I: Masses and springs</h2>
+
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/part_1/no_shear.png" width="480px" />
+                        <figcaption align="middle">Structural and Bending springs</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/part_1/only_shear.png" width="480px" />
+                        <figcaption align="middle">Shearing springs </figcaption>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="middle">
+                        <img src="images/part_1/all_springs.png" width="480px" />
+                        <figcaption align="middle">All springs</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <p>
+            We construct the cloth with a grid of point masses and springs. Masses are distributed evenly on a cloth, and different types of springs/constraints are
+            created between masses in order to provide structure to the cloth. Structural springs connect neighboring masses in axial directions. Bending springs are
+            created in axial directions to masses two grid points away. These two spring types can be seen in the first image connecting point masses in axial directions.
+            Shearing springs connect a mass to its neighboring diagonal masses, and can be seen in the second image above. The third image shows the complete cloth wireframe.
+        </p>
+
+        <h2 align="middle">Part II: Simulation via numerical integration</h2>
+
+        <p>
+            The cloth is now subject to external forces (gravity) and the springs created in the previous section exert forces as the cloth deforms.
+            For each point mass, <i>F = ma</i> is calculated by summing the external forces and spring forces given by Hooke's law
+            <i>F = -kx</i> where <i>x</i> is the displacement from the spring's rest length.
+        </p>
+        <p>
+            With the net forces on each mass, and therefore acceleration, we can evolve the positions of each mass in the cloth.
+            Verlet integration is used to compute positions at time <i>t+dt</i>, with damping on the velocity term to
+            simulate friction. To keep springs from being unreasonably deforemed, the distance between two point masses of each spring can
+            be at most 10% longer than the spring's rest length.
+        </p>
+
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/part_2/cloth_weak_spring.png" width="480px" />
+                        <figcaption align="middle">Cloth with a weak ks = 500 N/m spring</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/part_2/cloth_strong_spring.png" width="480px" />
+                        <figcaption align="middle">Cloth with a strong ks = 50,000 N/m spring </figcaption>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="middle">
+                        <img src="images/part_2/cloth_weak_spring.png" width="480px" />
+                        <figcaption align="middle">Cloth with a low density</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/part_2/cloth_strong_spring.png" width="480px" />
+                        <figcaption align="middle">Cloth with a high density </figcaption>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="middle">
+                        <img src="images/part_2/cloth_low_damping.png" width="480px" />
+                        <figcaption align="middle">Cloth with low damping </figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/part_2/cloth_high_damping.png" width="480px" />
+                        <figcaption align="middle">Cloth with high damping </figcaption>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="middle">
+                        <img src="images/part_2/pinned4.png" width="480px" />
+                        <figcaption align="middle">Cloth pinned at all 4 corners</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+    </div></body>
+</html>
