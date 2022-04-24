@@ -19,7 +19,7 @@ At   = -1
 
 # Biotsavart (run over points)
 norm2 = lambda x: np.inner(x,x)
-def biotsavartedge(p,v0,v1,C,a,muRM):
+def biotsavartedge(p,v0,v1,C,a):
     r0 = v0 - p
     r1 = v1 - p
     T  = r1 - r0
@@ -31,7 +31,7 @@ def biotsavartedge(p,v0,v1,C,a,muRM):
     return C / (4*np.pi) * (term1 - term2) * crossr01    
     
 #Induction term (run over points)
-def induction(v0,v1,v2,c0,c1,a0,a1,dRM):
+def induction(v0,v1,v2,c0,c1,a0,a1):
     s0 = np.linalg.norm(v1 - v0)
     s1 = np.linalg.norm(v2 - v1)
     T0 = (v1 - v0)/s0
@@ -43,7 +43,7 @@ def induction(v0,v1,v2,c0,c1,a0,a1,dRM):
     return C / (4*np.pi) * 0.5 * logterm * kB
 
 # Boussinesq (run over edges, interpolate to points)
-def boussinesq(v0,v1,C,a,nu,g,At):
+def boussinesq(v0,v1,C,a):
     edge = v1 - v0
     ds   = np.linalg.norm(edge)
     T    = edge / ds
@@ -52,6 +52,41 @@ def boussinesq(v0,v1,C,a,nu,g,At):
     coeff1 = 16 * np.pi**2 * nu * a**2 / (256 * np.pi**2 * nu**2 + C**2)
     coeff2 = np.pi * a**2 * C/ (256 * np.pi**2 * nu**2 + C**2)
     return coeff1 * Atg_n + coeff2 * np.cross(T,Atg_n)
+
+def velocity(pos,N,C,a):
+    #Calculates the velocity of the N vertices located at pos
+    #Each edge has circulation C and thickness a
+    pos_pad = np.vstack((pos[-2,:],pos)) #has one vertex before start
+    point_vel = np.zeros((N,3))
+
+    for p in range(N):
+        #Over all vertices of filament
+        for i in range(N): 
+            #Biot Savart sum over edges (TERM 1 uBSdisc)
+            point_vel[p,:] += biotsavartedge(pos[p,:],pos[i,:],pos[i+1,:],C[i],a[i])
+        #Apply induction term  (TERM 2 uLIA)
+        point_vel[p,:] += induction(pos_pad[p,:],pos_pad[p+1,:],pos_pad[p+2,:],C[i],C[i+1],a[p],a[p+1])
+    
+    #Boussinesq term (TERM 3) evaluated at edges then interpolated to vertices
+    edge_vel = np.zeros((N,3))
+    for i in range(N):
+        #Boussinesq over edges
+        edge_vel[i,:] = boussinesq(pos[i,:],pos[i+1,:],C[i],a[i])
+    edge_vel = np.vstack((edge_vel[-1,:],edge_vel)) #pad one before start
+    for p in range(N):
+        #interpolate to vertices
+        point_vel[p,:] += (edge_vel[p,:] + edge_vel[p+1,:]) / 2
+    
+    return point_vel
+
+def modify_thickness(pos_old,pos_new,a,N):
+    #Modify thickness over edges
+    for p in range(N):
+        l_old = np.linalg.norm(pos_old[p+1] - pos_old[p])
+        l_new = np.linalg.norm(pos_new[p+1] - pos_new[p])  
+        a[p] = a[p] * np.sqrt(l_old / l_new)
+    a[-1] = a[0]
+    return a
 
 #Resampling
 def resample(pos,a, N):
@@ -68,7 +103,7 @@ def resample(pos,a, N):
     return pos_new,a_new
 
 #Tangential flow (want to input all positions i guess)
-def bergers_flow(pos,C,a,g,At,dt):
+def bergers_flow(pos,C,a,dt):
     edges = pos[1:] - pos[:-1]
     N     = edges.shape[0]
     ds    = np.array([np.linalg.norm(edges[i,:]) for i in range(N)])
@@ -133,42 +168,53 @@ a    = 0.2*np.ones(N+1) #edges, repeat for first edge
 dt   = 0.1
 
 #%% 
+
 frame = [np.copy(pos)]
 for t in range(nt):
-    RKcoeff = [0.5,0.5,1]
-    for step in range(4):
-        point_vel = np.zeros((N,3))
-        for p in range(N):
-            #Over all points in filament
-            for i in range(N): 
-                #Run Biot Savart sum over edges
-                point_vel[p,:] += biotsavartedge(pos[p,:],pos[i,:],pos[i+1,:],C[i],a[i],muRM)
-            #Apply induction term 
-            point_vel[p,:] += induction(pos2[p,:],pos2[p+1,:],pos2[p+2,:],C[i],C[i+1],a[p],a[p+1],dRM)
-        edge_vel = np.zeros((N,3))
-        for i in range(N):
-            #Boussinesq over edges
-            edge_vel[i,:] = boussinesq(pos[i,:],pos[i+1,:],C[i],a[i],nu,g,At)
-        edge_vel = np.vstack((edge_vel[-1,:],edge_vel)) #pad one before start
-        for p in range(N):
-            #interpolate to points
-            point_vel[p,:] += (edge_vel[p,:] + edge_vel[p+1,:]) / 2
-        
-        #Runge Kutta
-        if step < 3:
-            K = dt * point_vel
-            pos_old = np.copy(pos)
-            pos[:N,:] += K * RKcoeff[step]
-            pos[N,:] = pos[0,:]
-            pos2     = np.vstack((pos[-2,:],pos)) #has one vertex before start
-        
-            #Modify thickness over edges
-            for p in range(N):
-                l_old = np.linalg.norm(pos_old[p+1] - pos_old[p])
-                l_new = np.linalg.norm(pos[p+1] - pos[p])
-                
-                a[p] = a[p] * np.sqrt(l_old / l_new)
-            a[-1] = a[0]
+    #Runge Kutta https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods
+    # pos_new = pos_old + 1/6 * dt * (k1 + 2k2 + 2k3 + k4)
+    # k1 = vel(t       ,pos_old)
+    # k2 = vel(t + dt/2,pos_old + dt/2 * k1)
+    # k3 = vel(t + dt/2,pos_old + dt/2 * k2)
+    # k4 = vel(t + dt  ,pos_old + dt * k3)
+    
+    pos_RK = np.copy(pos)
+    
+    #Step 1
+    point_vel = velocity(pos_RK,N,C,a)
+    K1        = dt * point_vel
+    
+    #Step 2
+    pos_old       = np.copy(pos_RK)
+    pos_RK[:N,:] += 0.5 * K1
+    pos_RK[N,:]   = pos_RK[0,:] #Last element is first point
+    
+    a = modify_thickness(pos_old,pos_RK,a,N) #Modify thickness over edges
+    point_vel = velocity(pos_RK,N,C,a)
+    K2        = dt * point_vel
+    
+    #Step 3
+    pos_old       = np.copy(pos_RK)
+    pos_RK[:N,:] += 0.5 * K2
+    pos_RK[N,:]   = pos_RK[0,:] #Last element is first point
+    
+    a = modify_thickness(pos_old,pos_RK,a,N) #Modify thickness over edges
+    point_vel = velocity(pos_RK,N,C,a)
+    K3        = dt * point_vel
+    
+    #Step 4
+    pos_old       = np.copy(pos_RK)
+    pos_RK[:N,:] += K3
+    pos_RK[N,:]   = pos_RK[0,:] #Last element is first point
+    
+    a = modify_thickness(pos_old,pos_RK,a,N) #Modify thickness over edges
+    point_vel = velocity(pos_RK,N,C,a)
+    K4        = dt * point_vel
+    
+    #RK4
+    pos[:N,:] += (K1 + 2*K2 + 2*K3 + K4)/6
+    pos[N,:]   = pos[0,:]
+    
     frame.append(np.copy(pos))
 #%%
 fig = plt.figure(figsize = (10,10))
