@@ -1,0 +1,179 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Apr 18 11:43:27 2022
+
+@author: ryust
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
+import scipy.sparse as sp
+
+#%%
+muRM = np.exp(-0.75)
+dRM  = 0.5 * np.exp(0.25)
+nu   = 1e-6
+g    = np.array([0,0,-9.8])
+At   = -1
+
+# Biotsavart (run over points)
+norm2 = lambda x: np.inner(x,x)
+def biotsavartedge(p,v0,v1,C,a,muRM):
+    r0 = v0 - p
+    r1 = v1 - p
+    T  = r1 - r0
+    a2mu     = (a * muRM)**2
+    crossr01 = np.cross(r0,r1)
+    
+    term1 = np.dot(r1,T) / (np.sqrt(a2mu + norm2(r1)) * (norm2(T)*a2mu + norm2(crossr01)))
+    term2 = np.dot(r0,T) / (np.sqrt(a2mu + norm2(r0)) * (norm2(T)*a2mu + norm2(crossr01))) 
+    return C / (4*np.pi) * (term1 - term2) * crossr01    
+    
+#Induction term (run over points)
+def induction(v0,v1,v2,c0,c1,a0,a1,dRM):
+    s0 = np.linalg.norm(v1 - v0)
+    s1 = np.linalg.norm(v2 - v1)
+    T0 = (v1 - v0)/s0
+    T1 = (v2 - v1)/s1
+    C  = (c0 + c1)/2
+    
+    kB      = 2 * np.cross(T0,T1) / (s0 + s1)
+    logterm = np.log(s0 * s1 / (a0 * a1 * dRM**2))
+    return C / (4*np.pi) * 0.5 * logterm * kB
+
+# Boussinesq (run over edges, interpolate to points)
+def boussinesq(v0,v1,C,a,nu,g,At):
+    edge = v1 - v0
+    ds   = np.linalg.norm(edge)
+    T    = edge / ds
+    Atg_n= At * g - np.dot(At * g, T) * T
+    
+    coeff1 = 16 * np.pi**2 * nu * a**2 / (256 * np.pi**2 * nu**2 + C**2)
+    coeff2 = np.pi * a**2 * C/ (256 * np.pi**2 * nu**2 + C**2)
+    return coeff1 * Atg_n + coeff2 * np.cross(T,Atg_n)
+
+#Resampling
+def resample(pos,a, N):
+    # edge length and volume (cylinder)
+    # interpolate curve
+    edges = pos[1:] - pos[:-1]
+    d = np.insert(np.cumsum([np.linalg.norm(edges[i,:]) for i in range(edges.shape[0])]),0,0)
+    spaced = np.linspace(0,d.max(),N)
+    
+    #Interpolate
+    pos_new = np.vstack((np.interp(spaced,d, pos[:,0]),np.interp(spaced,d, pos[:,1]),np.interp(spaced,d, pos[:,2]))).T
+    a_new = np.interp(spaced,d,a)
+    
+    return pos_new,a_new
+
+#Tangential flow (want to input all positions i guess)
+def bergers_flow(pos,C,a,g,At,dt):
+    edges = pos[1:] - pos[:-1]
+    N     = edges.shape[0]
+    ds    = np.array([np.linalg.norm(edges[i,:]) for i in range(N)])
+    T     = np.array([edges[i,:] / ds[i] for i in range(N)])
+    areas = np.pi * a**2
+    
+    #Compute Flux Eq 25
+    flux  = np.zeros(N)
+    grav  = np.array([np.dot(At * g, T[i]) for i in range(N)])
+    coeff = 1 / (8 * np.pi * nu)
+    
+    #some padding so indexing works out
+    ds_pad   = np.hstack((ds[-1],ds))
+    area_pad = np.hstack((areas[-1],areas))
+    grav_pad = np.hstack((grav[-1],grav))
+    ds_ave   = (ds_pad[1:] + ds_pad[:-1])/2
+    
+    for i in range(N): #Iterate over vertices
+        pre = grav_pad[i] * area_pad[i]
+        nex = grav_pad[i+1] * area_pad[i+1]
+        
+        if pre > max(0,-nex):
+            flux[i] = coeff * grav_pad[i] * area_pad[i]
+        elif nex < min(0,-pre):
+            flux[i] = coeff * grav_pad[i+1] * area_pad[i+1]
+        else:
+            flux[i] = 0
+        
+    #Implicit Euler needed
+    N   = 5
+    idx = np.arange(N)
+    nex = np.append(idx[1:],0)
+    row = np.append(idx,idx)
+    col = np.append(idx,nex)
+    val = np.append(-np.ones(N),np.ones(N))
+    d   = sp.csr_matrix((val,(row,col)),(N,N)).toarray()
+    
+    star1 = np.diag(ds_ave[:N]**-1 * np.ones(N))
+    star0 = np.diag(ds[:N])
+    
+    L = np.dot(-d.T,star1.dot(d))
+    
+    coef = 1 / (64*np.pi**2)
+    nudt = nu / dt
+    
+    LHS = nudt * star0 - 0.5 * coef * L
+    RHS = nudt * star0.dot(areas[:N])
+    
+    np.linalg.solve()
+
+#%%
+# make vertices
+N    = 20
+nt   = 50
+theta= np.linspace(0,2*np.pi,N+1)
+z_pos= np.random.rand(N) * 0.02
+z_pos= np.hstack((z_pos,z_pos[0]))
+pos  = np.array([np.cos(theta),np.sin(theta),z_pos]).T #first vertex repeat at end
+pos2 = np.vstack((pos[-2,:],pos)) #has one vertex before start
+C    = np.ones(N+1) #edges, repeat for first edge
+a    = 0.2*np.ones(N+1) #edges, repeat for first edge
+dt   = 0.1
+
+#%% 
+frame = [np.copy(pos)]
+for t in range(nt):
+    RKcoeff = [0.5,0.5,1]
+    for step in range(4):
+        point_vel = np.zeros((N,3))
+        for p in range(N):
+            #Over all points in filament
+            for i in range(N): 
+                #Run Biot Savart sum over edges
+                point_vel[p,:] += biotsavartedge(pos[p,:],pos[i,:],pos[i+1,:],C[i],a[i],muRM)
+            #Apply induction term 
+            point_vel[p,:] += induction(pos2[p,:],pos2[p+1,:],pos2[p+2,:],C[i],C[i+1],a[p],a[p+1],dRM)
+        edge_vel = np.zeros((N,3))
+        for i in range(N):
+            #Boussinesq over edges
+            edge_vel[i,:] = boussinesq(pos[i,:],pos[i+1,:],C[i],a[i],nu,g,At)
+        edge_vel = np.vstack((edge_vel[-1,:],edge_vel)) #pad one before start
+        for p in range(N):
+            #interpolate to points
+            point_vel[p,:] += (edge_vel[p,:] + edge_vel[p+1,:]) / 2
+        
+        #Runge Kutta
+        if step < 3:
+            K = dt * point_vel
+            pos_old = np.copy(pos)
+            pos[:N,:] += K * RKcoeff[step]
+            pos[N,:] = pos[0,:]
+            pos2     = np.vstack((pos[-2,:],pos)) #has one vertex before start
+        
+            #Modify thickness over edges
+            for p in range(N):
+                l_old = np.linalg.norm(pos_old[p+1] - pos_old[p])
+                l_new = np.linalg.norm(pos[p+1] - pos[p])
+                
+                a[p] = a[p] * np.sqrt(l_old / l_new)
+            a[-1] = a[0]
+    frame.append(np.copy(pos))
+#%%
+fig = plt.figure(figsize = (10,10))
+ax = plt.axes(projection='3d')
+
+for t in range(nt+1):
+    if t%10 == 0:
+        plt.plot(frame[t][:,0],frame[t][:,1],frame[t][:,2])
