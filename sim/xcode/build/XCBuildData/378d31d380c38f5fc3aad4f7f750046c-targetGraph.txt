@@ -1,0 +1,23 @@
+Target dependency graph (9 targets)
+nanogui-obj in ClothSim, no dependencies
+glfw_objects in ClothSim, no dependencies
+nanogui in ClothSim, depends on:
+nanogui-obj in ClothSim (explicit)
+glfw_objects in ClothSim (explicit)
+CGL in ClothSim, depends on:
+nanogui in ClothSim (explicit)
+clothsim in ClothSim, depends on:
+nanogui in ClothSim (explicit)
+CGL in ClothSim (explicit)
+ZERO_CHECK in ClothSim, no dependencies
+ALL_BUILD in ClothSim, depends on:
+nanogui-obj in ClothSim (explicit)
+nanogui in ClothSim (explicit)
+glfw_objects in ClothSim (explicit)
+CGL in ClothSim (explicit)
+clothsim in ClothSim (explicit)
+ZERO_CHECK in ClothSim (explicit)
+glfw in ClothSim, depends on:
+glfw_objects in ClothSim (explicit)
+install in ClothSim, depends on:
+ALL_BUILD in ClothSim (explicit)

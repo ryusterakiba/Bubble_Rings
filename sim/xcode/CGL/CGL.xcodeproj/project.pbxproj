@@ -1,0 +1,895 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		367B8D3AF9A541F5A9B9BF40 /* install */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = C3E32EFA704E4B5A94E1C842 /* Build configuration list for PBXAggregateTarget "install" */;
+			buildPhases = (
+				93426DA6A4AC2C2AC9CE883C /* CMake PostBuild Rules */,
+			);
+			dependencies = (
+				E08564C365CD42CD884C77CA /* PBXTargetDependency */,
+			);
+			name = install;
+			productName = install;
+		};
+		3B0DFAB3D153453C80C00C8A /* ALL_BUILD */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = C94A6A9B612B417088BEDBE8 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
+			buildPhases = (
+				B32547FDDF120C8B65CEF315 /* Generate CMakeFiles/ALL_BUILD */,
+			);
+			dependencies = (
+				09044B69CEC34B49A7B2521C /* PBXTargetDependency */,
+				5DC97B50BC754581A2A8F7BA /* PBXTargetDependency */,
+			);
+			name = ALL_BUILD;
+			productName = ALL_BUILD;
+		};
+		D5779E146A2B426082D5A084 /* ZERO_CHECK */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 9221CC432AD749A1A7C3984E /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
+			buildPhases = (
+				526FBF4021C08CB1E29FBE01 /* Generate CMakeFiles/ZERO_CHECK */,
+			);
+			dependencies = (
+			);
+			name = ZERO_CHECK;
+			productName = ZERO_CHECK;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		0B461AA71BFF4F45A95F6FC5 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/quaternion.cpp */ = {isa = PBXBuildFile; fileRef = 4CB7C2D06AD643EA8B6B9C14 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/quaternion.cpp */; };
+		0BF956EEE6E448A2B264D04B /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/complex.cpp */ = {isa = PBXBuildFile; fileRef = 94E0AABDCAC4455B97144F69 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/complex.cpp */; };
+		4CD314D4036E4988A486680D /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/tinyxml2.cpp */ = {isa = PBXBuildFile; fileRef = 4C7A2CB3A8A949E0B2EC915F /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/tinyxml2.cpp */; };
+		53055D164DDB48CFB449B4D1 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/vector2D.cpp */ = {isa = PBXBuildFile; fileRef = F1AAD6ADEAFC498EAFE8F8BC /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/vector2D.cpp */; };
+		5A697C3E44754B52AFC7A274 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/matrix4x4.cpp */ = {isa = PBXBuildFile; fileRef = FAD7A696A33B4833BC0C2F1C /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/matrix4x4.cpp */; };
+		5A7D22F3245C4A9481905F36 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/matrix3x3.cpp */ = {isa = PBXBuildFile; fileRef = 7424BCF3B00C47379200150D /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/matrix3x3.cpp */; };
+		5DCA6BE3B435427CA979B140 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/vector4D.cpp */ = {isa = PBXBuildFile; fileRef = 6E5DB6EC4445448691DCA78D /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/vector4D.cpp */; };
+		9B3C8721EA174005A64A2818 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/vector3D.cpp */ = {isa = PBXBuildFile; fileRef = 34F527C23F0A40A1A9AE83B4 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/vector3D.cpp */; };
+		A1E803363F05447B8656DC7E /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/lodepng.cpp */ = {isa = PBXBuildFile; fileRef = BBE605ABF51C436EBCBBF939 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/lodepng.cpp */; };
+		BDE50F8DE25F41C19B7A807F /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/spectrum.cpp */ = {isa = PBXBuildFile; fileRef = 450D7EDE88A14807B2FD0E08 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/spectrum.cpp */; };
+		BF68F29B56C449B991647C87 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 206F7C1DBAE5411185DA6DF3 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/CMakeLists.txt */; };
+		D91F6A8AE3D74948B9FF7AD5 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/base64.cpp */ = {isa = PBXBuildFile; fileRef = FAD06EC335F2487A9A8A7A3F /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/base64.cpp */; };
+		F0D0CB3DD4FC4337B5ACD2E9 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/color.cpp */ = {isa = PBXBuildFile; fileRef = 3352F7E8E5164C759077737E /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/color.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBuildStyle section */
+		AFEF8E47EC0C44FF98B9101E /* RelWithDebInfo */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = RelWithDebInfo;
+		};
+		DE7699FC2D4D4500948729F7 /* MinSizeRel */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = MinSizeRel;
+		};
+		DEE83588E0834FB98FB67FF8 /* Debug */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Debug;
+		};
+		E664C054207F45B2A4F177E6 /* Release */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Release;
+		};
+/* End PBXBuildStyle section */
+
+/* Begin PBXContainerItemProxy section */
+		4E9CEFA21B6D4052BF788780 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5824D95D5923498E91687E75 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D5779E146A2B426082D5A084;
+			remoteInfo = ZERO_CHECK;
+		};
+		A5519B8DC7354CB2A114E1BE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5824D95D5923498E91687E75 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3B0DFAB3D153453C80C00C8A;
+			remoteInfo = ALL_BUILD;
+		};
+		EDEB77558CC645D0ABB3C004 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5824D95D5923498E91687E75 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 98E23EA8D79547AAB06329C5;
+			remoteInfo = CGL;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		1C99FC9ED8EB49C697A4D629 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		206F7C1DBAE5411185DA6DF3 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = src/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		3352F7E8E5164C759077737E /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/color.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = color.cpp; path = src/color.cpp; sourceTree = SOURCE_ROOT; };
+		34F527C23F0A40A1A9AE83B4 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/vector3D.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = vector3D.cpp; path = src/vector3D.cpp; sourceTree = SOURCE_ROOT; };
+		450D7EDE88A14807B2FD0E08 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/spectrum.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = spectrum.cpp; path = src/spectrum.cpp; sourceTree = SOURCE_ROOT; };
+		4C7A2CB3A8A949E0B2EC915F /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/tinyxml2.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tinyxml2.cpp; path = src/tinyxml2.cpp; sourceTree = SOURCE_ROOT; };
+		4CB7C2D06AD643EA8B6B9C14 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/quaternion.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = quaternion.cpp; path = src/quaternion.cpp; sourceTree = SOURCE_ROOT; };
+		6E5DB6EC4445448691DCA78D /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/vector4D.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = vector4D.cpp; path = src/vector4D.cpp; sourceTree = SOURCE_ROOT; };
+		7424BCF3B00C47379200150D /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/matrix3x3.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = matrix3x3.cpp; path = src/matrix3x3.cpp; sourceTree = SOURCE_ROOT; };
+		94E0AABDCAC4455B97144F69 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/complex.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = complex.cpp; path = src/complex.cpp; sourceTree = SOURCE_ROOT; };
+		96B7F5EC013A445A9E1B4EDD /* CGL */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libCGL.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		BBE605ABF51C436EBCBBF939 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/lodepng.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = lodepng.cpp; path = src/lodepng.cpp; sourceTree = SOURCE_ROOT; };
+		F1AAD6ADEAFC498EAFE8F8BC /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/vector2D.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = vector2D.cpp; path = src/vector2D.cpp; sourceTree = SOURCE_ROOT; };
+		FAD06EC335F2487A9A8A7A3F /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/base64.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = base64.cpp; path = src/base64.cpp; sourceTree = SOURCE_ROOT; };
+		FAD7A696A33B4833BC0C2F1C /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/matrix4x4.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = matrix4x4.cpp; path = src/matrix4x4.cpp; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2A5CCC00A83B430988EB3D76 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		021225E3F2F74BE18EBB92B1 /* ALL_BUILD */ = {
+			isa = PBXGroup;
+			children = (
+				0EFA288872F9499683EBAF10 /* CMake Rules */,
+				1C99FC9ED8EB49C697A4D629 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/CMakeLists.txt */,
+			);
+			name = ALL_BUILD;
+			sourceTree = "<group>";
+		};
+		07C352B78D3040708A0C6D73 = {
+			isa = PBXGroup;
+			children = (
+				021225E3F2F74BE18EBB92B1 /* ALL_BUILD */,
+				E6432B590EC8470489E7780A /* CGL */,
+				98223616EF9348F082A679AA /* Products */,
+				C19968BB450742B2A55C7057 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		0EFA288872F9499683EBAF10 /* CMake Rules */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "CMake Rules";
+			sourceTree = "<group>";
+		};
+		61670EA8903C491594D93F0C /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				FAD06EC335F2487A9A8A7A3F /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/base64.cpp */,
+				3352F7E8E5164C759077737E /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/color.cpp */,
+				94E0AABDCAC4455B97144F69 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/complex.cpp */,
+				BBE605ABF51C436EBCBBF939 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/lodepng.cpp */,
+				7424BCF3B00C47379200150D /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/matrix3x3.cpp */,
+				FAD7A696A33B4833BC0C2F1C /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/matrix4x4.cpp */,
+				4CB7C2D06AD643EA8B6B9C14 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/quaternion.cpp */,
+				450D7EDE88A14807B2FD0E08 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/spectrum.cpp */,
+				4C7A2CB3A8A949E0B2EC915F /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/tinyxml2.cpp */,
+				F1AAD6ADEAFC498EAFE8F8BC /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/vector2D.cpp */,
+				34F527C23F0A40A1A9AE83B4 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/vector3D.cpp */,
+				6E5DB6EC4445448691DCA78D /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/vector4D.cpp */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+		98223616EF9348F082A679AA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				96B7F5EC013A445A9E1B4EDD /* CGL */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C19968BB450742B2A55C7057 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E6432B590EC8470489E7780A /* CGL */ = {
+			isa = PBXGroup;
+			children = (
+				61670EA8903C491594D93F0C /* Source Files */,
+				206F7C1DBAE5411185DA6DF3 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/CMakeLists.txt */,
+			);
+			name = CGL;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		98E23EA8D79547AAB06329C5 /* CGL */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C217B91C5A72453BBED0E78D /* Build configuration list for PBXNativeTarget "CGL" */;
+			buildPhases = (
+				F227CE7D757C4919B90452AA /* Sources */,
+				2A5CCC00A83B430988EB3D76 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CGL;
+			productName = CGL;
+			productReference = 96B7F5EC013A445A9E1B4EDD /* CGL */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5824D95D5923498E91687E75 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1320;
+			};
+			buildConfigurationList = 1CDE1F1588D84183855F00F0 /* Build configuration list for PBXProject "CGL" */;
+			buildSettings = {
+			};
+			buildStyles = (
+				DEE83588E0834FB98FB67FF8 /* Debug */,
+				E664C054207F45B2A4F177E6 /* Release */,
+				DE7699FC2D4D4500948729F7 /* MinSizeRel */,
+				AFEF8E47EC0C44FF98B9101E /* RelWithDebInfo */,
+			);
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 0;
+			mainGroup = 07C352B78D3040708A0C6D73;
+			projectDirPath = ../../CGL;
+			projectRoot = "";
+			targets = (
+				3B0DFAB3D153453C80C00C8A /* ALL_BUILD */,
+				98E23EA8D79547AAB06329C5 /* CGL */,
+				D5779E146A2B426082D5A084 /* ZERO_CHECK */,
+				367B8D3AF9A541F5A9B9BF40 /* install */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		3C0110FC8322DE7E50886E21 = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		526FBF4021C08CB1E29FBE01 /* Generate CMakeFiles/ZERO_CHECK */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Generate CMakeFiles/ZERO_CHECK";
+			outputPaths = (
+/Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL/CMakeFiles/ZERO_CHECK			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL
+  make -f /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL/CMakeScripts/ReRunCMake.make
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL
+  make -f /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL/CMakeScripts/ReRunCMake.make
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL
+  make -f /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL/CMakeScripts/ReRunCMake.make
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL
+  make -f /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL/CMakeScripts/ReRunCMake.make
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		87AF4882E018677E2624B544 = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		93426DA6A4AC2C2AC9CE883C /* CMake PostBuild Rules */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			name = "CMake PostBuild Rules";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL
+  /usr/local/Cellar/cmake/3.22.2/bin/cmake -DBUILD_TYPE=$CONFIGURATION$EFFECTIVE_PLATFORM_NAME -P cmake_install.cmake
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL
+  /usr/local/Cellar/cmake/3.22.2/bin/cmake -DBUILD_TYPE=$CONFIGURATION$EFFECTIVE_PLATFORM_NAME -P cmake_install.cmake
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL
+  /usr/local/Cellar/cmake/3.22.2/bin/cmake -DBUILD_TYPE=$CONFIGURATION$EFFECTIVE_PLATFORM_NAME -P cmake_install.cmake
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL
+  /usr/local/Cellar/cmake/3.22.2/bin/cmake -DBUILD_TYPE=$CONFIGURATION$EFFECTIVE_PLATFORM_NAME -P cmake_install.cmake
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		9B50530E35CC49C82C2FACCF = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		B32547FDDF120C8B65CEF315 /* Generate CMakeFiles/ALL_BUILD */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Generate CMakeFiles/ALL_BUILD";
+			outputPaths = (
+/Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL/CMakeFiles/ALL_BUILD			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL
+  echo Build\\ all\\ projects
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL
+  echo Build\\ all\\ projects
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL
+  echo Build\\ all\\ projects
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL
+  echo Build\\ all\\ projects
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F227CE7D757C4919B90452AA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D91F6A8AE3D74948B9FF7AD5 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/base64.cpp */,
+				F0D0CB3DD4FC4337B5ACD2E9 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/color.cpp */,
+				0BF956EEE6E448A2B264D04B /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/complex.cpp */,
+				A1E803363F05447B8656DC7E /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/lodepng.cpp */,
+				5A7D22F3245C4A9481905F36 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/matrix3x3.cpp */,
+				5A697C3E44754B52AFC7A274 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/matrix4x4.cpp */,
+				0B461AA71BFF4F45A95F6FC5 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/quaternion.cpp */,
+				BDE50F8DE25F41C19B7A807F /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/spectrum.cpp */,
+				4CD314D4036E4988A486680D /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/tinyxml2.cpp */,
+				53055D164DDB48CFB449B4D1 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/vector2D.cpp */,
+				9B3C8721EA174005A64A2818 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/vector3D.cpp */,
+				5DCA6BE3B435427CA979B140 /* /Users/seenum/cs184/Bubble_Rings/sim/CGL/src/vector4D.cpp */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		09044B69CEC34B49A7B2521C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 98E23EA8D79547AAB06329C5 /* CGL */;
+			targetProxy = EDEB77558CC645D0ABB3C004 /* PBXContainerItemProxy */;
+		};
+		5DC97B50BC754581A2A8F7BA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D5779E146A2B426082D5A084 /* ZERO_CHECK */;
+			targetProxy = 4E9CEFA21B6D4052BF788780 /* PBXContainerItemProxy */;
+		};
+		E08564C365CD42CD884C77CA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3B0DFAB3D153453C80C00C8A /* ALL_BUILD */;
+			targetProxy = A5519B8DC7354CB2A114E1BE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0E49BD77A8BF4059842302CC /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		3B1DA54990074657814ED0C0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk;
+				SYMROOT = /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL/build;
+			};
+			name = Release;
+		};
+		60F1B55D4858405885584465 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",NANOGUI_SHARED,NVG_SHARED,GLAD_GLAPI_EXPORT,NANOGUI_GLAD,"$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/seenum/cs184/Bubble_Rings/sim/ext/nanogui/include,/Users/seenum/cs184/Bubble_Rings/sim/CGL/include,/usr/local/include/freetype2,/Users/seenum/cs184/Bubble_Rings/sim/ext/nanogui/ext/glad/include,/Users/seenum/cs184/Bubble_Rings/sim/ext/nanogui/ext/glfw/include,/Users/seenum/cs184/Bubble_Rings/sim/ext/nanogui/ext/nanovg/src,/Users/seenum/cs184/Bubble_Rings/sim/ext/nanogui/ext/eigen,/Users/seenum/cs184/Bubble_Rings/sim/CGL/include/CGL,"$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -std=c++11 -m64     -funroll-loops -Wno-narrowing -Wno-deprecated-register    -Wno-constant-conversion ";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = CGL;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL/src;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		63B3230D09C14B1BB6B6E3CE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		6E9DD8F073824919B55AA848 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		71B686D8DF364ECE8B4DBD07 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		90A1F17D3C3E430AB61EE645 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		95DA989D869F4002916497ED /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		9882DA07691B4DF899765ADA /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",NANOGUI_SHARED,NVG_SHARED,GLAD_GLAPI_EXPORT,NANOGUI_GLAD,"$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/seenum/cs184/Bubble_Rings/sim/ext/nanogui/include,/Users/seenum/cs184/Bubble_Rings/sim/CGL/include,/usr/local/include/freetype2,/Users/seenum/cs184/Bubble_Rings/sim/ext/nanogui/ext/glad/include,/Users/seenum/cs184/Bubble_Rings/sim/ext/nanogui/ext/glfw/include,/Users/seenum/cs184/Bubble_Rings/sim/ext/nanogui/ext/nanovg/src,/Users/seenum/cs184/Bubble_Rings/sim/ext/nanogui/ext/eigen,/Users/seenum/cs184/Bubble_Rings/sim/CGL/include/CGL,"$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -std=c++11 -m64     -funroll-loops -Wno-narrowing -Wno-deprecated-register        -DNDEBUG -Wno-constant-conversion ";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = CGL;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL/src;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		A9B4437E55A747C4BAF6D3F1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		BD9BDAC22EA64914A7A492B6 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk;
+				SYMROOT = /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL/build;
+			};
+			name = RelWithDebInfo;
+		};
+		D39E1D06822B463B8C7BA33B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		D98F0DD156AE4F92B2C67917 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		E2DEC89DAC8F4958A14C37A1 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk;
+				SYMROOT = /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL/build;
+			};
+			name = MinSizeRel;
+		};
+		E8ED5168E812488592C14088 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",NANOGUI_SHARED,NVG_SHARED,GLAD_GLAPI_EXPORT,NANOGUI_GLAD,"$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/seenum/cs184/Bubble_Rings/sim/ext/nanogui/include,/Users/seenum/cs184/Bubble_Rings/sim/CGL/include,/usr/local/include/freetype2,/Users/seenum/cs184/Bubble_Rings/sim/ext/nanogui/ext/glad/include,/Users/seenum/cs184/Bubble_Rings/sim/ext/nanogui/ext/glfw/include,/Users/seenum/cs184/Bubble_Rings/sim/ext/nanogui/ext/nanovg/src,/Users/seenum/cs184/Bubble_Rings/sim/ext/nanogui/ext/eigen,/Users/seenum/cs184/Bubble_Rings/sim/CGL/include/CGL,"$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -std=c++11 -m64     -funroll-loops -Wno-narrowing -Wno-deprecated-register     -DNDEBUG -Wno-constant-conversion ";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = CGL;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL/src;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		E981E539472042B8BD504A49 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		ED61E9188AE1499CBAAC0B50 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",NANOGUI_SHARED,NVG_SHARED,GLAD_GLAPI_EXPORT,NANOGUI_GLAD,"$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/seenum/cs184/Bubble_Rings/sim/ext/nanogui/include,/Users/seenum/cs184/Bubble_Rings/sim/CGL/include,/usr/local/include/freetype2,/Users/seenum/cs184/Bubble_Rings/sim/ext/nanogui/ext/glad/include,/Users/seenum/cs184/Bubble_Rings/sim/ext/nanogui/ext/glfw/include,/Users/seenum/cs184/Bubble_Rings/sim/ext/nanogui/ext/nanovg/src,/Users/seenum/cs184/Bubble_Rings/sim/ext/nanogui/ext/eigen,/Users/seenum/cs184/Bubble_Rings/sim/CGL/include/CGL,"$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -std=c++11 -m64     -funroll-loops -Wno-narrowing -Wno-deprecated-register     -DNDEBUG -Wno-constant-conversion ";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = CGL;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL/src;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		EF95953D7ECF4F0C80FB4E1F /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		F4898821C0EF459DA6B96769 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk;
+				SYMROOT = /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL/build;
+			};
+			name = Debug;
+		};
+		F66F432A2AB14791B1232D43 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/seenum/cs184/Bubble_Rings/sim/xcode/CGL;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1CDE1F1588D84183855F00F0 /* Build configuration list for PBXProject "CGL" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F4898821C0EF459DA6B96769 /* Debug */,
+				3B1DA54990074657814ED0C0 /* Release */,
+				E2DEC89DAC8F4958A14C37A1 /* MinSizeRel */,
+				BD9BDAC22EA64914A7A492B6 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		9221CC432AD749A1A7C3984E /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6E9DD8F073824919B55AA848 /* Debug */,
+				63B3230D09C14B1BB6B6E3CE /* Release */,
+				95DA989D869F4002916497ED /* MinSizeRel */,
+				0E49BD77A8BF4059842302CC /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C217B91C5A72453BBED0E78D /* Build configuration list for PBXNativeTarget "CGL" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				60F1B55D4858405885584465 /* Debug */,
+				ED61E9188AE1499CBAAC0B50 /* Release */,
+				E8ED5168E812488592C14088 /* MinSizeRel */,
+				9882DA07691B4DF899765ADA /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C3E32EFA704E4B5A94E1C842 /* Build configuration list for PBXAggregateTarget "install" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F66F432A2AB14791B1232D43 /* Debug */,
+				A9B4437E55A747C4BAF6D3F1 /* Release */,
+				EF95953D7ECF4F0C80FB4E1F /* MinSizeRel */,
+				71B686D8DF364ECE8B4DBD07 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C94A6A9B612B417088BEDBE8 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D98F0DD156AE4F92B2C67917 /* Debug */,
+				D39E1D06822B463B8C7BA33B /* Release */,
+				E981E539472042B8BD504A49 /* MinSizeRel */,
+				90A1F17D3C3E430AB61EE645 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5824D95D5923498E91687E75 /* Project object */;
+}

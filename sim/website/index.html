@@ -1,0 +1,468 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>
+  body {
+    padding: 100px;
+    width: 1000px;
+    margin: auto;
+    text-align: left;
+    font-weight: 300;
+    font-family: 'Open Sans', sans-serif;
+    color: #121212;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+</style>
+<title>CS 184 Mesh Editor</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+</head>
+
+
+<body>
+
+<h1 align="middle">CS 184: Computer Graphics and Imaging, Spring 2022</h1>
+<h1 align="middle">Project 4: Cloth Simulator</h1>
+<h2 align="middle">Srinivasan Madhavan and Aditya Prasad, CS184-smap</h2>
+
+<br><br>
+
+<div>
+
+<h2 align="middle">Overview</h2>
+<p>https://cal-cs184-student.github.io/sp22-project-webpages-aprasad7/proj4/index.html</p>
+<p>WE HAVE FINALLY MADE IT! WE ARE FINALLY MASTERS OF COMPUTER GRAPHICS! WOOO! Not only can we render still images now, but we can also simulate physical movements and phenomena, such  as the movement of a cloth. We first model the cloth as a grid of point masses, connected by springs. Then, we use physical equations of motion, like Hooke's Law, to determine where point masses will move next given force. We also account for external collisions by calculating tangent points and correction vectors. Self-collisions are also handled via spatial hashing for linear (NOT quadratic) efficiency, and shaders (like Phong) are used to make our simulations beautiful-looking! Thank you for a great semester, it has been a pleasure working on these guided, insightful projects!!
+</p>
+
+<h2 align="middle">Part I: Masses and springs</h2>
+<p>In Part 1, we created an evenly spaced grid of masses that spanned width and height and had num_width_points by num_height_points masses. We did this by having a for loop over num_height_points and num_width_points, with num_width_points inside to ensure row-major order. The width position was the value in the for loop divided by (num_width_points - 1) * width. The reason for (num_width_points - 1) is because there are that many intervals between points, and that’s what we care about rather than the total number of points. We supported two cloth orientations, vertical and horizontal. The vertical orientation additionally required us to generate a random number between -1/1000 and 1/1000 and set that as the z coordinate, which we did using modulo and the rand() function. We also supported pinning points by putting them into a pinned vector and skipping over pinned points in the simulation code. In addition to masses, we created structural, shear, and bending springs that modeled the constraints between the masses in the cloth. Structural springs connected the point mass to the one on its left and the one above it, shearing to the one to its diagonal upper left and diagonal upper right, and bending to the one two away to its left and two above it. We were able to create point masses and springs on the stack and emplace_back() them.
+</p>
+<p>The main problem we faced in this part was generating the wrong number of points because we were doing a for loop over width and height and thought our increment was correct but it was not. We switched to a for loop over the number of points in each dimension to guarantee we were making the right number of points, and double checked our increment, and that fixed that problem. It also took us a couple tries to nail down the logic for finding the point masses for the springs to connect to, but we were able to troubleshoot visually with the GUI.</p>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="pt1-wireframe.png" width="480px" />
+          <figcaption align="middle">One angle of the wireframe</figcaption>
+      </tr>
+      <tr>
+          <td align="middle">
+          <img src="pt1-wireframe-2.png" width="480px" />
+          <figcaption align="middle">Another angle of the wireframe</figcaption>
+      </tr>
+  </table>
+</div>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="pt1-without-shearing.png" width="480px" />
+          <figcaption align="middle">Without shearing constraints</figcaption>
+      </tr>
+      <tr>
+          <td align="middle">
+          <img src="pt1-only-shearing.png" width="480px" />
+          <figcaption align="middle">Only shearing constraints</figcaption>
+      </tr>
+  </table>
+</div>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="pt1-all-constraints.png" width="480px" />
+          <figcaption align="middle">All constraints</figcaption>
+      </tr>
+  </table>
+</div>
+
+
+
+
+
+
+
+
+<h2 align="middle">Part 2: Simulation via numerical integration</h2>
+<p>In part 2, we coded the Cloth::simulate function in order to produce the motion of the given cloth from one time step to another, where the cloth is represented as a grid of springs. To find the total external force, we created a for loop which iterates through all external accelerations, performing mass * acceleration on each one to accumulate the values in a variable called total_force. Then, we apply this external force to all the point masses using another for loop. Afterwards, in 2.2, we calculate spring forces using Hooke's law (given on the project specification). For a given spring, we use a different Ks depending on its (structural, shearing bending). Moreover, we multiply the magnitude of the spring force with a unit vector which extends from point mass b to a. We scale Ks by 0.2 for bending to make it weaker, and we make sure that one point mass receives the force, and the other point mass receives an equal but opposite force. These forces are accumulated in a point mass's forces variable. In 2.3, we use Verlet integration to compute the position of a point mass at the next time stamp, using the equation provided in the spec. We make sure that we account for damping, and that we update last position to be what was in position before we updated it. 
+</p>
+<p>
+  One bug we encountered was that we were forgetting to multiply the magnitude of the spring force by a unit vector to make it a vector, as before we were incorrectly accumulating only a number. This led to undefined behavior which was very chaotic in regards to motion, which we fixed. 
+</p>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="part2_1.png" width="480px" />
+          <figcaption align="middle">Beginning of simulation with default parameters</figcaption>
+      </tr>
+      <tr>
+          <td align="middle">
+          <img src="part2_2.png" width="480px" />
+          <figcaption align="middle">Middle of simulation with default parameters</figcaption>
+      </tr>
+  </table>
+</div>
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="part2_3.png" width="480px" />
+          <figcaption align="middle">End of simulation with default parameters</figcaption>
+      </tr>
+  </table>
+</div>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="part2_4.png" width="480px" />
+          <figcaption align="middle">High Ks</figcaption>
+      </tr>
+      <tr>
+          <td align="middle">
+          <img src="part2_5.png" width="480px" />
+          <figcaption align="middle">Low Ks</figcaption>
+      </tr>
+  </table>
+</div>
+
+<p>With very low Ks, the cloth behaves extremely flimsy and loose, with far more riples apparent. On the other hand, a higher Ks values allows the cloth to maintain its uniform structure far better (as the spring forces can oppose the forces of gravity and such). Compared to the default parameters, the cloths are either more ripply or less ripply (it provides a good middle ground between strong cloth and weak cloth).
+</p>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="part2_6.png" width="480px" />
+          <figcaption align="middle">Low density</figcaption>
+      </tr>
+      <tr>
+          <td align="middle">
+          <img src="part2_7.png" width="480px" />
+          <figcaption align="middle">High density</figcaption>
+      </tr>
+  </table>
+</div>
+
+<p>With a higher density value, we see that ripples on the cloth are far more localized and minute throughput the simulation. On the contrary, ripples appear wider and more spread out, since there are less point masses/springs present per unit area. The default parameters provide a good mix between wider and more localized ripples compared to the other screenshots. 
+</p>
+
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="part2_8.png" width="480px" />
+          <figcaption align="middle">Low damping factor</figcaption>
+      </tr>
+      <tr>
+          <td align="middle">
+          <img src="part2_9.png" width="480px" />
+          <figcaption align="middle">High damping factor</figcaption>
+      </tr>
+  </table>
+</div>
+
+<p>With a low damping factor, the cloth falls much quicker and even bounces backwards (because the forces are allowed to be uninhibited). On the other hand, with a high damping factor, the cloth falls very slowly, there are less ripples, and the cloth does not bounce. This bouncing back does not occur in the default parameter simulation, but the default simulation moves faster compared to the one with a high damping factor.</p>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="part2_pinned_4.png" width="480px" />
+          <figcaption align="middle">Simulation with 4 pinned points at resting state</figcaption>
+      </tr>
+  </table>
+</div>
+
+
+
+
+
+
+
+
+
+<h2 align="middle">Part 3: Handling collisions with other objects</h2>
+<p>In part 3, we handled collisions and resultant point mass positions due to said collisions. We made sure to update Cloth:simulate to handle follisons, using a for loop to iterate through all collision objects. In 3.1, to collide with a sphere, we check whether the current position was within the sphere's radius (or at it). If it was, a collision occurred, and we calculated the tangent point by creating a unit vector from the origin of the sphere to the current position (direction), multiplying it by the magnitude of radius, and adding the sphere's origin to it (to make sure the vector has the correct starting point, and therefore, ending point). We compute the correction vector by subtracting the tangent point from the mass's last position (how far does the point mass need to travel?), and then updated the mass's position, accounting for the friction factor mentioned in the spec. In 3.2, to handle plane collisions, we check whether the mass went to the other side of the plane using the properties of dot products mentioned in lecture. Then, we compute the tangent point by using the aligned plane equation featured in the ray tracing lecture. We make sure that the correction vector has magnitude surface offset, and update position, according for friction once again.
+</p>
+<p>We had no problems for this part.
+</p>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="part3_1.png" width="480px" />
+          <figcaption align="middle">End of simulation with default parameters</figcaption>
+      </tr>
+      <tr>
+          <td align="middle">
+          <img src="part3_2.png" width="480px" />
+          <figcaption align="middle">End of simulation with 500 N/m Ks</figcaption>
+      </tr>
+  </table>
+</div>
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="part3_3.png" width="480px" />
+          <figcaption align="middle">End of simulation with 50,000 N/m Ks</figcaption>
+      </tr>
+  </table>
+</div>
+
+<p>It appears that as we increase Ks (based on the screenshots), the amount of spread in the cloth increases at rest (or as close to it as possible). This is likely because of the increased spring forces present, not allowing the cloth to fully collapse in on itself.</p>
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="part3_4.png" width="480px" />
+          <figcaption align="middle">Plane collision resting on plane</figcaption>
+      </tr>
+  </table>
+</div>
+
+
+
+
+
+
+
+
+
+<h2 align="middle">Part 4: Handling self-collisions</h2>
+<p>For cloth self-collisions in part 4, we first implemented a hash function which would generate floats in order to map a coordinate to a specific volume. To do so, we calculated w, h, and t as described in the spec, then truncated the given coordinates to integers by performing x/w, y/h, and z/t. To finally create a float to represent the closest volume, we chose 3 large prime numbers, and calculated a linear combination of the calculated values. To construct the hash map, we used a map in C++ which stores a float as the key and a vector as the values. We used common hashmap creations techniques as in data structures. For the self_collide function, we first calculated the hash of the given position, then iterated through all masses in that hash's bucket. We made sure that candidate point masses weren't not equivalent to the given point, and calculated the current correction vector by computing 2*thickness*a unit vector in the direction from the candidate pm to the given pm. We add the candidate PM's position to get the proper starting point for the vector, and subtract the given positon to make sure that the correction vector moves the PM's 2*thickness away from each other. We calculate the AVERAGE correction vector, and only include candidates if they are less than 2*thickness away. 
+</p>
+<p>One bug we ran into was that we were dividing by 0 since we were not checking whether there were any valid PM's when calculating the average correction. To fix this, we set a breakpoint and saw the count value, adding an if statement to handle the case. </p>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="part4_1.png" width="480px" />
+          <figcaption align="middle">Beginning of simulation with default parameters</figcaption>
+      </tr>
+      <tr>
+          <td align="middle">
+          <img src="part4_2.png" width="480px" />
+          <figcaption align="middle">Middle of simulation with default parameters</figcaption>
+      </tr>
+  </table>
+</div>
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="part4_3.png" width="480px" />
+          <figcaption align="middle">End of simulation with default parameters</figcaption>
+      </tr>
+  </table>
+</div>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="part4_4.png" width="480px" />
+          <figcaption align="middle">Low density</figcaption>
+      </tr>
+      <tr>
+          <td align="middle">
+          <img src="part4_5.png" width="480px" />
+          <figcaption align="middle">High density</figcaption>
+      </tr>
+  </table>
+</div>
+
+<p>When I increase the density, I notice that there are far more minute and localized ripples and self-collisions, even at closer to the resting state. The opposite is true for lowering the density: the ripples are far less "localized" and are wider.
+</p>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="part4_6.png" width="480px" />
+          <figcaption align="middle">High Ks</figcaption>
+      </tr>
+      <tr>
+          <td align="middle">
+          <img src="part4_7.png" width="480px" />
+          <figcaption align="middle">Low Ks</figcaption>
+      </tr>
+  </table>
+</div>
+
+<p>When I increase Ks, the movements of the ripples are far more exaggerated compared to lower Ks values, likely due to the increase in magnitude of the spring forces. This is especially true when the cloth is initially falling, as there is a more pronounced prophration effect with a higher Ks.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2 align="middle">Part 5: Shaders</h2>
+<p>A shader program is a program that runs in parallel on a GPU, typically coloring fragments but which can do a wide variety of work. Shaders provide access to and can modify vertices, colors, and textures, which make them very powerful, and of course because they can run in parallel in the GPU, they are very fast. Shader programs are useful because they let you chunk out work from the rendering pipeline and put it on the GPU. Vertex shaders operate on every vertex and usually apply transforms to them, modifying their geometric properties. The output of the vertex shader is provided to the fragment shader, which usually outputs a color for each fragment given the vertex shader’s provided inputs.
+</p>
+<p>The Blinn-Phong shading model combines ambient lighting, which is uniform across the object by virtue of being in the environment, diffuse lighting, which is dispersed equally in all directions, and specular lighting, which describes the bright highlights that appear when light reflects back towards the camera. 
+</p>
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="phong-ambient.png" width="480px" />
+          <figcaption align="middle">Blinn-Phong ambient component</figcaption>
+      </tr>
+      <tr>
+          <td align="middle">
+          <img src="phong-diffuse.png" width="480px" />
+          <figcaption align="middle">Blinn-Phong diffuse component</figcaption>
+      </tr>
+  </table>
+</div>
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="phong-specular.png" width="480px" />
+          <figcaption align="middle">Blinn-Phong specular component</figcaption>
+      </tr>
+      <tr>
+          <td align="middle">
+          <img src="phong-all.png" width="480px" />
+          <figcaption align="middle">Entire Blinn-Phong model</figcaption>
+      </tr>
+  </table>
+</div>
+
+<p>In part 5, we implemented a bunch of shaders in GLSL. For all of the shaders except displacement mapping, we only had to modify a .frag file since we just had to output a color. However, for displacement mapping, we had to output both a color and a new vertex position. 
+</p>
+<p>The first shader we wrote was Diffuse Shading. We first computed the radius squared term, which is the square of the distance between the light position and the vertex position. These two positions are given, so we could just use the built-in distance function on the light position and the truncated vertex position, since it was a vec4. From there, we plugged in the other pieces of the diffuse lighting formula into the equation, with intensity being given, n being given, and l being the vector pointing to the light position from the vertex position (so we subtracted those two vectors). This gave a matte look.
+</p>
+<p>We didn’t have any problems with this shader.</p>
+<p>We then wrote a shader for Blinn-Phong shading. This is a more complicated equation that involves ambient and specular lighting, in addition to the diffuse lighting from the previous part. For this part, we set our constants at the top of the file. In particular, a high p value was necessary to see specular lighting. Ambient lighting is just ka * Ia. For the specular lighting component, we computed the half vector, the bisector between the light vector and the camera vector, normalizing both and normalizing the half vector, and then plug into that equation. We then had ambient and specular lighting, resulting in a pretty realistic look.
+</p>
+<p>We ran into bugs in this part with specular not showing up, but normalizing all vectors that we were dotting and increasing our p value to 100 on the recommendation of the TAs helped.
+</p>
+<p>The third shader was texture mapping. This was very simple; we just had to sample the given texture at the given (u,v) coordinate, and we were given a built-in function to do so. 
+</p>
+<p>We had no problems with this part.
+</p>
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="custom-texture-1.png" width="480px" />
+          <figcaption align="middle">Custom texture before interaction</figcaption>
+      </tr>
+      <tr>
+          <td align="middle">
+          <img src="custom-texture-2.png" width="480px" />
+          <figcaption align="middle">Custom texture with interaction</figcaption>
+      </tr>
+  </table>
+</div>
+<p>The part 4 shaders were bump and displacement mapping. For bump mapping, we just modified Bump.frag. The normal vector n and tangent vector t were given, and we computed the bitangent b as b = cross(n, t). We then put these vectors inside a TBN matrix which lets us convert a vector in object space to model space. Next, we computed dU and dV by letting h(u, v) sample the given texture at the given (u, v) coordinate and return the r component of the color. Then, dU is (h(u + 1/w, v) - h(u, v)) * kh * kn and dV is (h(u, v + 1/h) - h(u, v)) * kh * kn, where kh and kn are given constants and w and h are the width and height of our texture map. From this, we get the local space normal, (-dU, -dV, 1), and convert to model space by applying the TBN matrix to this. We then copied the Phong shader code over and substituted this displaced normal vector in all places we used v_normal. This created the appearance of bumps.
+</p>
+<p>We didn’t have any problems with this part in our code; we just thought our bumps weren’t appearing because we hadn’t adjusted the normal and height parameters in the simulation to match the screenshots on the spec.
+</p>
+<p>For displacement mapping, we copied over our code from the bump shader into Displacement.frag. We had to also modify Displacement.vert to displace the vertex positions. We added the following to the original vertex position to get the new position: u_model * in_normal * h(in_uv) * u_height_scaling. We also had to modify gl_Position to use our new vertex position in its calculation. Then, the vertices were displaced in addition to the appearance of bumps.
+</p>
+<p>We ran into problems with how to modify gl_Position, but we found in office hours that we were applying the object-space-to-model-space matrix on the vertex position when it was already in model space, so we removed that and fixed our problems.
+</p>
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="bump-cloth-and-sphere.png" width="480px" />
+          <figcaption align="middle">Bump mapping on cloth and sphere</figcaption>
+      </tr>
+      <tr>
+          <td align="middle">
+          <img src="bump-interaction.png" width="480px" />
+          <figcaption align="middle">Bump mapping with interaction</figcaption>
+      </tr>
+  </table>
+</div>
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="displacement-cloth-and-sphere.png" width="480px" />
+          <figcaption align="middle">Displacement mapping on cloth and sphere</figcaption>
+      </tr>
+      <tr>
+          <td align="middle">
+          <img src="displacement-interaction.png" width="480px" />
+          <figcaption align="middle">Displacement mapping with interaction</figcaption>
+      </tr>
+  </table>
+</div>
+<p>The approaches of displacement mapping and bump mapping are very similar. Displacement mapping just goes a step further and, in addition to mapping a bumpy texture onto an object, also modifies the vertex positions to physically create bumpiness. We can see that the displacement mapping render looks more realistic since the bumps are actually there.</p>
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="bump-16.png" width="480px" />
+          <figcaption align="middle">Bump mapping with coarse sphere</figcaption>
+      </tr>
+      <tr>
+          <td align="middle">
+          <img src="bump-128.png" width="480px" />
+          <figcaption align="middle">Bump mapping with fine sphere</figcaption>
+      </tr>
+  </table>
+</div>
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="displacement-16.png" width="480px" />
+          <figcaption align="middle">Displacement mapping with coarse sphere</figcaption>
+      </tr>
+      <tr>
+          <td align="middle">
+          <img src="displacement-128.png" width="480px" />
+          <figcaption align="middle">Displacement mapping with fine sphere</figcaption>
+      </tr>
+  </table>
+</div>
+<p>The coarseness of the sphere does not affect the bump mapping much since the cloth is fully draped around the sphere so the texture is the same regardless of the coarseness. However, in the displacement mapping case, we noticed that the vertices of the sphere were more apparent and seemed to poke through the cloth, which could be caused by the vertex positions changing more drastically with a coarser sphere.</p>
+<p>The last shader was Environment-mapped Reflections. In this part, we found the camera vector and reflected it over the normal vector using the perfect specular reflection equation from the Material Modeling lecture slides. Then, we sampled the given texture looking down at the reflected vector direction using a given function. This resulted in a look that reflected the environment.
+</p>
+<p>We had no problems in this part.</p>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td align="middle">
+          <img src="mirror-1.png" width="480px" />
+          <figcaption align="middle">Mirror shader on cloth and sphere</figcaption>
+      </tr>
+      <tr>
+          <td align="middle">
+          <img src="mirror-2.png" width="480px" />
+          <figcaption align="middle">Mirror shader with interaction</figcaption>
+      </tr>
+  </table>
+</div>
+
+
+
+</body>
+</html>
