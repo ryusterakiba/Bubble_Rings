@@ -104,7 +104,7 @@ def resample(pos,a, N):
     return pos_new,a_new
 
 #Tangential flow (want to input all positions i guess)
-def bergers_flow(pos,C,a,dt):
+def burgers_flow(pos,C,a,dt):
     edges = pos[1:] - pos[:-1]
     N     = edges.shape[0]
     ds    = np.array([np.linalg.norm(edges[i,:]) for i in range(N)])
@@ -224,8 +224,8 @@ for t in range(nt):
     
     frame.append(np.copy(pos))
     
-    #Bergers thickness flow
-    a[:N] = bergers_flow(pos,C,a,dt)
+    #Burgers thickness flow
+    a[:N] = burgers_flow(pos,C,a,dt)
     a[N]  = a[0]
     
 #%%
@@ -235,3 +235,5 @@ ax = plt.axes(projection='3d')
 for t in range(nt+1):
     if t%10 == 0:
         plt.plot(frame[t][:,0],frame[t][:,1],frame[t][:,2])
+        
+plt.savefig("bubble_ring_py.png",dpi=300)
