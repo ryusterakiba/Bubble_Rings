@@ -163,7 +163,7 @@ def bergers_flow(pos,C,a,dt):
 
 #%%
 # make vertices
-N    = 40
+N    = 20
 nt   = 30
 theta= np.linspace(0,2*np.pi,N+1)
 z_pos= np.random.rand(N) * 0.0
