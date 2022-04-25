@@ -140,26 +140,33 @@ def bergers_flow(pos,C,a,dt):
     
     M    = sp.diags(ds)
     st   = sp.diags(ds_ave**-1 * C[:N]**2)
-    L    = -graph.T.dot(st.dot(graph)) #basically -2 main diagonal, 1 off diagonal, 1 corners
+    L    = -graph.transpose().dot(st.dot(graph)) #basically -2 main diagonal, 1 off diagonal, 1 corners
     coef = 1 / (64*np.pi**2)
     nudt = nu / dt
     
     #Divided by dt, flux = phi * nu
     LHS  = nudt * M - 0.5 * coef * L
-    RHS  = nudt * M.dot(areas[:N]) + graph.T.dot(flux)
+    RHS  = nudt * M.dot(areas[:N]) + graph.transpose().dot(flux)
     scl  = 1 / np.linalg.norm(RHS)
-    sol  = np.linalg.solve(LHS,RHS*scl)
+    # sol  = np.linalg.solve(LHS,RHS*scl)
+    sol,info = la.cg(LHS,RHS*scl)
+    if info != 0:
+        print("oh no", info)
     sol  = sol/scl
     
-    return np.sqrt(sol/np.pi)
+    if any(sol < 0):
+        print("negative encountered")
+        return np.sqrt(np.abs(sol/np.pi))
+    else:
+        return np.sqrt(sol/np.pi)
     
 
 #%%
 # make vertices
-N    = 10
-nt   = 50
+N    = 40
+nt   = 30
 theta= np.linspace(0,2*np.pi,N+1)
-z_pos= np.random.rand(N) * 0.01
+z_pos= np.random.rand(N) * 0.0
 z_pos= np.hstack((z_pos,z_pos[0]))
 pos  = np.array([np.cos(theta),np.sin(theta),z_pos]).T #first vertex repeat at end
 pos2 = np.vstack((pos[-2,:],pos)) #has one vertex before start
