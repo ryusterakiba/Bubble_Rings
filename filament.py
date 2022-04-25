@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 import scipy.sparse as sp
+import scipy.sparse.linalg as la
 
 #%%
 muRM = np.exp(-0.75)
@@ -110,10 +111,10 @@ def bergers_flow(pos,C,a,dt):
     T     = np.array([edges[i,:] / ds[i] for i in range(N)])
     areas = np.pi * a**2
     
-    #Compute Flux Eq 25
+    #Compute Flux Eq 25 (phi * nu)
     flux  = np.zeros(N)
     grav  = np.array([np.dot(At * g, T[i]) for i in range(N)])
-    coeff = 1 / (8 * np.pi * nu)
+    coeff = 1 / (8 * np.pi)
     
     #some padding so indexing works out
     ds_pad   = np.hstack((ds[-1],ds))
@@ -126,40 +127,39 @@ def bergers_flow(pos,C,a,dt):
         nex = grav_pad[i+1] * area_pad[i+1]
         
         if pre > max(0,-nex):
-            flux[i] = coeff * grav_pad[i] * area_pad[i]
+            flux[i] = coeff * grav_pad[i] * area_pad[i]**2
         elif nex < min(0,-pre):
-            flux[i] = coeff * grav_pad[i+1] * area_pad[i+1]
+            flux[i] = coeff * grav_pad[i+1] * area_pad[i+1]**2
         else:
             flux[i] = 0
         
-    #Implicit Euler needed
-    N   = 5
-    idx = np.arange(N)
-    nex = np.append(idx[1:],0)
-    row = np.append(idx,idx)
-    col = np.append(idx,nex)
-    val = np.append(-np.ones(N),np.ones(N))
-    d   = sp.csr_matrix((val,(row,col)),(N,N)).toarray()
+    #Implicit Euler (Probably have to change to sparse matrices to keep numerical stability)    
+    graph = np.diag(-np.ones(N),0) + np.diag(np.ones(N-1),1)
+    graph[-1,0] = 1
+    graph = sp.csr_matrix(graph)
     
-    star1 = np.diag(ds_ave[:N]**-1 * np.ones(N))
-    star0 = np.diag(ds[:N])
-    
-    L = np.dot(-d.T,star1.dot(d))
-    
+    M    = sp.diags(ds)
+    st   = sp.diags(ds_ave**-1 * C[:N]**2)
+    L    = -graph.T.dot(st.dot(graph)) #basically -2 main diagonal, 1 off diagonal, 1 corners
     coef = 1 / (64*np.pi**2)
     nudt = nu / dt
     
-    LHS = nudt * star0 - 0.5 * coef * L
-    RHS = nudt * star0.dot(areas[:N])
+    #Divided by dt, flux = phi * nu
+    LHS  = nudt * M - 0.5 * coef * L
+    RHS  = nudt * M.dot(areas[:N]) + graph.T.dot(flux)
+    scl  = 1 / np.linalg.norm(RHS)
+    sol  = np.linalg.solve(LHS,RHS*scl)
+    sol  = sol/scl
     
-    np.linalg.solve()
+    return np.sqrt(sol/np.pi)
+    
 
 #%%
 # make vertices
-N    = 20
+N    = 10
 nt   = 50
 theta= np.linspace(0,2*np.pi,N+1)
-z_pos= np.random.rand(N) * 0.02
+z_pos= np.random.rand(N) * 0.01
 z_pos= np.hstack((z_pos,z_pos[0]))
 pos  = np.array([np.cos(theta),np.sin(theta),z_pos]).T #first vertex repeat at end
 pos2 = np.vstack((pos[-2,:],pos)) #has one vertex before start
@@ -216,6 +216,11 @@ for t in range(nt):
     pos[N,:]   = pos[0,:]
     
     frame.append(np.copy(pos))
+    
+    #Bergers thickness flow
+    a[:N] = bergers_flow(pos,C,a,dt)
+    a[N]  = a[0]
+    
 #%%
 fig = plt.figure(figsize = (10,10))
 ax = plt.axes(projection='3d')
