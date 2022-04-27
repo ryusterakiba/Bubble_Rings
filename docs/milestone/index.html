@@ -193,7 +193,35 @@
             The method of using sparse matrices was taken from the paper provided Houdini code. However,
             there seems to be numerical issues when using many vertices for the filament which still needs to be resolved.
         </p>
+    
+        <h2 align="left">2: Simulation and Shading</h2>
+        <h3 align="left">2.1: Simulation</h3>
+        <p>
+            We are using Project 4: Cloth Sim as our starting point for the final project, since it implements a simulation that
+            already incorporates point masses and springs which act between the point masses. We have modified the <code>Cloth</code> 
+            class to a <code>Filament</code> class (aka a bubble ring) whose shape is defined by a vector of <code>Edges</code> and has a
+            <code>circulation</code> field, which is important for the velocity computations described above. We also have modified the
+            <code>Spring</code> class to an <code>Edge</code> class, which represents a segment of the bubble ring and has a thickness 
+            associated with it which is again used in the velocity computations above. Also, the <code>Spring</code> class no longer
+            applies forces to the point masses (stiffness is 0) because we are computing the forces through the above equations, so the
+            functionality is solely as an edge. Finally, we have added a <code>thickness</code> field to the <code>PointMass</code> class
+            as well, which is defined as the average of the <code>thickness</code>es of the two adjacent edges.
+        </p>
+        <h3 align="left">2.2: Shading</h3>
+        <p>
+            Shading is an ongoing investigation. We are going to implement a new shading technique as we did in Project 4 to attempt to
+            photorealistically render the bubble ring during simulation. One approach we have seen is compounding displacement mapping with
+            a sinusoidal time-dependent function to create ripples on the object, as if the object was submerged underwater with waves
+            above it.
+        </p>
 
+        <h2 align="left">2: Reflection</h2>
+        <p>
+            Our progess so far has aligned with our schedule. We have looked into the paper we are implementing, found Project 4 as a
+            starting point and modified its objects to support our work, and have a working demo of the simulation of a bubble ring over time,
+            for now in Python. We are getting close to a working simulation in C++, and from there we will create and apply a shader for
+            photorealistic simulation. Finally, if we have time, we will implement bubble ring collision.
+        </p>
     </div>
 </body>
 

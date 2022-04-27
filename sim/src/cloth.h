@@ -43,8 +43,7 @@ struct ClothParameters {
 
 struct Cloth {
   Cloth() {}
-  Cloth(double width, double height, int num_width_points,
-        int num_height_points, float thickness);
+  Cloth(int num_vertices, double initial_ring_radius);
   ~Cloth();
 
   void buildGrid();
@@ -63,15 +62,16 @@ struct Cloth {
   // Cloth properties
   double width;
   double height;
+  double circulation; //NEW
   int num_width_points;
   int num_height_points;
-  double thickness;
+  int num_vertices; //NEW
   e_orientation orientation;
 
   // Cloth components
   vector<PointMass> point_masses;
   vector<vector<int>> pinned;
-  vector<Spring> springs;
+  vector<Spring> springs; //vector of edges
   ClothMesh *clothMesh;
 
   // Spatial hashing
