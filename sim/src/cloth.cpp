@@ -9,13 +9,9 @@
 
 using namespace std;
 
-Cloth::Cloth(double width, double height, int num_width_points,
-             int num_height_points, float thickness) {
-  this->width = width;
-  this->height = height;
-  this->num_width_points = num_width_points;
-  this->num_height_points = num_height_points;
-  this->thickness = thickness;
+Cloth::Cloth(int num_vertices, double initial_ring_radius) {
+  this->num_vertices = num_vertices;
+  this->initial_ring_radius = initial_ring_radius;
 
   buildGrid();
   buildClothMesh();
@@ -37,81 +33,25 @@ void Cloth::buildGrid() {
     // point masses
     //for (double a = 0.; a <= this->width; a+= this->width / (double(num_width_points) - 1)) {
       //  for (double b = 0.; b <= this->height; b+= this->height / (double(num_height_points) - 1)) {
-    int count = 0;
-    for (int y = 0; y < this->num_height_points; y += 1) {
-        for (int x = 0; x < this->num_width_points; x += 1) {
-            Vector3D position;
-            double a = double(x) / double(this->num_width_points - 1) * double(this->width);
-            double b = double(y) / double(this->num_height_points - 1) * double(this->height);
-            if (orientation == HORIZONTAL) {
-                position.y = 1.;
-                position.x = a;
-                position.z = b;
-            } else {
-                float random = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(2.0)));
-                position.z = random / 1000.;
-                position.x = a;
-                position.y = b;
-            }
-            bool found = false;
-            for (auto vec : pinned) {
-                if (vec[0] == x && vec[1] == y) {
-                    PointMass pm = PointMass(position, true);
-                    point_masses.emplace_back(pm);
-                    found = true;
-                    break;
-                }
-            }
-            if (found == false) {
-                PointMass pm = PointMass(position, false);
-                point_masses.emplace_back(pm);
-            }
-            count += 1;
-           
-        }
+    double angle = 2 * PI / num_vertices;
+    for (int i = 0; i < num_vertices; i++) {
+        Vector3D position;
+        position.x = initial_ring_radius * cos(angle * i);
+        position.z = initial_ring_radius * sin(angle * i);
+        position.y = 0;
+        PointMass pm = PointMass(position, false);
+        point_masses.emplace_back(pm);
     }
     
     // constraints
     int point_index = 0;
-    for (PointMass& pm : this->point_masses) {
+    Spring left_spring = Spring(&(this->point_masses[point_masses.size() - 1]), &(this->point_masses[0]), STRUCTURAL);
+    springs.emplace_back(left_spring);
+    
+    while (point_index < num_vertices - 1) {
         // make structural constraints
-        
-        if (point_index % num_width_points != 0) {
-            Spring left_spring = Spring(&(this->point_masses[point_index]), &(this->point_masses[point_index - 1]), STRUCTURAL);
-            springs.emplace_back(left_spring);
-        }
-        
-        if (point_index >= num_width_points) {
-            Spring up_spring = Spring(&(this->point_masses[point_index]), &(this->point_masses[point_index - num_width_points]), STRUCTURAL);
-            springs.emplace_back(up_spring);
-        }
-
-            
-        // make shearing constraints
-            
-        if (point_index % num_width_points > 0 && point_index >= num_width_points) {
-            Spring diag_left_spring = Spring(&(this->point_masses[point_index]), &(this->point_masses[point_index - num_width_points - 1]), SHEARING);
-            springs.emplace_back(diag_left_spring);
-        }
-            
-        if (point_index % num_width_points < (num_width_points - 1) && point_index >= num_width_points) {
-            Spring diag_right_spring = Spring(&(this->point_masses[point_index]), &(this->point_masses[point_index - num_width_points + 1]), SHEARING);
-            springs.emplace_back(diag_right_spring);
-        }
-        
-        
-        // make bending constraints
-        
-        if (point_index % num_width_points >= 2) {
-            Spring two_left_spring = Spring(&(this->point_masses[point_index]), &(this->point_masses[point_index - 2]), BENDING);
-            springs.emplace_back(two_left_spring);
-        }
-        
-        if (point_index >= 2 * num_width_points) {
-            Spring two_up_spring = Spring(&(this->point_masses[point_index]), &(this->point_masses[point_index - 2 * num_width_points]), BENDING);
-            springs.emplace_back(two_up_spring);
-        }
-        point_index += 1;
+        left_spring = Spring(&(this->point_masses[point_index]), &(this->point_masses[point_index + 1]), STRUCTURAL);
+        springs.emplace_back(left_spring);
     }
 }
 
@@ -231,26 +171,6 @@ void Cloth::build_spatial_map() {
 
 void Cloth::self_collide(PointMass &pm, double simulation_steps) {
   // TODO (Part 4): Handle self-collision for a given point mass.
-    float hash = hash_position(pm.position);
-    Vector3D average_correction = Vector3D(0., 0., 0.);
-    int count = 0;
-    vector<PointMass*> *bucket = map[hash];
-    
-    for (auto candidate_pm : *bucket) {
-        if (candidate_pm != &pm) {
-            double distance = (pm.position - candidate_pm->position).norm();
-            if (distance < (2 * thickness)) {
-                count += 1;
-                Vector3D correction_vector = 2 * thickness * (pm.position - candidate_pm->position).unit() - (pm.position - candidate_pm->position);
-//                printf("%f %f %f \n", pm.position.x, pm.position.y, pm.position.z);
-                average_correction += correction_vector;
-            }
-        }
-    }
-    if (count != 0) {
-        average_correction = average_correction / count;
-        pm.position = pm.position + average_correction / simulation_steps;
-    }
 
 }
 

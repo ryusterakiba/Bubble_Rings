@@ -64,8 +64,9 @@ struct Cloth {
   double height;
   double circulation; //NEW
   int num_width_points;
-  int num_height_points;
+  double initial_ring_radius; //NEW
   int num_vertices; //NEW
+  int num_height_points;
   e_orientation orientation;
 
   // Cloth components
