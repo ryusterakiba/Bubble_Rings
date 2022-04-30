@@ -15,6 +15,10 @@ struct PointMass {
       : pinned(pinned), start_position(position), position(position),
         last_position(position) {}
 
+    PointMass(Vector3D position, bool pinned, double thickness)
+        : pinned(pinned), start_position(position), position(position),
+          last_position(position), thickness(thickness) {}
+
   Vector3D normal();
   Vector3D velocity(double delta_t) {
     return (position - last_position) / delta_t;
@@ -28,8 +32,8 @@ struct PointMass {
   Vector3D position;
   Vector3D last_position;
   Vector3D forces;
-  double thickness;
 
+  double thickness;
   // mesh reference
   Halfedge *halfedge;
 };

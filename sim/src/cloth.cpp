@@ -10,8 +10,8 @@
 using namespace std;
 
 Cloth::Cloth(int num_vertices, double initial_ring_radius) {
-  this->num_vertices = num_vertices;
-  this->initial_ring_radius = initial_ring_radius;
+   this->num_vertices = num_vertices;
+   this->initial_ring_radius = initial_ring_radius;
 
   buildGrid();
   buildClothMesh();
@@ -39,19 +39,38 @@ void Cloth::buildGrid() {
         position.x = initial_ring_radius * cos(angle * i);
         position.z = initial_ring_radius * sin(angle * i);
         position.y = 0;
-        PointMass pm = PointMass(position, false);
+        PointMass pm = PointMass(position, false, 0.2);
         point_masses.emplace_back(pm);
+        
+        // make a circle around the pointmass
+        double new_angle = 2 * PI / num_vertices;
+        for (int j = 0; j < num_vertices; j++) {
+            Vector3D position;
+            position.y = pm.thickness / 2 * sin(new_angle * j);
+            position.x = pm.thickness / 2 * sin(new_angle * j) * cos(angle * i);
+            position.y = pm.thickness / 2 * sin(new_angle * j) * sin(angle * i);
+            PointMass new_pm = PointMass(position, false, 0.0);
+            point_masses.emplace_back(new_pm);
+        }
+        int point_index = 0;
+        Spring left_spring = Spring(&(this->point_masses[point_masses.size() - 1]), &(this->point_masses[point_masses.size() - num_vertices]), STRUCTURAL);
+        springs.emplace_back(left_spring);
+        while (point_index < num_vertices - 1) {
+            left_spring = Spring(&(this->point_masses[point_masses.size() - num_vertices + point_index]), &(this->point_masses[point_masses.size() - num_vertices + point_index + 1]), STRUCTURAL);
+            springs.emplace_back(left_spring);
+            point_index += 1;
+        }
     }
     
-    // constraints
     int point_index = 0;
-    Spring left_spring = Spring(&(this->point_masses[point_masses.size() - 1]), &(this->point_masses[0]), STRUCTURAL);
-    springs.emplace_back(left_spring);
     
+    Spring left_spring = Spring(&(this->point_masses[point_masses.size() - num_vertices - 1]), &(this->point_masses[0]), STRUCTURAL);
+    springs.emplace_back(left_spring);
+
     while (point_index < num_vertices - 1) {
-        // make structural constraints
-        left_spring = Spring(&(this->point_masses[point_index]), &(this->point_masses[point_index + 1]), STRUCTURAL);
+        left_spring = Spring(&(this->point_masses[point_index * (num_vertices + 1)]), &(this->point_masses[(point_index + 1) * (num_vertices + 1)]), STRUCTURAL);
         springs.emplace_back(left_spring);
+        point_index += 1;
     }
 }
 
@@ -171,6 +190,26 @@ void Cloth::build_spatial_map() {
 
 void Cloth::self_collide(PointMass &pm, double simulation_steps) {
   // TODO (Part 4): Handle self-collision for a given point mass.
+    float hash = hash_position(pm.position);
+    Vector3D average_correction = Vector3D(0., 0., 0.);
+    int count = 0;
+    vector<PointMass*> *bucket = map[hash];
+    
+    for (auto candidate_pm : *bucket) {
+        if (candidate_pm != &pm) {
+            double distance = (pm.position - candidate_pm->position).norm();
+            if (distance < (2 * thickness)) {
+                count += 1;
+                Vector3D correction_vector = 2 * thickness * (pm.position - candidate_pm->position).unit() - (pm.position - candidate_pm->position);
+//                printf("%f %f %f \n", pm.position.x, pm.position.y, pm.position.z);
+                average_correction += correction_vector;
+            }
+        }
+    }
+    if (count != 0) {
+        average_correction = average_correction / count;
+        pm.position = pm.position + average_correction / simulation_steps;
+    }
 
 }
 
@@ -205,6 +244,8 @@ void Cloth::buildClothMesh() {
 
   ClothMesh *clothMesh = new ClothMesh();
   vector<Triangle *> triangles;
+    
+  //
 
   // Create vector of triangles
   for (int y = 0; y < num_height_points - 1; y++) {

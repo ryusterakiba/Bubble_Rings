@@ -185,24 +185,33 @@ bool loadObjectsFromFile(string filename, Cloth *cloth, ClothParameters *cp, vec
       double width, height;
       int num_width_points, num_height_points;
       float thickness;
-        int num_vertices;
-        double initial_ring_radius;
+      int num_vertices;
+      double circulation;
+      double initial_ring_radius;
       e_orientation orientation;
       vector<vector<int>> pinned;
 
         auto it_num_vertices = object.find("num_vertices");
         if (it_num_vertices != object.end()) {
-          num_vertices = *it_num_vertices;
+            num_vertices = *it_num_vertices;
         } else {
-          incompleteObjectError("cloth", "num_vertices");
+            incompleteObjectError("cloth", "num_vertices");
         }
-        
+
         auto it_ring_radius = object.find("initial_ring_radius");
         if (it_ring_radius != object.end()) {
-          initial_ring_radius = *it_ring_radius;
+            initial_ring_radius = *it_ring_radius;
         } else {
-          incompleteObjectError("cloth", "initial_ring_radius");
+            incompleteObjectError("cloth", "initial_ring_radius");
         }
+        
+        auto it_circulation = object.find("circulation");
+        if (it_circulation != object.end()) {
+            circulation = *it_circulation;
+        } else {
+            incompleteObjectError("cloth", "circulation");
+        }
+
         
       auto it_width = object.find("width");
       if (it_width != object.end()) {
@@ -255,13 +264,15 @@ bool loadObjectsFromFile(string filename, Cloth *cloth, ClothParameters *cp, vec
         }
       }
 
-      cloth->num_vertices = num_vertices;
-      cloth->initial_ring_radius = initial_ring_radius;
       cloth->width = width;
       cloth->height = height;
       cloth->num_width_points = num_width_points;
       cloth->num_height_points = num_height_points;
+      cloth->thickness = thickness;
       cloth->orientation = orientation;
+      cloth->num_vertices = num_vertices;
+      cloth->initial_ring_radius = initial_ring_radius;
+      cloth->circulation = circulation;
       cloth->pinned = pinned;
 
       // Cloth parameters

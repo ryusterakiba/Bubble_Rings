@@ -27,6 +27,7 @@ struct Spring {
 
   PointMass *pm_a;
   PointMass *pm_b;
+  double thickness;
 }; // struct Spring
 }
 #endif /* SPRING_H */

@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "3B0DFAB3D153453C80C00C8A"
+               BlueprintIdentifier = "F9DA07B6DD624708B0D0BD62"
                BuildableName = "ALL_BUILD"
                BlueprintName = "ALL_BUILD"
                ReferencedContainer = "container:xcode/ClothSim.xcodeproj">
@@ -45,7 +45,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "5FA0071CE47C446AA2B16643"
+            BlueprintIdentifier = "17BA1AED811F41E39D15EEA3"
             BuildableName = "clothsim"
             BlueprintName = "clothsim"
             ReferencedContainer = "container:xcode/ClothSim.xcodeproj">
@@ -67,7 +67,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "3B0DFAB3D153453C80C00C8A"
+            BlueprintIdentifier = "F9DA07B6DD624708B0D0BD62"
             BuildableName = "ALL_BUILD"
             BlueprintName = "ALL_BUILD"
             ReferencedContainer = "container:xcode/ClothSim.xcodeproj">

@@ -30,6 +30,7 @@ void main() {
     vec3 v = normalize(u_cam_pos - v_position.xyz);
     vec3 h = (l + v) / length(l + v);
     vec4 out_color_specular = ks * vec4(u_light_intensity, 0.0) / radius_squared *vec4(1.0, 1.0, 1.0, 1.0) * pow(max(0.0, dot(normalize(v_normal.xyz), h)), p);
+    //out_color = out_color_ambient + out_color_diffuse + out_color_specular;
     out_color = out_color_ambient + out_color_diffuse + out_color_specular;
     out_color.a = 1;
 }
