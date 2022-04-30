@@ -82,26 +82,37 @@ def velocity(pos,N,C,a):
 
 def modify_thickness(pos_old,pos_new,a,N):
     #Modify thickness over edges
+    vol0 = 0
+    vol1 = 0
     for p in range(N):
         l_old = np.linalg.norm(pos_old[p+1] - pos_old[p])
-        l_new = np.linalg.norm(pos_new[p+1] - pos_new[p])  
+        l_new = np.linalg.norm(pos_new[p+1] - pos_new[p])
         a[p] = a[p] * np.sqrt(l_old / l_new)
     a[-1] = a[0]
     return a
 
 #Resampling
-def resample(pos,a, N):
+def resample(pos,a,C,mind):
     # edge length and volume (cylinder)
     # interpolate curve
     edges = pos[1:] - pos[:-1]
-    d = np.insert(np.cumsum([np.linalg.norm(edges[i,:]) for i in range(edges.shape[0])]),0,0)
-    spaced = np.linspace(0,d.max(),N)
+    d     = np.insert(np.cumsum([np.linalg.norm(edges[i,:]) for i in range(edges.shape[0])]),0,0)
+    ds    = np.array([np.linalg.norm(edges[i,:]) for i in range(N)])
+    # vol0  = np.dot(ds,a[:-1]**2)
     
+    newN  = int(d.max() // mind)
+    spaced= np.linspace(0,d.max(),newN)
     #Interpolate
     pos_new = np.vstack((np.interp(spaced,d, pos[:,0]),np.interp(spaced,d, pos[:,1]),np.interp(spaced,d, pos[:,2]))).T
-    a_new = np.interp(spaced,d,a)
+    a_new = np.sqrt(np.interp(spaced,d,a**2))
+    C_new = np.interp(spaced,d,C)
     
-    return pos_new,a_new
+    edges_new = pos_new[1:] - pos_new[:-1]
+    ds_new    = np.array([np.linalg.norm(edges_new[i,:]) for i in range(edges_new.shape[0])])
+    # vol1      = np.dot(ds_new,a_new[:-1]**2)
+    # print(vol0,vol1)
+    
+    return pos_new,a_new,C_new,newN - 1
 
 #Tangential flow (want to input all positions i guess)
 def burgers_flow(pos,C,a,dt):
@@ -152,7 +163,9 @@ def burgers_flow(pos,C,a,dt):
     sol,info = la.cg(LHS,RHS*scl)
     if info != 0:
         print("oh no", info)
+        
     sol  = sol/scl
+
     
     if any(sol < 0):
         print("negative encountered")
@@ -160,23 +173,30 @@ def burgers_flow(pos,C,a,dt):
     else:
         return np.sqrt(sol/np.pi)
     
-
+def volume(pos,a):
+    edges = pos[1:] - pos[:-1]
+    ds    = np.array([np.linalg.norm(edges[i,:]) for i in range(edges.shape[0])])
+    vol   = np.dot(ds,a[:-1]**2) * np.pi
+    return vol
 #%%
 # make vertices
 N    = 20
-nt   = 30
+nt   = 40
+R    = 0.5
 theta= np.linspace(0,2*np.pi,N+1)
 z_pos= np.random.rand(N) * 0.0
 z_pos= np.hstack((z_pos,z_pos[0]))
-pos  = np.array([np.cos(theta),np.sin(theta),z_pos]).T #first vertex repeat at end
+pos  = np.array([R*np.cos(theta),R*np.sin(theta),z_pos]).T #first vertex repeat at end
 pos2 = np.vstack((pos[-2,:],pos)) #has one vertex before start
 C    = np.ones(N+1) #edges, repeat for first edge
-a    = 0.2*np.ones(N+1) #edges, repeat for first edge
-dt   = 0.1
-
+a    = 0.1*np.ones(N+1) #edges, repeat for first edge
+dt   = 0.05
+mind = R * theta[1]
+vol0 = volume(pos,a)
 #%% 
 
 frame = [np.copy(pos)]
+frame_a = [np.copy(a)]
 for t in range(nt):
     #Runge Kutta https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods
     # pos_new = pos_old + 1/6 * dt * (k1 + 2k2 + 2k3 + k4)
@@ -184,7 +204,7 @@ for t in range(nt):
     # k2 = vel(t + dt/2,pos_old + dt/2 * k1)
     # k3 = vel(t + dt/2,pos_old + dt/2 * k2)
     # k4 = vel(t + dt  ,pos_old + dt * k3)
-    
+
     pos_RK = np.copy(pos)
     
     #Step 1
@@ -199,7 +219,7 @@ for t in range(nt):
     a = modify_thickness(pos_old,pos_RK,a,N) #Modify thickness over edges
     point_vel = velocity(pos_RK,N,C,a)
     K2        = dt * point_vel
-    
+        
     #Step 3
     pos_old       = np.copy(pos_RK)
     pos_RK[:N,:] += 0.5 * K2
@@ -222,11 +242,19 @@ for t in range(nt):
     pos[:N,:] += (K1 + 2*K2 + 2*K3 + K4)/6
     pos[N,:]   = pos[0,:]
     
-    frame.append(np.copy(pos))
+    #Make sure volume stays same
+    vol1 = volume(pos,a)
+    a    = a * np.sqrt(vol0/vol1)
     
+    #Resample
+    pos, a, C, N = resample(pos,a,C,mind)
+
     #Burgers thickness flow
     a[:N] = burgers_flow(pos,C,a,dt)
     a[N]  = a[0]
+
+    frame.append(np.copy(pos))
+    frame_a.append(np.copy(a))
     
 #%%
 fig = plt.figure(figsize = (10,10))
@@ -235,5 +263,7 @@ ax = plt.axes(projection='3d')
 for t in range(nt+1):
     if t%10 == 0:
         plt.plot(frame[t][:,0],frame[t][:,1],frame[t][:,2])
+        ax.scatter(frame[t][:,0],frame[t][:,1],frame[t][:,2],s = frame_a[t]*1000)
         
-plt.savefig("bubble_ring_py.png",dpi=300)
+        
+# plt.savefig("bubble_ring_py.png",dpi=300)
