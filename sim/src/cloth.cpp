@@ -10,8 +10,8 @@
 using namespace std;
 
 Cloth::Cloth(int num_vertices, double initial_ring_radius) {
-   this->num_vertices = num_vertices;
-   this->initial_ring_radius = initial_ring_radius;
+  this->num_vertices = num_vertices;
+  this->initial_ring_radius = initial_ring_radius;
 
   buildGrid();
   buildClothMesh();
@@ -77,93 +77,68 @@ void Cloth::buildGrid() {
 void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParameters *cp,
                      vector<Vector3D> external_accelerations,
                      vector<CollisionObject *> *collision_objects) {
-  double mass = width * height * cp->density / num_width_points / num_height_points;
+  // This function performs 1 timestep of Runge Kutta
   double delta_t = 1.0f / frames_per_sec / simulation_steps;
+  // TODO: fill this in
+}
 
-  // TODO (Part 2): Compute total force acting on each point mass.
-    int i = 0;
-    Vector3D total_force = Vector3D(0., 0., 0.);
-    for (Vector3D accel : external_accelerations) {
-        total_force += accel * mass;
-    }
-    for (PointMass &pm : this->point_masses) {
-        pm.forces = total_force;
-    }
-    
-    for (Spring &spring : this->springs) {
-        double spring_force;
-        if (spring.spring_type == STRUCTURAL) {
-            if (cp->enable_structural_constraints) {
-                double position_diff_norm = (spring.pm_a->position - spring.pm_b->position).norm();
-                spring_force = cp->ks * (position_diff_norm - spring.rest_length);
-            }
-        }
-        if (spring.spring_type == SHEARING) {
-            if (cp->enable_shearing_constraints) {
-                double position_diff_norm = (spring.pm_a->position - spring.pm_b->position).norm();
-                spring_force = cp->ks * (position_diff_norm - spring.rest_length);
-            }
-        }
-        if (spring.spring_type == BENDING) {
-            if (cp->enable_bending_constraints) {
-                double position_diff_norm = (spring.pm_a->position - spring.pm_b->position).norm();
-                spring_force = 0.2 * cp->ks * (position_diff_norm - spring.rest_length);
-            }
-        }
-        // apply force to one and equal and opposite to other
-        spring.pm_a->forces -= spring_force * (spring.pm_a->position - spring.pm_b->position).unit();
-        spring.pm_b->forces += spring_force * (spring.pm_a->position - spring.pm_b->position).unit();
-    }
-    
+/**
+ * Update the point velocities.
+ */
+void Cloth::velocity() {
 
-  // TODO (Part 2): Use Verlet integration to compute new point mass positions
-    for (PointMass &pm : this->point_masses) {
-        if (!pm.pinned) {
-            Vector3D old_position = pm.position;
-            pm.position = pm.position + (1. - (cp->damping / 100.)) * (pm.position - pm.last_position) + (pm.forces / mass) * pow(delta_t, 2.);
-            pm.last_position = old_position;
-        }
-    }
+}
 
+/**
+ * Biosavart term for velocity calculations.
+ */
+double Cloth::biotsavart_edge() {
 
-  // TODO (Part 4): Handle self-collisions.
+}
 
+/**
+ * Induction term for velocity calculations.
+ */
+double Cloth::induction() {
 
-  // TODO (Part 3): Handle collisions with other primitives.
-    build_spatial_map();
-    for (PointMass &pm : point_masses) {
-        self_collide(pm, simulation_steps);
-    }
-    for (auto c : *collision_objects) {
-        for (PointMass &pm : this->point_masses) {
-            c->collide(pm);
-        }
-    }
+}
 
-  // TODO (Part 2): Constrain the changes to be such that the spring does not change
-  // in length more than 10% per timestep [Provot 1995].
-    for (Spring &spring : this->springs) {
-        double spring_length = (spring.pm_a->position - spring.pm_b->position).norm();
-        // have to correct
-        if (spring_length > (spring.rest_length * 1.1)) {
-            // a pinned
-            if (spring.pm_a->pinned) {
-                Vector3D direction = (spring.pm_b->position - spring.pm_a->position).unit();
-                spring.pm_b->position = direction * 1.1 * spring.rest_length + spring.pm_a->position;
-            }
-            // b pinned
-            else if (spring.pm_b->pinned) {
-                Vector3D direction = (spring.pm_a->position - spring.pm_b->position).unit();
-                spring.pm_a->position = direction * 1.1 * spring.rest_length + spring.pm_b->position;
-            }
-            // neither pinned
-            else {
-                Vector3D midpoint = (spring.pm_a->position + spring.pm_b->position) / 2.;
-                spring.pm_a->position = (spring.pm_a->position - midpoint).unit() * 1.1 * spring.rest_length / 2. + midpoint;
-                spring.pm_b->position = (spring.pm_b->position - midpoint).unit() * 1.1 * spring.rest_length / 2. + midpoint;
-            }
-        }
-    }
+/**
+ * Boussinesq term for velocity calculations.
+ */
+double Cloth::boussinesq(PointMass pm0, PointMass pm1) {
+
+}
+
+/**
+ * Updates the thickness at each edge (stored on PointMasses).
+ * Uses each PointMass's position and last_position.
+ * Sets values for each PointMass's thickness.
+ */
+void Cloth::modify_thickness() {
+
+}
+
+/**
+ * Resamples the number of the points on the bubble ring.
+ * Modifies positions, thicknesses, C values.
+ */
+void Cloth::resample(double min_dist) {
+
+}
+
+/**
+ * Calculates the volume of the bubble ring.
+ * Uses the positions and thicknesses stored in each PointMass.
+ */
+double Cloth::volume() {
+
+}
+
+/**
+ * Modifies thicknesses according Burgers flow.
+ */
+void Cloth::burgers_flow(double delta_t) {
 
 }
 

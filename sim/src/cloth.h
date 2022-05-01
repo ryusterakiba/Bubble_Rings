@@ -59,6 +59,16 @@ struct Cloth {
   void self_collide(PointMass &pm, double simulation_steps);
   float hash_position(Vector3D pos);
 
+  // Bubble ring physics functions
+  void velocity();
+  double biotsavart_edge();
+  double induction();
+  double boussinesq(PointMass pm0, PointMass pm1);
+  void modify_thickness();
+  void resample(double min_dist);
+  double volume();
+  void burgers_flow(double delta_t);
+
   // Cloth properties
   double width;
   double height;
