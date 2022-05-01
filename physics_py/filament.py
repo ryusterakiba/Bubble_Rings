@@ -40,7 +40,7 @@ pos = pos_tilt
 # plt.plot(pos_tilt[:,0],pos_tilt[:,1],pos_tilt[:,2])
 # ax.scatter(pos_tilt[:,0],pos_tilt[:,1],pos_tilt[:,2],s = 100)
 #%% 
-frame = [np.copy(pos)]
+frame   = [np.copy(pos)]
 frame_a = [np.copy(a)]
 for t in range(nt):
     #Runge Kutta https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods

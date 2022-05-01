@@ -9,6 +9,7 @@ import numpy as np
 import scipy.sparse as sp
 import scipy.sparse.linalg as la
 
+#some constants
 muRM = np.exp(-0.75)
 dRM  = 0.5 * np.exp(0.25)
 nu   = 1e-6
@@ -53,9 +54,12 @@ def boussinesq(v0,v1,C,a):
     coeff2 = np.pi * a**2 * C/ (256 * np.pi**2 * nu**2 + C**2)
     return coeff1 * Atg_n + coeff2 * np.cross(T,Atg_n)
 
-def velocity(pos,N,C,a):
+def velocity(pos,C,a,pos_ext,C_ext,a_ext):
     #Calculates the velocity of the N vertices located at pos
     #Each edge has circulation C and thickness a
+    #pos_ext are positions of other bubble ring
+    N       = pos.shape[0] - 1
+    N_ext   = pos_ext.shape[0] - 1
     pos_pad = np.vstack((pos[-2,:],pos)) #has one vertex before start
     point_vel = np.zeros((N,3))
 
@@ -64,6 +68,10 @@ def velocity(pos,N,C,a):
         for i in range(N): 
             #Biot Savart sum over edges (TERM 1 uBSdisc)
             point_vel[p,:] += biotsavartedge(pos[p,:],pos[i,:],pos[i+1,:],C[i],a[i])
+        for i in range(N_ext):
+            #Biot Savart sum over edges of the other ring
+            point_vel[p,:] += biotsavartedge(pos[p,:],pos_ext[i,:],pos_ext[i+1,:],C_ext[i],a_ext[i])
+            
         #Apply induction term  (TERM 2 uLIA)
         point_vel[p,:] += induction(pos_pad[p,:],pos_pad[p+1,:],pos_pad[p+2,:],C[p],C[p+1],a[p],a[p+1])
     
@@ -172,3 +180,25 @@ def burgers_flow(pos,C,a,dt):
     else:
         return np.sqrt(sol/np.pi)
     
+#%% Bubble ring reconnection
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
