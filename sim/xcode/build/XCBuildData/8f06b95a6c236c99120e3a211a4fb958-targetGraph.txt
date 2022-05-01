@@ -1,0 +1,6 @@
+Target dependency graph (3 targets)
+nanogui-obj in ClothSim, no dependencies
+glfw_objects in ClothSim, no dependencies
+nanogui in ClothSim, depends on:
+nanogui-obj in ClothSim (explicit)
+glfw_objects in ClothSim (explicit)

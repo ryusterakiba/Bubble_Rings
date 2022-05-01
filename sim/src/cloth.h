@@ -62,16 +62,18 @@ struct Cloth {
   // Cloth properties
   double width;
   double height;
-  double circulation; //NEW
   int num_width_points;
   int num_height_points;
-  int num_vertices; //NEW
+  double initial_ring_radius;
+  int num_vertices;
+  double circulation;
+  double thickness;
   e_orientation orientation;
 
   // Cloth components
   vector<PointMass> point_masses;
   vector<vector<int>> pinned;
-  vector<Spring> springs; //vector of edges
+  vector<Spring> springs;
   ClothMesh *clothMesh;
 
   // Spatial hashing
