@@ -67,7 +67,7 @@ struct Cloth {
   double induction();
   double boussinesq(PointMass pm0, PointMass pm1);
   void modify_thickness();
-  void resample(double min_dist);
+  void resample();
   double volume();
   void burgers_flow(double delta_t);
 
@@ -81,6 +81,8 @@ struct Cloth {
   double circulation;
   double thickness;
   e_orientation orientation;
+  double vol0;
+  double min_dist;
 
   // Cloth components
   vector<PointMass> point_masses;

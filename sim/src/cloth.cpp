@@ -15,6 +15,10 @@ Cloth::Cloth(int num_vertices, double initial_ring_radius) {
 
   buildGrid();
   buildClothMesh();
+
+  this->vol0 = volume();
+  double angle = 2 * PI / num_vertices;
+  this->min_dist = initial_ring_radius * angle;
 }
 
 Cloth::~Cloth() {
@@ -78,9 +82,85 @@ void Cloth::buildGrid() {
 void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParameters *cp,
                      vector<Vector3D> external_accelerations,
                      vector<CollisionObject *> *collision_objects) {
+  // Remove thickness-rending points
+  deleteExtraPoints();
+
   // This function performs 1 timestep of Runge Kutta
   double delta_t = 1.0f / frames_per_sec / simulation_steps;
-  // TODO: fill this in
+
+  // Step 1
+  velocity();
+  vector<Vector3D> K1(point_masses.size());
+  for (int i = 0; i < point_masses.size(); i++) {
+    Vector3D vel = point_masses.at(i).point_velocity;
+    K1.at(i) = delta_t * vel;
+  }
+
+  // Step 2
+  for (int i = 0; i < point_masses.size(); i++) {
+    PointMass pm = point_masses.at(i);
+    pm.last_position = pm.position;
+    pm.position += 0.5 * K1.at(i);
+  }
+  modify_thickness();
+  velocity();
+
+  vector<Vector3D> K2(point_masses.size());
+  for (int i = 0; i < point_masses.size(); i++) {
+    Vector3D vel = point_masses.at(i).point_velocity;
+    K2.at(i) = delta_t * vel;
+  }
+
+  // Step 3
+  for (int i = 0; i < point_masses.size(); i++) {
+    PointMass pm = point_masses.at(i);
+    pm.last_position = pm.position;
+    pm.position += 0.5 * K2.at(i);
+  }
+  modify_thickness();
+  velocity();
+  
+  vector<Vector3D> K3(point_masses.size());
+  for (int i = 0; i < point_masses.size(); i++) {
+    Vector3D vel = point_masses.at(i).point_velocity;
+    K3.at(i) = delta_t * vel;
+  }
+
+  // Step 4
+  for (int i = 0; i < point_masses.size(); i++) {
+    PointMass pm = point_masses.at(i);
+    pm.last_position = pm.position;
+    pm.position += K3.at(i);
+  }
+  modify_thickness();
+  velocity();
+  
+  vector<Vector3D> K4(point_masses.size());
+  for (int i = 0; i < point_masses.size(); i++) {
+    Vector3D vel = point_masses.at(i).point_velocity;
+    K4.at(i) = delta_t * vel;
+  }
+
+  // RK4
+  for (int i = 0; i < point_masses.size(); i++) {
+    PointMass pm = point_masses.at(i);
+    pm.position = (K1.at(i) + 2 * K2.at(i) + 2 * K3.at(i) + K4.at(i)) / 6;
+  }
+
+  // Volume conservation
+  double vol1 = volume();
+  for (auto pm_iter = point_masses.begin(); pm_iter != point_masses.end(); pm_iter++) {
+    pm_iter->thickness = pm_iter->thickness * sqrt(vol0 / vol1);
+  }
+
+  // Resample number of points
+  resample();
+
+  // Burgers thickness flow
+  burgers_flow(delta_t);
+
+  // Add thickness-rendering points back in
+  createExtraPoints();
 }
 
 /**
@@ -124,7 +204,7 @@ void Cloth::modify_thickness() {
  * Resamples the number of the points on the bubble ring.
  * Modifies positions, thicknesses, C values.
  */
-void Cloth::resample(double min_dist) {
+void Cloth::resample() {
 
 }
 
