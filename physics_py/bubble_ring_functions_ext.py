@@ -181,21 +181,291 @@ def burgers_flow(pos,C,a,dt):
         return np.sqrt(sol/np.pi)
     
 #%% Bubble ring reconnection
+def evaluateIntegral(K,C,D,l):
+    #Evaluate integral usign antiderivative
+    L0  = C
+    L1  = C+l
+    SR0 = np.sqrt(K**2 + C**2 + D**2)
+    SR1 = np.sqrt(K**2 + (C+l)**2 + D**2)
+    lg = np.log(L1 + SR1) - np.log(L0 + SR0)
+
+    if D > 1e-8:
+        atan00 = np.arctan((K*L0)/(D*SR0))
+        atan01 = np.arctan(L0/D)
+        atan10 = np.arctan((K*L1)/(D*SR1))
+        atan11 = np.arctan(L1/D)
+        atn    = K*(atan10 - atan11 - atan00 + atan01)/D
+        return lg + atn
+    else:
+        # D goes to 0
+        f      = L0/(K + SR0) - L1/(K + SR1)
+        return lg + f
+     
+
+def velocity_flux(eS, eT, p, a1, a2):
+    # Evaluate velocity flux Apdx A1 Weissmann and Pinkall 2010 
+    #eS, eT edge vectors, P is offset
+    
+    aa = a1*a2*muRM**2
+    dS = np.linalg.norm(eS)
+    dT = np.linalg.norm(eT)
+    S  = eS / dS
+    T  = eT / dT
+    
+    #Just in case?
+    if (dS == 0 or dT == 0):
+        return 0
+    
+    dp2  = np.linalg.norm(p)**2
+    
+    dSTp = np.linalg.norm(S + T)
+    dSTm = np.linalg.norm(S - T)
+    STp  = (S + T)/dSTp
+    STm  = (S - T)/dSTm
+    
+    #H matrix
+    pSTp = np.dot(p,STp)
+    pSTm = np.dot(p,STm)
+    fSTp = -pSTp/dSTp
+    fSTm = -pSTm/dSTm
+    H    = np.array([-pSTm,-pSTp,0])
+    
+    #Define K
+    K2 = aa + dp2 - np.dot(H,H)
+    K  = np.sqrt(max(0,K2))
+    
+    #G matrix
+    G1 = np.array([dSTm/2, dSTp/2, 0])
+    G2 = np.array([dSTm/2, -dSTp/2, 0])
+    
+    #Parallelogram
+    A1 = np.array([-pSTm                            , -pSTp                             , 0])
+    A2 = np.array([-pSTm + dS * dSTm/2              , -pSTp + dS * dSTp/2               , 0])
+    A3 = np.array([-pSTm + dS * dSTm/2 + dT * dSTm/2, -pSTp + dS * dSTp/2 + dT * -dSTp/2, 0])
+    A4 = np.array([-pSTm               + dT * dSTm/2, -pSTp               + dT * -dSTp/2, 0])
+    
+    #Parallel case
+    MAX_ST = 1-1e-8
+    ST  = max(-1,min(1,np.dot(S,T)))
+    if (ST > MAX_ST or ST < -MAX_ST):
+        #dS = L dT = l in Houdini code
+        sgn = np.sign(ST)
+        pT = np.dot(p,T)
+        KK = aa + dp2 - pT**2
+        
+        XdTdS = pT + dT - sgn*dS
+        XdT   = pT + dT
+        XdS   = pT      - sgn*dS
+        X0    = pT
+        
+        SRdTdS= np.sqrt(KK + XdTdS**2)
+        SRdT  = np.sqrt(KK + XdT**2)
+        SRdS  = np.sqrt(KK + XdS**2)
+        SR0   = np.sqrt(KK + X0**2)
+
+        fdTdS = SRdTdS - XdTdS * np.log(XdTdS + SRdTdS)
+        fdT   = SRdT   - XdT   * np.log(XdT   + SRdT  )
+        fdS   = SRdS   - XdS   * np.log(XdS   + SRdS  )
+        f0    = SR0    - X0    * np.log(X0    + SR0   )
+        
+        parallel = sgn * (fdTdS - fdT - fdS + f0)
+        return ST/(4*np.pi) * parallel
+         
+    C1 = np.dot(A1, G1)
+    D1 = np.sqrt(max(0, np.dot(A1, A1) - C1*C1))
+    
+    C2 = np.dot(A2, G2)
+    D2 = np.sqrt(max(0, np.dot(A2, A2) - C2*C2))
+    
+    C3 = -np.dot(A3, G1)
+    D3 = np.sqrt(max(0, np.dot(A3, A3) - C3*C3))
+    
+    C4 = -np.dot(A4, G2)
+    D4 = np.sqrt(max(0, np.dot(A4, A4) - C4*C4))
+    
+    #Compute Integral Eq 12
+    I1 = evaluateIntegral(K, C1, D1, dS)
+    I2 = evaluateIntegral(K, C2, D2, dT)
+    I3 = evaluateIntegral(K, C3, D3, dS)
+    I4 = evaluateIntegral(K, C4, D4, dT)
+
+    I13= I1 - I3
+    I24= I2 - I4
+    I23= dS * I2 + dT * I3
+    
+    return ST/(4*np.pi) * (fSTp * (I24 + I13) + fSTm * (I24 - I13) + I23)
 
 
+def quad_energy(p1, p2, p3, p4, a1, a2, a3, a4):
+    #Kinetic Energy
+    S1 = p2 - p1
+    S2 = p3 - p2
+    S3 = p4 - p3
+    S4 = p1 - p4
+    
+    f11 = velocity_flux(S1, S1, p1 - p1, a1, a1)
+    f12 = velocity_flux(S1, S2, p2 - p1, a1, a2)
+    f13 = velocity_flux(S1, S3, p3 - p1, a1, a3)
+    f14 = velocity_flux(S1, S4, p4 - p1, a1, a4)
+    f1  = f11 + f12 + f13 + f14
+
+    f21 = velocity_flux(S2, S1, p1 - p2, a2, a1)
+    f22 = velocity_flux(S2, S2, p2 - p2, a2, a2)
+    f23 = velocity_flux(S2, S3, p3 - p2, a2, a3)
+    f24 = velocity_flux(S2, S4, p4 - p2, a2, a4)
+    f2  = f21 + f22 + f23 + f24
+    
+    f31 = velocity_flux(S3, S1, p1 - p3, a3, a1)
+    f32 = velocity_flux(S3, S2, p2 - p3, a3, a2)
+    f33 = velocity_flux(S3, S3, p3 - p3, a3, a3)
+    f34 = velocity_flux(S3, S4, p4 - p3, a3, a4)
+    f3  = f31 + f32 + f33 + f34
+    
+    f41 = velocity_flux(S4, S1, p1 - p4, a4, a1)
+    f42 = velocity_flux(S4, S2, p2 - p4, a4, a2)
+    f43 = velocity_flux(S4, S3, p3 - p4, a4, a3)
+    f44 = velocity_flux(S4, S4, p4 - p4, a4, a4)
+    f4  = f41 + f42 + f43 + f44
+    
+    return 0.5 * np.sqrt(f1 + f2 + f3 + f4)
+    
+def delta_length(p1, p2, p3, p4, y1 = 1, y2 = 1):
+    d1 = np.linalg.norm(p2 - p1)
+    d2 = np.linalg.norm(p3 - p2)
+    d3 = np.linalg.norm(p4 - p3)
+    d4 = np.linalg.norm(p1 - p4)
+    
+    l1 = abs(y1)*d1 + abs(y2)*d3
+    l2 = abs(0.5*(y1 - y2)) * (d1 + d3) + abs(0.5*(y1 + y2)) * (d2 + d4)
+    return l2 - l1
 
 
+def neighbors(pos, a, reconnection_length):    
+    edges   = pos[1:] - pos[:-1]
+    N       = edges.shape[0]
+    ds      = np.array([np.linalg.norm(edges[i,:]) for i in range(N)])
+    aveEdge = np.mean(ds)
+    
+    #Selection of near points parallel
+    steps = np.floor(reconnection_length / aveEdge / 2.0)
+    
+    baseSearchDistance = reconnection_length
+    
+    nearpoints = []
+    neighborpoints  = []
+    for i in range(N):
+        searchDistance = max(baseSearchDistance, a[i]) + a[i]*1.5
+        nearpoints_i = []
+        for j in range(N):
+            if (i != j and np.linalg.norm(pos[i,:] - pos[j,:]) < searchDistance):
+                nearpoints_i.append(j)
+        nearpoints.append(nearpoints_i)
+        
+        neighborpoints.append( np.mod(np.arange(i-steps,i+steps+1),N) )
+        
 
+def is_reconnect(i1, i2, pos, hairpin_angle):
+    #IF angle between two neighboring edges 
+    if i1==i2:
+        return 0
+    
+    #Check if i1, i2 neighbors
+    N = pos.shape[0] - 1
+    if np.mod(i1 - 1,N) == i2 or np.mod(i1 + 1,N) == i2:
+        e1 = pos[np.mod(i1 + 1, N),:] - pos[i1,:]
+        e2 = pos[np.mod(i2 + 1, N),:] - pos[i2,:]
+        
+        e1 = e1 / np.linalg.norm(e1)
+        e2 = e2 / np.linalg.norm(e2)
+        
+        cos_angle = np.dot(e1,e2)
+        if cos_angle < hairpin_angle:
+            return 1
+    return 0
+        
+def do_reconnect(i1,i2,pos,a,C):
+    #Take edges i1, i2 and delete + reconnect 
+    N   = pos.shape[0] - 1
+    p11 = pos[i1,:]
+    p12 = pos[np.mod(i1+1,N),:]
+    p21 = pos[i2,:]
+    p22 = pos[np.mod(i2+1,N),:]
+    
+    l1prev = np.linalg.norm(p12 - p11)
+    l2prev = np.linalg.norm(p22 - p21)
+    l1aft  = np.linalg.norm(p21 - p12)
+    l2aft  = np.linalg.norm(p22 - p11)
+        
+    #rewire indices of pos split into two
+    
+    #Want i1 smaller than i2
+    if i1 > i2:
+        i1, i2 = i2, i1
+        
+    idx1 = np.arange(i1 + 1,i2 + 1)
+    idx2 = np.concatenate((np.arange(i2 + 1,N),np.arange(0,i1 + 1)))
+    
+    pos1 = pos[idx1,:]
+    pos2 = pos[idx2,:]
+    a1   = a[idx1]
+    a2   = a[idx2]
+    C1   = C[idx1]
+    C2   = C[idx2]
+            
+    a1[-1] = 0.5 * (a1[-2] + a1[0])
+    a2[-1] = 0.5 * (a2[-2] + a2[0])
+    
+    a1[-1]*= np.sqrt(l1aft/l1prev)
+    a2[-1]*= np.sqrt(l2aft/l2prev)
+    
+    return pos1, a1, C1, pos2, a2, C2
 
-
-
-
-
-
-
-
-
-
+def hairpin_removal(pos,a,C,hairpin_angle):
+    #Remove sharp corners from a vortex filament
+    N     = pos.shape[0] - 1
+            
+    #Loop through pairs of edges and check for sharp angles (Hairpins)
+    pos_new = [pos[-2]]
+    a_new   = [a[-2]]
+    change  = 0
+    for j in range(N):
+        e1 = pos[j] - pos_new[-1]
+        if j == N-1:
+            e2 = pos_new[1] - pos_new[0] 
+        else:
+            e2 = pos[j+1] - pos[j]
+        de1= np.linalg.norm(e1)
+        de2= np.linalg.norm(e2)
+        cos_angle = np.dot(e1,e2) / de1 / de2
+        if cos_angle < hairpin_angle: 
+            #Remove hairpins by combining pair of edges
+            #skip position
+            #Adjust a
+            change    = 1
+            d_new     = np.linalg.norm(e1 + e2)
+            if j == N-1:
+                a_new[0] = 0.5 * (a_new[-1] + a_new[0]) * np.sqrt(d_new/(de1+de2))
+                pos_new[0] = pos_new[-1]
+            else:
+                a_new[-1] = 0.5 * (a_new[-1] + a[j]) * np.sqrt(d_new/(de1+de2))
+            
+        else:
+            pos_new.append(pos[j])
+            a_new.append(a[j])
+    if change == 1:
+        pos_new = np.array(pos_new)
+        a_new   = np.array(a_new)
+        C_new   = C[0] * np.ones(len(a_new))
+    else:
+        pos_new = pos
+        a_new   = a
+        C_new   = C
+        
+    return pos_new, a_new, C_new
+            
+            
+        
+        
 
 
 

@@ -40,6 +40,7 @@ r2_N   = N
 # plt.plot(r2_pos[:,0],r2_pos[:,1],r2_pos[:,2])
 # ax.scatter(r2_pos[:,0],r2_pos[:,1],r2_pos[:,2],s = 100)
 
+#%%
 #Frames for plotting
 frame   = [[np.copy(r1_pos), np.copy(r2_pos)]]
 frame_a = [[np.copy(r1_a), np.copy(r2_a)]]
@@ -58,9 +59,9 @@ for t in range(nt):
     
     #Step 1
     r1_vel = velocity(r1_posRK,r1_C,r1_a,r2_pos,r2_C,r2_a)
-    r1_K1   = dt * r1_vel
+    r1_K1  = dt * r1_vel
     r2_vel = velocity(r2_posRK,r2_C,r2_a,r1_pos,r1_C,r1_a)
-    r2_K1   = dt * r2_vel
+    r2_K1  = dt * r2_vel
     
     #Step 2
     r1_pos_old       = np.copy(r1_posRK)
