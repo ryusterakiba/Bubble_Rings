@@ -271,8 +271,10 @@ void ClothSimulator::drawContents() {
 
   switch (active_shader.type_hint) {
   case WIREFRAME:
-    shader.setUniform("u_color", color, false);
-    drawWireframe(shader);
+    //shader.setUniform("u_color", color, false);
+    //drawWireframe(shader);
+    //break;
+    drawNormals(shader);
     break;
   case NORMALS:
     drawNormals(shader);
