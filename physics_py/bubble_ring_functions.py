@@ -65,7 +65,7 @@ def velocity(pos,N,C,a):
             #Biot Savart sum over edges (TERM 1 uBSdisc)
             point_vel[p,:] += biotsavartedge(pos[p,:],pos[i,:],pos[i+1,:],C[i],a[i])
         #Apply induction term  (TERM 2 uLIA)
-        point_vel[p,:] += induction(pos_pad[p,:],pos_pad[p+1,:],pos_pad[p+2,:],C[i],C[i+1],a[p],a[p+1])
+        point_vel[p,:] += induction(pos_pad[p,:],pos_pad[p+1,:],pos_pad[p+2,:],C[p],C[p+1],a[p],a[p+1])
     
     #Boussinesq term (TERM 3) evaluated at edges then interpolated to vertices
     edge_vel = np.zeros((N,3))

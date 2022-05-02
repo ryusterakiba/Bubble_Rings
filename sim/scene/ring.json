@@ -10,7 +10,7 @@
     "width": 1,
     "height": 1,
     "num_width_points": 50,
-    "num_vertices": 20,
+    "num_vertices": 100,
     "initial_ring_radius": 1.0,
     "circulation": 1.0,
     "num_height_points": 50,

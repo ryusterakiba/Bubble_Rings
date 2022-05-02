@@ -53,6 +53,8 @@ struct Cloth {
                 vector<CollisionObject *> *collision_objects);
 
   void reset();
+  void deleteExtraPoints();
+  void createExtraPoints();
   void buildClothMesh();
 
   void build_spatial_map();

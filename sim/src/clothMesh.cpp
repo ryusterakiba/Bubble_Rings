@@ -11,6 +11,7 @@ Vector3D PointMass::normal() {
   Halfedge *iter = start;
 
   // Loop CCW
+    return Vector3D(05, 0.5, 0.5);
   do {
     n = n + cross(iter->next->pm->position - position, iter->next->next->pm->position - position);
     if (iter->next->next->twin) {
