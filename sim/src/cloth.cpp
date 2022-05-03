@@ -104,13 +104,14 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
   velocity();
   vector<Vector3D> K1(point_masses.size());
   for (int i = 0; i < point_masses.size(); i++) {
+    Vector3D& k1 = K1.at(i);
     Vector3D vel = point_masses.at(i).point_velocity;
-    K1.at(i) = delta_t * vel;
+    k1 = delta_t * vel;
   }
 
   // Step 2
   for (int i = 0; i < point_masses.size(); i++) {
-    PointMass pm = point_masses.at(i);
+    PointMass& pm = point_masses.at(i);
     pm.last_position = pm.position;
     pm.position += 0.5 * K1.at(i);
   }
@@ -119,13 +120,14 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
 
   vector<Vector3D> K2(point_masses.size());
   for (int i = 0; i < point_masses.size(); i++) {
+    Vector3D& k2 = K2.at(i);
     Vector3D vel = point_masses.at(i).point_velocity;
-    K2.at(i) = delta_t * vel;
+    k2 = delta_t * vel;
   }
 
   // Step 3
   for (int i = 0; i < point_masses.size(); i++) {
-    PointMass pm = point_masses.at(i);
+    PointMass& pm = point_masses.at(i);
     pm.last_position = pm.position;
     pm.position += 0.5 * K2.at(i);
   }
@@ -134,13 +136,14 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
   
   vector<Vector3D> K3(point_masses.size());
   for (int i = 0; i < point_masses.size(); i++) {
+    Vector3D& k3 = K3.at(i);
     Vector3D vel = point_masses.at(i).point_velocity;
-    K3.at(i) = delta_t * vel;
+    k3 = delta_t * vel;
   }
 
   // Step 4
   for (int i = 0; i < point_masses.size(); i++) {
-    PointMass pm = point_masses.at(i);
+    PointMass& pm = point_masses.at(i);
     pm.last_position = pm.position;
     pm.position += K3.at(i);
   }
@@ -149,16 +152,16 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
   
   vector<Vector3D> K4(point_masses.size());
   for (int i = 0; i < point_masses.size(); i++) {
+    Vector3D& k4 = K4.at(i);
     Vector3D vel = point_masses.at(i).point_velocity;
-    K4.at(i) = delta_t * vel;
+    k4 = delta_t * vel;
   }
 
   // RK4
   for (int i = 0; i < point_masses.size(); i++) {
-    PointMass pm = point_masses.at(i);
+    PointMass& pm = point_masses.at(i);
     pm.position += (K1.at(i) + 2 * K2.at(i) + 2 * K3.at(i) + K4.at(i)) / 6;
   }
-
 
   // Volume conservation
   /*double vol1 = volume();
@@ -182,7 +185,7 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
 void Cloth::velocity() {
   for (int i = 0; i < num_vertices; i++) {
     // Over all vertices of filament
-    PointMass pm = point_masses.at(i);
+    PointMass& pm = point_masses.at(i);
 
     for (int j = 0; j < num_vertices; j++) {
       // Biot Savart sum over edges (TERM 1 uBSdisc)
@@ -201,11 +204,12 @@ void Cloth::velocity() {
   for (int i = 0; i < num_vertices; i++) {
     // Boussinesq over edges
     int i_plus1 = (i + 1) % point_masses.size();
-    edge_vel.at(i) = boussinesq(point_masses.at(i), point_masses.at(i_plus1));
+    Vector3D& ev = edge_vel.at(i);
+    ev = boussinesq(point_masses.at(i), point_masses.at(i_plus1));
   }
   for (int i = 0; i < num_vertices; i++) {
     // interpolate to vertices
-    PointMass pm = point_masses.at(i);
+    PointMass &pm = point_masses.at(i);
     int i_minus1 = (i + point_masses.size() - 1) % point_masses.size();
     pm.point_velocity += (edge_vel.at(i) + edge_vel.at(i_minus1)) / 2;
   }
