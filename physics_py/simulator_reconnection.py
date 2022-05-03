@@ -11,7 +11,7 @@ from bubble_ring_functions_ext import *
 
 # Create 2 bubble rings
 N     = 20  #vertices
-nt    = 40  #time steps
+nt    = 60  #time steps
 theta = np.linspace(0,2*np.pi,N+1)
 R     = 0.5   #radius
 dt    = 0.01#time step
@@ -19,13 +19,13 @@ mind  = R * theta[1] #distance for resampling
 
 #Bubble ring 1
 r1_pos = np.array([R*np.cos(theta),R*np.sin(theta),np.zeros(N+1)]).T #first vertex repeat at end
-r1_C   = np.ones(N+1) #edges, repeat for first edge
+r1_C   = 2*np.ones(N+1) #edges, repeat for first edge
 r1_a   = 0.1*np.ones(N+1) #edges, repeat for first edge
 r1_vol = volume(r1_pos,r1_a)
 r1_N   = N
 
 #Bubble ring 2
-r2_pos = np.array([R*np.cos(theta) - 1.0,R*np.sin(theta) - 0.3, np.zeros(N+1)-0.5]).T #first vertex repeat at end
+r2_pos = np.array([R*np.cos(theta) - 1.25,R*np.sin(theta) - 0.3, np.zeros(N+1)]).T #first vertex repeat at end
 r2_C   = 2*np.ones(N+1) #edges, repeat for first edge
 r2_a   = 0.1*np.ones(N+1) #edges, repeat for first edge
 r2_vol = volume(r2_pos,r2_a)
@@ -132,6 +132,14 @@ for t in range(nt):
     r1_a[-1]  = r1_a[0]
     r2_a[:-1] = burgers_flow(r2_pos,r2_C,r2_a,dt)
     r2_a[-1]  = r2_a[0]
+    
+    #Remove sharp coners (hairpins)
+    r1_pos, r1_a, r1_C, r1_N = hairpin_removal(r1_pos,r1_a,r1_C)
+    r2_pos, r2_a, r2_C, r2_N = hairpin_removal(r2_pos,r2_a,r2_C)
+    
+    #Resample
+    r1_pos, r1_a, r1_C, r1_N = resample(r1_pos,r1_a,r1_C,mind)
+    r2_pos, r2_a, r2_C, r2_N = resample(r2_pos,r2_a,r2_C,mind)
 
     frame.append([np.copy(r1_pos),np.copy(r2_pos)])
     frame_a.append([np.copy(r1_a),np.copy(r2_a)])
@@ -139,9 +147,10 @@ for t in range(nt):
 #%%
 fig = plt.figure(figsize = (10,10))
 ax = plt.axes(projection='3d')
+ax.set_box_aspect((2,2,1))
 
 for t in range(nt+1):
-    if t%10 == 0:
+    if t%15 == 0:
         ring1 = frame[t][0]
         plt.plot(ring1[:,0],ring1[:,1],ring1[:,2])
         ax.scatter(ring1[:,0],ring1[:,1],ring1[:,2],s = frame_a[t][0]*1000)
