@@ -82,9 +82,9 @@ struct Cloth {
   double thickness;
   e_orientation orientation;
 
-  // Initialized in constructor (FIXME?)
-  double vol0;
-  double min_dist;
+  // Properties for physics
+  double vol0 = -1; // FIXME? Set this value in simulate()
+  double min_dist; // set in Cloth constructor
 
   // Cloth components
   vector<PointMass> point_masses;

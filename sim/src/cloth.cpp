@@ -22,7 +22,6 @@ Cloth::Cloth(int num_vertices, double initial_ring_radius) {
   buildGrid();
   buildClothMesh();
 
-  this->vol0 = volume();
   double angle = 2 * PI / num_vertices;
   this->min_dist = initial_ring_radius * angle;
 }
@@ -95,6 +94,11 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
     cout << "point_masses.size(): " << point_masses.size() << endl;
     cout << "num_vertices: " << num_vertices << endl << endl;
     throw 11; // throw error, arbitrary number idk
+  }
+
+  // Set vol0 if we haven't done so already
+  if (this->vol0 == -1) {
+    this->vol0 = volume();
   }
 
   // This function performs 1 timestep of Runge Kutta
@@ -276,7 +280,15 @@ Vector3D Cloth::boussinesq(PointMass v0, PointMass v1) {
  * Sets values for each PointMass's thickness.
  */
 void Cloth::modify_thickness() {
+  for (int i = 0; i < num_vertices; i++) {
+    int i_plus1 = (i + 1) % num_vertices;
+    PointMass& pm0 = point_masses.at(i);
+    PointMass& pm1 = point_masses.at(i_plus1);
 
+    double l_old = (pm1.last_position - pm0.last_position).norm();
+    double l_new = (pm1.position - pm0.position).norm();
+    pm0.thickness = pm0.thickness * sqrt(l_old / l_new);
+  }
 }
 
 /**
@@ -292,7 +304,19 @@ void Cloth::resample() {
  * Uses the positions and thicknesses stored in each PointMass.
  */
 double Cloth::volume() {
-  return 0.0;
+  double vol = 0;
+
+  for (int i = 0; i < num_vertices; i++) {
+    int i_plus1 = (i + 1) % num_vertices;
+    PointMass& pm0 = point_masses.at(i);
+    PointMass& pm1 = point_masses.at(i_plus1);
+
+    double d = (pm1.position - pm0.position).norm();
+    vol += d * pm0.thickness * pm0.thickness;
+  }
+
+  vol *= PI;
+  return vol;
 }
 
 /**
