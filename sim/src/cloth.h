@@ -81,6 +81,8 @@ struct Cloth {
   double circulation;
   double thickness;
   e_orientation orientation;
+
+  // Initialized in constructor (FIXME?)
   double vol0;
   double min_dist;
 
