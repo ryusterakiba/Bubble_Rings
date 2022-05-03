@@ -9,7 +9,11 @@
 
 using namespace std;
 
-const double MU_RM = exp(-0.75);
+const double muRM = exp(-0.75);
+const double dRM = 0.5 * exp(0.25);
+const double nu = 1e-6;
+const Vector3D g = Vector3D(0, 0, -9.8);
+const double At = -1;
 
 Cloth::Cloth(int num_vertices, double initial_ring_radius) {
   this->num_vertices = num_vertices;
@@ -211,7 +215,7 @@ Vector3D Cloth::biotsavart_edge(PointMass p, PointMass v0, PointMass v1) {
   Vector3D r0 = v0.position - p.position;
   Vector3D r1 = v1.position - p.position;
   Vector3D T = r1 - r0;
-  double a2mu = pow(a * MU_RM, 2);
+  double a2mu = pow(a * muRM, 2);
   Vector3D crossr01 = cross(r0, r1);
 
   double term1 = dot(r1, T) / (sqrt(a2mu + r1.norm2()) * (T.norm2() * a2mu + crossr01.norm2()));
@@ -223,14 +227,37 @@ Vector3D Cloth::biotsavart_edge(PointMass p, PointMass v0, PointMass v1) {
  * Induction term for velocity calculations.
  */
 Vector3D Cloth::induction(PointMass v0, PointMass v1, PointMass v2) {
+  double c0 = v0.circulation;
+  double c1 = v1.circulation;
+  double a0 = v0.thickness;
+  double a1 = v1.thickness;
 
+  double s0 = (v1.position - v0.position).norm();
+  double s1 = (v2.position - v1.position).norm();
+  Vector3D T0 = (v1.position - v0.position) / s0;
+  Vector3D T1 = (v2.position - v1.position) / s1;
+  double C = (c0 + c1) / 2;
+
+  Vector3D kB = 2 * cross(T0, T1) / (s0 + s1);
+  double logterm = log(s0 * s1 / (a0 * a1 * dRM * dRM));
+  return C / (4 * PI) * .5 * logterm * kB;
 }
 
 /**
  * Boussinesq term for velocity calculations.
  */
-double Cloth::boussinesq(PointMass pm0, PointMass pm1) {
+Vector3D Cloth::boussinesq(PointMass v0, PointMass v1) {
+  double C = v0.circulation;
+  double a = v0.thickness;
 
+  Vector3D edge = v1.position - v0.position;
+  double ds = edge.norm();
+  Vector3D T = edge / ds;
+  Vector3D Atg_n = At * g - dot(At * g, T) * T;
+
+  double coeff1 = 16 * PI*PI * nu * a*a / (256 * PI*PI * nu*nu + C*C);
+  double coeff2 = PI * a*a * C / (256 * PI*PI * nu*nu + C*C);
+  return coeff1 * Atg_n + coeff2 * cross(T, Atg_n);
 }
 
 /**
@@ -255,7 +282,7 @@ void Cloth::resample() {
  * Uses the positions and thicknesses stored in each PointMass.
  */
 double Cloth::volume() {
-
+  return 0.0;
 }
 
 /**

@@ -65,7 +65,7 @@ struct Cloth {
   void velocity();
   Vector3D biotsavart_edge(PointMass p, PointMass v0, PointMass v1);
   Vector3D induction(PointMass v0, PointMass v1, PointMass v2);
-  double boussinesq(PointMass pm0, PointMass pm1);
+  Vector3D boussinesq(PointMass v0, PointMass v1);
   void modify_thickness();
   void resample();
   double volume();
