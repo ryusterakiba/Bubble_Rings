@@ -33,7 +33,8 @@ struct PointMass {
   Vector3D position;
   Vector3D last_position;
   Vector3D forces;
-  Vector3D point_velocity; // used for RK4 in Cloth::simulate()
+  Vector3D point_velocity = Vector3D(0, 0, 0); // used for RK4 in Cloth::simulate()
+  // FIXME: Does this correctly initialize point_velocity as 0?
 
   double thickness;
   // mesh reference

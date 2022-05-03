@@ -63,8 +63,8 @@ struct Cloth {
 
   // Bubble ring physics functions
   void velocity();
-  double biotsavart_edge();
-  double induction();
+  double biotsavart_edge(PointMass p, PointMass v0, PointMass v1);
+  double induction(PointMass v0, PointMass v1, PointMass v2);
   double boussinesq(PointMass pm0, PointMass pm1);
   void modify_thickness();
   void resample();

@@ -84,6 +84,7 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
                      vector<CollisionObject *> *collision_objects) {
   // Remove thickness-rending points
   deleteExtraPoints();
+  assert(num_vertices == point_masses.size());
 
   // This function performs 1 timestep of Runge Kutta
   double delta_t = 1.0f / frames_per_sec / simulation_steps;
@@ -167,20 +168,48 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
  * Update the point velocities.
  */
 void Cloth::velocity() {
+  for (int i = 0; i < num_vertices; i++) {
+    // Over all vertices of filament
+    PointMass pm = point_masses.at(i);
 
+    for (int j = 0; j < num_vertices; j++) {
+      // Biot Savart sum over edges (TERM 1 uBSdisc)
+      int j_plus1 = (j + 1) % point_masses.size();
+      pm.point_velocity += biotsavart_edge(pm, point_masses.at(j), point_masses.at(j_plus1));
+    }
+
+    // Apply induction term  (TERM 2 uLIA)
+    int i_plus1 = (i + 1) % point_masses.size();
+    int i_plus2 = (i + 2) % point_masses.size();
+    pm.point_velocity += induction(pm, point_masses.at(i_plus1), point_masses.at(i_plus2));
+  }
+
+  // Boussinesq term (TERM 3) evaluated at edges then interpolated to vertices
+  vector<Vector3D> edge_vel(num_vertices);
+  for (int i = 0; i < num_vertices; i++) {
+    // Boussinesq over edges
+    int i_plus1 = (i + 1) % point_masses.size();
+    edge_vel.at(i) = boussinesq(point_masses.at(i), point_masses.at(i_plus1));
+  }
+  for (int i = 0; i < num_vertices; i++) {
+    // interpolate to vertices
+    PointMass pm = point_masses.at(i);
+    int i_minus1 = (i + point_masses.size() - 1) % point_masses.size();
+    pm.point_velocity += (edge_vel.at(i) + edge_vel.at(i_minus1)) / 2;
+  }
 }
 
 /**
  * Biosavart term for velocity calculations.
  */
-double Cloth::biotsavart_edge() {
+double Cloth::biotsavart_edge(PointMass p, PointMass v0, PointMass v1) {
 
 }
 
 /**
  * Induction term for velocity calculations.
  */
-double Cloth::induction() {
+double Cloth::induction(PointMass v0, PointMass v1, PointMass v2) {
 
 }
 
