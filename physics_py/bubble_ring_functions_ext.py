@@ -15,7 +15,9 @@ dRM  = 0.5 * np.exp(0.25)
 nu   = 1e-6
 g    = np.array([0,0,-9.8])
 At   = -1
-
+hairpin_angle = -0.8
+reconnection_length = 0.08
+length_energy_factor = 20
 #%% Velocity solver
 
 def biotsavartedge(p,v0,v1,C,a):
@@ -181,6 +183,52 @@ def burgers_flow(pos,C,a,dt):
         return np.sqrt(sol/np.pi)
     
 #%% Bubble ring reconnection
+
+def hairpin_removal(pos,a,C):
+    #Remove sharp corners from a vortex filament
+    N       = pos.shape[0] - 1    
+    #Loop through pairs of edges and check for sharp angles (Hairpins)
+    pos_new = [pos[-2]]
+    a_new   = [a[-2]]
+    change  = 0
+    for j in range(N):
+        e1 = pos[j] - pos_new[-1]
+        if j == N-1:
+            e2 = pos_new[1] - pos_new[0] 
+        else:
+            e2 = pos[j+1] - pos[j]
+        de1= np.linalg.norm(e1)
+        de2= np.linalg.norm(e2)
+        cos_angle = np.dot(e1,e2) / de1 / de2
+        if cos_angle < hairpin_angle: 
+            #Remove hairpins by combining pair of edges
+            #skip position
+            #Adjust a
+            change    = 1
+            d_new     = np.linalg.norm(e1 + e2)
+            if j == N-1:
+                a_new[0] = 0.5 * (a_new[-1] + a_new[0]) * np.sqrt(d_new/(de1+de2))
+                pos_new[0] = pos_new[-1]
+            else:
+                a_new[-1] = 0.5 * (a_new[-1] + a[j]) * np.sqrt(d_new/(de1+de2))     
+        else:
+            pos_new.append(pos[j])
+            a_new.append(a[j])
+    if change == 1:
+        print('removed a hairpin')
+        pos_new = np.array(pos_new)
+        a_new   = np.array(a_new)
+        C_new   = C[0] * np.ones(len(a_new))
+        N_new   = pos_new.shape[0] - 1
+    else:
+        pos_new = pos
+        a_new   = a
+        C_new   = C
+        N_new   = N
+        
+    return pos_new, a_new, C_new, N_new
+            
+# Reconnection helper functions
 def evaluateIntegral(K,C,D,l):
     #Evaluate integral usign antiderivative
     L0  = C
@@ -295,7 +343,6 @@ def velocity_flux(eS, eT, p, a1, a2):
     
     return ST/(4*np.pi) * (fSTp * (I24 + I13) + fSTm * (I24 - I13) + I23)
 
-
 def quad_energy(p1, p2, p3, p4, a1, a2, a3, a4):
     #Kinetic Energy
     S1 = p2 - p1
@@ -328,19 +375,11 @@ def quad_energy(p1, p2, p3, p4, a1, a2, a3, a4):
     f4  = f41 + f42 + f43 + f44
     
     return 0.5 * np.sqrt(f1 + f2 + f3 + f4)
-    
-def delta_length(p1, p2, p3, p4, y1 = 1, y2 = 1):
-    d1 = np.linalg.norm(p2 - p1)
-    d2 = np.linalg.norm(p3 - p2)
-    d3 = np.linalg.norm(p4 - p3)
-    d4 = np.linalg.norm(p1 - p4)
-    
-    l1 = abs(y1)*d1 + abs(y2)*d3
-    l2 = abs(0.5*(y1 - y2)) * (d1 + d3) + abs(0.5*(y1 + y2)) * (d2 + d4)
-    return l2 - l1
 
-
-def neighbors(pos, a, reconnection_length):    
+def neighbors(pos_list, a_list):
+    #Find neighboring vertices 
+    pos     = pos_list[0]
+    a       = a_list[0]
     edges   = pos[1:] - pos[:-1]
     N       = edges.shape[0]
     ds      = np.array([np.linalg.norm(edges[i,:]) for i in range(N)])
@@ -350,123 +389,191 @@ def neighbors(pos, a, reconnection_length):
     steps = np.floor(reconnection_length / aveEdge / 2.0)
     
     baseSearchDistance = reconnection_length
-    
-    nearpoints = []
-    neighborpoints  = []
-    for i in range(N):
-        searchDistance = max(baseSearchDistance, a[i]) + a[i]*1.5
-        nearpoints_i = []
-        for j in range(N):
-            if (i != j and np.linalg.norm(pos[i,:] - pos[j,:]) < searchDistance):
-                nearpoints_i.append(j)
-        nearpoints.append(nearpoints_i)
-        
-        neighborpoints.append( np.mod(np.arange(i-steps,i+steps+1),N) )
-        
-
-def is_reconnect(i1, i2, pos, hairpin_angle):
-    #IF angle between two neighboring edges 
-    if i1==i2:
-        return 0
-    
-    #Check if i1, i2 neighbors
-    N = pos.shape[0] - 1
-    if np.mod(i1 - 1,N) == i2 or np.mod(i1 + 1,N) == i2:
-        e1 = pos[np.mod(i1 + 1, N),:] - pos[i1,:]
-        e2 = pos[np.mod(i2 + 1, N),:] - pos[i2,:]
-        
-        e1 = e1 / np.linalg.norm(e1)
-        e2 = e2 / np.linalg.norm(e2)
-        
-        cos_angle = np.dot(e1,e2)
-        if cos_angle < hairpin_angle:
-            return 1
-    return 0
-        
-def do_reconnect(i1,i2,pos,a,C):
-    #Take edges i1, i2 and delete + reconnect 
-    N   = pos.shape[0] - 1
-    p11 = pos[i1,:]
-    p12 = pos[np.mod(i1+1,N),:]
-    p21 = pos[i2,:]
-    p22 = pos[np.mod(i2+1,N),:]
-    
-    l1prev = np.linalg.norm(p12 - p11)
-    l2prev = np.linalg.norm(p22 - p21)
-    l1aft  = np.linalg.norm(p21 - p12)
-    l2aft  = np.linalg.norm(p22 - p11)
-        
-    #rewire indices of pos split into two
-    
-    #Want i1 smaller than i2
-    if i1 > i2:
-        i1, i2 = i2, i1
-        
-    idx1 = np.arange(i1 + 1,i2 + 1)
-    idx2 = np.concatenate((np.arange(i2 + 1,N),np.arange(0,i1 + 1)))
-    
-    pos1 = pos[idx1,:]
-    pos2 = pos[idx2,:]
-    a1   = a[idx1]
-    a2   = a[idx2]
-    C1   = C[idx1]
-    C2   = C[idx2]
-            
-    a1[-1] = 0.5 * (a1[-2] + a1[0])
-    a2[-1] = 0.5 * (a2[-2] + a2[0])
-    
-    a1[-1]*= np.sqrt(l1aft/l1prev)
-    a2[-1]*= np.sqrt(l2aft/l2prev)
-    
-    return pos1, a1, C1, pos2, a2, C2
-
-def hairpin_removal(pos,a,C,hairpin_angle):
-    #Remove sharp corners from a vortex filament
-    N     = pos.shape[0] - 1
-            
-    #Loop through pairs of edges and check for sharp angles (Hairpins)
-    pos_new = [pos[-2]]
-    a_new   = [a[-2]]
-    change  = 0
-    for j in range(N):
-        e1 = pos[j] - pos_new[-1]
-        if j == N-1:
-            e2 = pos_new[1] - pos_new[0] 
-        else:
-            e2 = pos[j+1] - pos[j]
-        de1= np.linalg.norm(e1)
-        de2= np.linalg.norm(e2)
-        cos_angle = np.dot(e1,e2) / de1 / de2
-        if cos_angle < hairpin_angle: 
-            #Remove hairpins by combining pair of edges
-            #skip position
-            #Adjust a
-            change    = 1
-            d_new     = np.linalg.norm(e1 + e2)
-            if j == N-1:
-                a_new[0] = 0.5 * (a_new[-1] + a_new[0]) * np.sqrt(d_new/(de1+de2))
-                pos_new[0] = pos_new[-1]
-            else:
-                a_new[-1] = 0.5 * (a_new[-1] + a[j]) * np.sqrt(d_new/(de1+de2))
-            
-        else:
-            pos_new.append(pos[j])
-            a_new.append(a[j])
-    if change == 1:
-        pos_new = np.array(pos_new)
-        a_new   = np.array(a_new)
-        C_new   = C[0] * np.ones(len(a_new))
+    if len(pos_list) == 1:
+        #One bubble ring, check for splitting points
+        nearpoints = [] #collect indices of points close together
+        for i in range(N):
+            #Iterate over all vertices
+            nearpoints_i = [] #nearby points for vertex i
+            searchDistance = max(baseSearchDistance, a[i]) + a[i]*3
+            for j in range(N):
+                distance = np.linalg.norm(pos[i,:] - pos[j,:])
+                if distance < searchDistance + a[j]:
+                    nearpoints_i.append(j)
+            nearpoints.append(nearpoints_i)
+    if len(pos_list) == 2:
+        #Two bubble rings, check for reconnection points
+        other_pos  = pos_list[1]
+        other_a    = a_list[1]
+        nearpoints = [] #collect indices of points close together
+        for i in range(N):
+            #Iterate over all vertices
+            nearpoints_i = [] #nearby points for vertex i
+            searchDistance = max(baseSearchDistance, a[i]) + a[i]*3
+            for j in range(other_pos.shape[0] - 1):
+                distance = np.linalg.norm(pos[i,:] - other_pos[j,:])
+                if distance < searchDistance + other_a[j]:
+                    nearpoints_i.append(j)
+            nearpoints.append(nearpoints_i)
     else:
-        pos_new = pos
-        a_new   = a
-        C_new   = C
+        print('more than two rings')
         
-    return pos_new, a_new, C_new
+    return nearpoints, steps
             
-            
-        
-        
+def is_reconnect(i1, i2, pos1, pos2, a1, a2, C1, C2, steps, nRings):
+    if nRings == 1 and i1 == i2:
+        #Same vertex
+        return 0, 0
+    if (abs(C1[i1] - C2[i2]) > 1e-5 or abs(C1[i1]) < 1e-5 or abs(C2[i2]) < 1e-5):
+        #Different strength
+        return 0, 0
+    
+    N1 = pos1.shape[0] - 1
+    N2 = pos2.shape[0] - 1 
+    
+    left_neighbors = np.mod(np.arange(i1 - steps,i1 + steps + 1), N1)
+    right_neighbors= np.mod(np.arange(i2 - steps,i2 + steps + 1), N2)
+    
+    #Check if there is an overlap. not possible with 2 rings
+    left_buffer = np.mod(np.arange(i1 - steps - 1 ,i1 + steps + 2), N1)
+    right_buffer= np.mod(np.arange(i2 - steps - 1 ,i2 + steps + 2), N2)
+    if nRings == 1:
+        for i in range(len(left_buffer)):
+            if any(right_buffer == left_buffer[i]):
+                return 0, 0
 
+    #Corner points
+    PL1 = pos1[left_neighbors[0],:]
+    PL2 = pos1[left_neighbors[-1],:]
+    PR1 = pos2[right_neighbors[0],:]
+    PR2 = pos2[right_neighbors[-1],:]
+    
+    Lnew = np.linalg.norm(PL1 - PR2) + np.linalg.norm(PL2 - PR1)
+    Lold = np.linalg.norm(PL1 - PL2) + np.linalg.norm(PR1 - PR2)
+    dL   = Lnew - Lold
+    
+    if dL > 0:
+        #No length shortening
+        return 0, 0
+    
+    a12 = np.sqrt(a1[i1] * a2[i2])
+    mC  = 0.5 * (C1[i1] + C2[i2])
+    
+    #Energy of neighboring quad
+    dE = quad_energy(PL1, PL2, PR2, PR1, a1[i1], a12, a2[i2], a12)
+    
+    #Eq 10 of weissmann and pinkall 2010 for reconnection condition
+    energy = length_energy_factor * dL + mC * dE
+    
+    if energy < 0:
+        return 1, [left_neighbors, right_neighbors]
+    return 0, 0
+
+def do_reconnect(left_neighbors, right_neighbors, pos1, pos2, a1, a2, C1, C2, nRings):
+    #Do Splitting or Reconnection 
+    if nRings == 1:
+        #1 ring. pos1 = pos2, Split
+        pos = pos1
+        a   = a1
+        C   = C1
+        N   = pos.shape[0] - 1
+        
+        i11 = left_neighbors[0]
+        i12 = left_neighbors[-1]
+        i21 = right_neighbors[0]
+        i22 = right_neighbors[-1]
+        
+        #new positions
+        if i21 > i12:
+            idx1 = np.arange(i12,i21+1)
+        else:
+            idx1 = np.concatenate((np.arange(i12,N), np.arange(0,i21+1)))
+        if i11 > i22:
+            idx2 = np.arange(i22,i11+1)
+        else:
+            idx2 = np.concatenate((np.arange(i22,N),np.arange(0,i11+1)))
+                                  
+        posN1 = pos[idx1,:]
+        posN2 = pos[idx2,:]
+        
+        aN1   = a[idx1]
+        aN2   = a[idx2]
+        #Average nearby a's for new edge
+        aN1[-1] = 0.25 * (aN1[0] + aN1[-2] + aN1[-1] + a[left_neighbors[-2]])
+        aN2[-1] = 0.25 * (aN2[0] + aN2[-2] + aN2[-1] + a[right_neighbors[-2]])
+        
+        #Shouldn't need to modify bc constant
+        CN1   = C[idx1]
+        CN2   = C[idx2]
+        
+        #Pad all with one element at end
+        posN1 = np.vstack((posN1,posN1[0]))
+        posN2 = np.vstack((posN2,posN2[0]))
+        aN1   = np.hstack((aN1,aN1[0]))
+        aN2   = np.hstack((aN2,aN2[0]))
+        CN1   = np.hstack((CN1,CN1[0]))
+        CN2   = np.hstack((CN2,CN2[0]))
+        
+        return [posN1,posN2], [aN1,aN2], [CN1,CN2]
+        
+    if nRings == 2:
+        #2 rings, Reconnection
+        N1 = pos1.shape[0] - 1
+        N2 = pos2.shape[0] - 1
+        
+        i11 = left_neighbors[0]
+        i12 = left_neighbors[-1]
+        i21 = right_neighbors[0]
+        i22 = right_neighbors[-1]
+        
+        if i11 > i12:
+            idx1 = np.arange(i12,i11+1)
+        else:
+            idx1 = np.concatenate((np.arange(i12,N1), np.arange(0,i11+1)))
+        if i21 > i22:
+            idx2 = np.arange(i22,i21+1)
+        else:
+            idx2 = np.concatenate((np.arange(i22,N2), np.arange(0,i21+1)))
+            
+        #Arange the new vertices
+        pos = np.vstack((pos1[idx1],pos2[idx2],pos1[i12]))
+        #Average nearby a's for new edge
+        ai11 = 0.25 * (a1[i11] + a1[idx1[-2]] + a2[i22] + a2[right_neighbors[-2]])
+        ai21 = 0.25 * (a2[i21] + a2[idx2[-2]] + a1[i12] + a1[left_neighbors[-2]])
+        a   = np.hstack((a1[idx1[:-1]],ai11,a2[idx2[:-1]],ai21,a1[i12]))
+        C   = np.hstack((C1[idx1],C2[idx2],C1[i12]))
+        
+        return [pos],[a],[C]
+    else:
+        print('cannot support more than 2 rings')
+        return [pos1,pos2], [a1,a2], [C1,C2]
+
+
+def Reconnection(pos_list,a_list,C_list):
+    #We assume a max of two bubble rings at a time
+    nRings = len(pos_list)
+    
+    #Get a list of nearby vertices from all primitives
+    nearpoints, steps = neighbors(pos_list, a_list)
+    
+    #Check if reconnection 
+    for i in range(len(nearpoints)):
+        #For each edge of first bubble ring
+        for j in range(len(nearpoints[i])):
+            #For all the nearby points of that 
+            isreconnect, neighbor = is_reconnect(i, nearpoints[i][j], pos_list[0], pos_list[nRings-1], 
+                                                 a_list[0], a_list[nRings-1], C_list[0], C_list[nRings-1], steps, nRings)
+            if isreconnect:
+                pos_list,a_list,C_list = do_reconnect(neighbor[0], neighbor[1], pos_list[0], pos_list[nRings-1], 
+                                                      a_list[0], a_list[nRings-1], C_list[0], C_list[nRings-1], nRings)
+                
+                return pos_list,a_list,C_list
+                
+    return pos_list,a_list,C_list
+    
+        
+        
+    
 
 
 
