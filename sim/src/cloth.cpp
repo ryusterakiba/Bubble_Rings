@@ -9,6 +9,8 @@
 
 using namespace std;
 
+const double MU_RM = exp(-0.75);
+
 Cloth::Cloth(int num_vertices, double initial_ring_radius) {
   this->num_vertices = num_vertices;
   this->initial_ring_radius = initial_ring_radius;
@@ -202,14 +204,25 @@ void Cloth::velocity() {
 /**
  * Biosavart term for velocity calculations.
  */
-double Cloth::biotsavart_edge(PointMass p, PointMass v0, PointMass v1) {
+Vector3D Cloth::biotsavart_edge(PointMass p, PointMass v0, PointMass v1) {
+  double a = v0.thickness;
+  double C = v0.circulation;
 
+  Vector3D r0 = v0.position - p.position;
+  Vector3D r1 = v1.position - p.position;
+  Vector3D T = r1 - r0;
+  double a2mu = pow(a * MU_RM, 2);
+  Vector3D crossr01 = cross(r0, r1);
+
+  double term1 = dot(r1, T) / (sqrt(a2mu + r1.norm2()) * (T.norm2() * a2mu + crossr01.norm2()));
+  double term2 = dot(r0, T) / (sqrt(a2mu + r0.norm2()) * (T.norm2() * a2mu + crossr01.norm2()));
+  return C / (4 * PI) * (term1 - term2) * crossr01;
 }
 
 /**
  * Induction term for velocity calculations.
  */
-double Cloth::induction(PointMass v0, PointMass v1, PointMass v2) {
+Vector3D Cloth::induction(PointMass v0, PointMass v1, PointMass v2) {
 
 }
 
