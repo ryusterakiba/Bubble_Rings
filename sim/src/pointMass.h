@@ -36,6 +36,16 @@ struct PointMass {
   Vector3D forces;
   Vector3D point_velocity;
 
+  // Other physics
+  double grav;
+  double length;
+
+  // RK4 integration
+  Vector3D K1;
+  Vector3D K2;
+  Vector3D K3;
+  Vector3D K4;
+
   double thickness;
   // mesh reference
   Halfedge *halfedge;

@@ -56,6 +56,7 @@ struct Cloth {
   void deleteExtraPoints();
   void createExtraPoints();
   void buildClothMesh();
+  void buildRingRender();
 
   void build_spatial_map();
   void self_collide(PointMass &pm, double simulation_steps);
@@ -80,13 +81,16 @@ struct Cloth {
   int num_vertices;
   double circulation;
   double thickness;
+  Vector3D center;
   e_orientation orientation;
+  int num_render_circle = 20;
 
   // Properties for physics
   double vol0 = -1; // FIXME? Set this value in simulate()
   double min_dist; // set in Cloth constructor
 
   // Cloth components
+  vector<PointMass> vertices;
   vector<PointMass> point_masses;
   vector<vector<int>> pinned;
   vector<Spring> springs;
