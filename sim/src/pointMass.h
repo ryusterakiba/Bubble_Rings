@@ -19,6 +19,10 @@ struct PointMass {
       : pinned(pinned), start_position(position), position(position),
         last_position(position), thickness(thickness) {}
 
+  PointMass(Vector3D position, bool pinned, double thickness, double circulation)
+    : pinned(pinned), start_position(position), position(position),
+    last_position(position), thickness(thickness), circulation(circulation) {}
+
   Vector3D normal();
   Vector3D velocity(double delta_t) {
     return (position - last_position) / delta_t;

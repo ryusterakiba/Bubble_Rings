@@ -110,5 +110,6 @@ for t in range(nt+1):
         plt.plot(frame[t][:,0],frame[t][:,1],frame[t][:,2])
         ax.scatter(frame[t][:,0],frame[t][:,1],frame[t][:,2],s = frame_a[t]*1000)
         
+plt.show()
         
 # plt.savefig("bubble_ring_py.png",dpi=300)

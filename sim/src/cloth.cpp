@@ -21,9 +21,6 @@ Cloth::Cloth(int num_vertices, double initial_ring_radius) {
 
   buildGrid();
   buildClothMesh();
-
-  double angle = 2 * PI / num_vertices;
-  this->min_dist = initial_ring_radius * angle;
 }
 
 Cloth::~Cloth() {
@@ -43,6 +40,11 @@ void Cloth::buildGrid() {
     //for (double a = 0.; a <= this->width; a+= this->width / (double(num_width_points) - 1)) {
       //  for (double b = 0.; b <= this->height; b+= this->height / (double(num_height_points) - 1)) {
     double angle = 2 * PI / num_vertices;
+    this->min_dist = initial_ring_radius * angle;
+    cout << "initial_ring_radius" << initial_ring_radius << endl;
+    cout << "angle" << angle << endl;
+    cout << "min_dist" << min_dist << endl;
+
     for (int i = 0; i < num_vertices; i++) {
         Vector3D position;
         position.x = initial_ring_radius * cos(angle * i);
@@ -180,7 +182,7 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
   }
 
   // Resample number of points
-  //resample();
+  // resample();
 
   // Burgers thickness flow
   //burgers_flow(delta_t);
@@ -302,13 +304,85 @@ void Cloth::modify_thickness() {
   }
 }
 
+static double lerp(double x, double y0, double y1) {
+  return y0 + x * (y1 - y0);
+}
+
+static Vector3D lerp(double x, Vector3D y0, Vector3D y1) {
+  return y0 + x * (y1 - y0);
+}
+
 /**
  * Resamples the number of the points on the bubble ring.
  * Modifies positions, thicknesses, C values.
  * Also changes num_vertices of the Cloth.
  */
 void Cloth::resample() {
-  
+  // Create list of cumulative sums
+  vector<double> d;
+  double d_sum = 0;
+  d.push_back(d_sum);
+  for (int i = 0; i < num_vertices; i++) {
+    int i_plus1 = (i + 1) % num_vertices;
+    d_sum += (point_masses.at(i_plus1).position - point_masses.at(i).position).norm();
+    d.push_back(d_sum);
+  }
+
+  // Determine new number of vertices and distance between them
+  int new_num_vertices = floor(d_sum / min_dist);
+  if (new_num_vertices <= num_vertices)
+    return;
+  num_vertices = new_num_vertices;
+  double space = d_sum / num_vertices;
+  cout << "Resampling!" << endl;
+  cout << "new_num_vertices=" << new_num_vertices << endl;
+  cout << "d_sum=" << d_sum << endl;
+  cout << "d:" << endl;
+  for (auto it = d.begin(); it != d.end(); it++) {
+    cout << *it << " | ";
+  }
+  cout << endl;
+
+  // Create new points
+  vector<PointMass> new_pms;
+  double d_new = 0;
+  int j = 0;
+  for (int i = 0; i < num_vertices; i++) {
+    while (d_new >= d.at(j + 1)) {
+      j++;
+    }
+    int j_plus1 = (j + 1) % point_masses.size();
+    PointMass& pm0 = point_masses.at(j);
+    PointMass& pm1 = point_masses.at(j_plus1);
+    /*cout << "j=" << j << " | ";
+    cout << "d_new=" << d_new << " | " << endl;*/
+
+    // Linearly interpolate positions, squared thicknesses, and circulation
+    double x = (d_new - d.at(j)) / (d.at(j + 1) - d.at(j));
+    Vector3D pos_new = lerp(x, pm0.position, pm1.position);
+    //cout << "pos_new=" << pos_new << endl;
+    double a2_new = lerp(x, pow(pm0.thickness, 2), pow(pm1.thickness, 2));
+    double a_new = sqrt(a2_new);
+    double C_new = lerp(x, pm0.circulation, pm1.circulation);
+
+    // Create new point mass
+    new_pms.emplace_back(pos_new, false, a_new, C_new);
+    
+    d_new += space;
+  }
+  cout << "point_masses.size()=" << point_masses.size() << endl;
+  cout << "point_masses:" << endl;
+  for (auto it = point_masses.begin(); it != point_masses.end(); it++) {
+    cout << it->position << " | " << it->thickness << " | " << it->circulation << endl;
+  }
+  point_masses = new_pms;
+  cout << "new point_masses.size()=" << point_masses.size() << endl;
+  cout << "new point_masses:" << endl;
+  for (auto it = point_masses.begin(); it != point_masses.end(); it++) {
+    cout << it->position << " | " << it->thickness << " | " << it->circulation << endl;
+  }
+  cout << "Leaving resample()" << endl;
+  //throw 11;
 }
 
 /**
