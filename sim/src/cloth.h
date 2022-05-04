@@ -61,6 +61,16 @@ struct Cloth {
   void self_collide(PointMass &pm, double simulation_steps);
   float hash_position(Vector3D pos);
 
+  // Bubble ring physics functions
+  void velocity();
+  Vector3D biotsavart_edge(PointMass p, PointMass v0, PointMass v1);
+  Vector3D induction(PointMass v0, PointMass v1, PointMass v2);
+  Vector3D boussinesq(PointMass v0, PointMass v1);
+  void modify_thickness();
+  void resample();
+  double volume();
+  void burgers_flow(double delta_t);
+
   // Cloth properties
   double width;
   double height;
@@ -71,6 +81,10 @@ struct Cloth {
   double circulation;
   double thickness;
   e_orientation orientation;
+
+  // Properties for physics
+  double vol0 = -1; // FIXME? Set this value in simulate()
+  double min_dist; // set in Cloth constructor
 
   // Cloth components
   vector<PointMass> point_masses;

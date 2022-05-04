@@ -9,12 +9,21 @@
 
 using namespace std;
 
+const double muRM = exp(-0.75);
+const double dRM = 0.5 * exp(0.25);
+const double nu = 1e-6;
+const Vector3D g = Vector3D(0, 9.8, 0);
+const double At = -1;
+
 Cloth::Cloth(int num_vertices, double initial_ring_radius) {
-   this->num_vertices = num_vertices;
-   this->initial_ring_radius = initial_ring_radius;
+  this->num_vertices = num_vertices;
+  this->initial_ring_radius = initial_ring_radius;
 
   buildGrid();
   buildClothMesh();
+
+  double angle = 2 * PI / num_vertices;
+  this->min_dist = initial_ring_radius * angle;
 }
 
 Cloth::~Cloth() {
@@ -37,7 +46,7 @@ void Cloth::buildGrid() {
     for (int i = 0; i < num_vertices; i++) {
         Vector3D position;
         position.x = initial_ring_radius * cos(angle * i);
-        printf("%f\n", initial_ring_radius * cos(angle * i));
+        // printf("%f\n", initial_ring_radius * cos(angle * i));
         position.z = initial_ring_radius * sin(angle * i);
         position.y = 0;
         PointMass pm = PointMass(position, false, 0.2);
@@ -78,93 +87,254 @@ void Cloth::buildGrid() {
 void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParameters *cp,
                      vector<Vector3D> external_accelerations,
                      vector<CollisionObject *> *collision_objects) {
-  double mass = width * height * cp->density / num_width_points / num_height_points;
+  // This function performs 1 timestep of Runge Kutta
   double delta_t = 1.0f / frames_per_sec / simulation_steps;
 
-  // TODO (Part 2): Compute total force acting on each point mass.
-    int i = 0;
-    Vector3D total_force = Vector3D(0., 0., 0.);
-    for (Vector3D accel : external_accelerations) {
-        total_force += accel * mass;
-    }
-    for (PointMass &pm : this->point_masses) {
-        pm.forces = total_force;
-    }
-    
-    for (Spring &spring : this->springs) {
-        double spring_force;
-        if (spring.spring_type == STRUCTURAL) {
-            if (cp->enable_structural_constraints) {
-                double position_diff_norm = (spring.pm_a->position - spring.pm_b->position).norm();
-                spring_force = cp->ks * (position_diff_norm - spring.rest_length);
-            }
-        }
-        if (spring.spring_type == SHEARING) {
-            if (cp->enable_shearing_constraints) {
-                double position_diff_norm = (spring.pm_a->position - spring.pm_b->position).norm();
-                spring_force = cp->ks * (position_diff_norm - spring.rest_length);
-            }
-        }
-        if (spring.spring_type == BENDING) {
-            if (cp->enable_bending_constraints) {
-                double position_diff_norm = (spring.pm_a->position - spring.pm_b->position).norm();
-                spring_force = 0.2 * cp->ks * (position_diff_norm - spring.rest_length);
-            }
-        }
-        // apply force to one and equal and opposite to other
-        spring.pm_a->forces -= spring_force * (spring.pm_a->position - spring.pm_b->position).unit();
-        spring.pm_b->forces += spring_force * (spring.pm_a->position - spring.pm_b->position).unit();
-    }
-    
+  // Remove thickness-rending points
+  deleteExtraPoints();
+  if (num_vertices != point_masses.size()) {
+    cout << "deleteExtraPoints() did not work!" << endl;
+    cout << "point_masses.size(): " << point_masses.size() << endl;
+    cout << "num_vertices: " << num_vertices << endl << endl;
+    throw 11; // throw error, arbitrary number idk
+  }
 
-  // TODO (Part 2): Use Verlet integration to compute new point mass positions
-    for (PointMass &pm : this->point_masses) {
-        if (!pm.pinned) {
-            Vector3D old_position = pm.position;
-            pm.position = pm.position + (1. - (cp->damping / 100.)) * (pm.position - pm.last_position) + (pm.forces / mass) * pow(delta_t, 2.);
-            pm.last_position = old_position;
-        }
+  // Set vol0 if we haven't done so already
+  if (this->vol0 == -1) {
+    this->vol0 = volume();
+  }
+
+  // Use temp_position for Runge Kutta calculations
+  for (int i = 0; i < point_masses.size(); i++) {
+    PointMass& pm = point_masses.at(i);
+    pm.temp_position = pm.position;
+  }
+
+  // Step 1
+  velocity();
+  vector<Vector3D> K1(point_masses.size());
+  for (int i = 0; i < point_masses.size(); i++) {
+    Vector3D& k1 = K1.at(i);
+    Vector3D vel = point_masses.at(i).point_velocity;
+    k1 = delta_t * vel;
+  }
+
+  // Step 2
+  for (int i = 0; i < point_masses.size(); i++) {
+    PointMass& pm = point_masses.at(i);
+    pm.last_position = pm.temp_position;
+    pm.temp_position += 0.5 * K1.at(i);
+  }
+  modify_thickness();
+  velocity();
+
+  vector<Vector3D> K2(point_masses.size());
+  for (int i = 0; i < point_masses.size(); i++) {
+    Vector3D& k2 = K2.at(i);
+    Vector3D vel = point_masses.at(i).point_velocity;
+    k2 = delta_t * vel;
+  }
+
+  // Step 3
+  for (int i = 0; i < point_masses.size(); i++) {
+    PointMass& pm = point_masses.at(i);
+    pm.last_position = pm.temp_position;
+    pm.temp_position += 0.5 * K2.at(i);
+  }
+  modify_thickness();
+  velocity();
+  
+  vector<Vector3D> K3(point_masses.size());
+  for (int i = 0; i < point_masses.size(); i++) {
+    Vector3D& k3 = K3.at(i);
+    Vector3D vel = point_masses.at(i).point_velocity;
+    k3 = delta_t * vel;
+  }
+
+  // Step 4
+  for (int i = 0; i < point_masses.size(); i++) {
+    PointMass& pm = point_masses.at(i);
+    pm.last_position = pm.temp_position;
+    pm.temp_position += K3.at(i);
+  }
+  modify_thickness();
+  velocity();
+  
+  vector<Vector3D> K4(point_masses.size());
+  for (int i = 0; i < point_masses.size(); i++) {
+    Vector3D& k4 = K4.at(i);
+    Vector3D vel = point_masses.at(i).point_velocity;
+    k4 = delta_t * vel;
+  }
+
+  // RK4
+  for (int i = 0; i < point_masses.size(); i++) {
+    PointMass& pm = point_masses.at(i);
+    pm.position += (K1.at(i) + 2 * K2.at(i) + 2 * K3.at(i) + K4.at(i)) / 6;
+  }
+
+  // Volume conservation
+  double vol1 = volume();
+  for (auto pm_iter = point_masses.begin(); pm_iter != point_masses.end(); pm_iter++) {
+    pm_iter->thickness = pm_iter->thickness * sqrt(vol0 / vol1);
+  }
+
+  // Resample number of points
+  //resample();
+
+  // Burgers thickness flow
+  //burgers_flow(delta_t);
+
+  // Add thickness-rendering points back in
+  createExtraPoints();
+}
+
+/**
+ * Update the point velocities.
+ */
+void Cloth::velocity() {
+  // Initialize point velocities to 0 before calculations
+  for (auto pm_iter = point_masses.begin(); pm_iter != point_masses.end(); pm_iter++) {
+    pm_iter->point_velocity = Vector3D(0, 0, 0);
+  }
+
+  for (int i = 0; i < num_vertices; i++) {
+    // Over all vertices of filament
+    PointMass& pm = point_masses.at(i);
+
+    for (int j = 0; j < num_vertices; j++) {
+      // Biot Savart sum over edges (TERM 1 uBSdisc)
+      int j_plus1 = (j + 1) % point_masses.size();
+      pm.point_velocity += biotsavart_edge(pm, point_masses.at(j), point_masses.at(j_plus1));
     }
 
+    // Apply induction term  (TERM 2 uLIA)
+    int i_minus1 = (i + point_masses.size() - 1) % point_masses.size();
+    int i_plus1 = (i + 1) % point_masses.size();
+    pm.point_velocity += induction(point_masses.at(i_minus1), pm, point_masses.at(i_plus1));
+  }
 
-  // TODO (Part 4): Handle self-collisions.
+  // Boussinesq term (TERM 3) evaluated at edges then interpolated to vertices
+  vector<Vector3D> edge_vel(num_vertices);
+  for (int i = 0; i < num_vertices; i++) {
+    // Boussinesq over edges
+    int i_plus1 = (i + 1) % point_masses.size();
+    Vector3D& ev = edge_vel.at(i);
+    ev = boussinesq(point_masses.at(i), point_masses.at(i_plus1));
+  }
+  for (int i = 0; i < num_vertices; i++) {
+    // interpolate to vertices
+    PointMass &pm = point_masses.at(i);
+    int i_minus1 = (i + point_masses.size() - 1) % point_masses.size();
+    pm.point_velocity += (edge_vel.at(i) + edge_vel.at(i_minus1)) / 2;
+  }
+}
 
+/**
+ * Biosavart term for velocity calculations.
+ */
+Vector3D Cloth::biotsavart_edge(PointMass p, PointMass v0, PointMass v1) {
+  double a = v0.thickness;
+  double C = v0.circulation;
 
-  // TODO (Part 3): Handle collisions with other primitives.
-    build_spatial_map();
-    for (PointMass &pm : point_masses) {
-        self_collide(pm, simulation_steps);
-    }
-    for (auto c : *collision_objects) {
-        for (PointMass &pm : this->point_masses) {
-            c->collide(pm);
-        }
-    }
+  Vector3D r0 = v0.temp_position - p.temp_position;
+  Vector3D r1 = v1.temp_position - p.temp_position;
+  Vector3D T = r1 - r0;
+  double a2mu = pow(a * muRM, 2);
+  Vector3D crossr01 = cross(r0, r1);
 
-  // TODO (Part 2): Constrain the changes to be such that the spring does not change
-  // in length more than 10% per timestep [Provot 1995].
-    for (Spring &spring : this->springs) {
-        double spring_length = (spring.pm_a->position - spring.pm_b->position).norm();
-        // have to correct
-        if (spring_length > (spring.rest_length * 1.1)) {
-            // a pinned
-            if (spring.pm_a->pinned) {
-                Vector3D direction = (spring.pm_b->position - spring.pm_a->position).unit();
-                spring.pm_b->position = direction * 1.1 * spring.rest_length + spring.pm_a->position;
-            }
-            // b pinned
-            else if (spring.pm_b->pinned) {
-                Vector3D direction = (spring.pm_a->position - spring.pm_b->position).unit();
-                spring.pm_a->position = direction * 1.1 * spring.rest_length + spring.pm_b->position;
-            }
-            // neither pinned
-            else {
-                Vector3D midpoint = (spring.pm_a->position + spring.pm_b->position) / 2.;
-                spring.pm_a->position = (spring.pm_a->position - midpoint).unit() * 1.1 * spring.rest_length / 2. + midpoint;
-                spring.pm_b->position = (spring.pm_b->position - midpoint).unit() * 1.1 * spring.rest_length / 2. + midpoint;
-            }
-        }
-    }
+  double term1 = dot(r1, T) / (sqrt(a2mu + r1.norm2()) * (T.norm2() * a2mu + crossr01.norm2()));
+  double term2 = dot(r0, T) / (sqrt(a2mu + r0.norm2()) * (T.norm2() * a2mu + crossr01.norm2()));
+  return C / (4 * PI) * (term1 - term2) * crossr01;
+}
+
+/**
+ * Induction term for velocity calculations.
+ */
+Vector3D Cloth::induction(PointMass v0, PointMass v1, PointMass v2) {
+  double c0 = v0.circulation;
+  double c1 = v1.circulation;
+  double a0 = v0.thickness;
+  double a1 = v1.thickness;
+
+  double s0 = (v1.temp_position - v0.temp_position).norm();
+  double s1 = (v2.temp_position - v1.temp_position).norm();
+  Vector3D T0 = (v1.temp_position - v0.temp_position) / s0;
+  Vector3D T1 = (v2.temp_position - v1.temp_position) / s1;
+  double C = (c0 + c1) / 2;
+
+  Vector3D kB = 2 * cross(T0, T1) / (s0 + s1);
+  double logterm = log(s0 * s1 / (a0 * a1 * dRM * dRM));
+  return C / (4 * PI) * .5 * logterm * kB;
+}
+
+/**
+ * Boussinesq term for velocity calculations.
+ */
+Vector3D Cloth::boussinesq(PointMass v0, PointMass v1) {
+  double C = v0.circulation;
+  double a = v0.thickness;
+
+  Vector3D edge = v1.temp_position - v0.temp_position;
+  double ds = edge.norm();
+  Vector3D T = edge / ds;
+  Vector3D Atg_n = At * g - dot(At * g, T) * T;
+
+  double coeff1 = 16 * PI*PI * nu * a*a / (256 * PI*PI * nu*nu + C*C);
+  double coeff2 = PI * a*a * C / (256 * PI*PI * nu*nu + C*C);
+  return coeff1 * Atg_n + coeff2 * cross(T, Atg_n);
+}
+
+/**
+ * Updates the thickness at each edge (stored on PointMasses).
+ * Uses each PointMass's temp_position and last_position.
+ * Sets values for each PointMass's thickness.
+ */
+void Cloth::modify_thickness() {
+  for (int i = 0; i < num_vertices; i++) {
+    int i_plus1 = (i + 1) % num_vertices;
+    PointMass& pm0 = point_masses.at(i);
+    PointMass& pm1 = point_masses.at(i_plus1);
+
+    double l_old = (pm1.last_position - pm0.last_position).norm();
+    double l_new = (pm1.temp_position - pm0.temp_position).norm();
+    pm0.thickness = pm0.thickness * sqrt(l_old / l_new);
+  }
+}
+
+/**
+ * Resamples the number of the points on the bubble ring.
+ * Modifies positions, thicknesses, C values.
+ * Also changes num_vertices of the Cloth.
+ */
+void Cloth::resample() {
+  
+}
+
+/**
+ * Calculates the volume of the bubble ring.
+ * Uses the positions and thicknesses stored in each PointMass.
+ */
+double Cloth::volume() {
+  double vol = 0;
+
+  for (int i = 0; i < num_vertices; i++) {
+    int i_plus1 = (i + 1) % num_vertices;
+    PointMass& pm0 = point_masses.at(i);
+    PointMass& pm1 = point_masses.at(i_plus1);
+
+    double d = (pm1.position - pm0.position).norm();
+    vol += d * pm0.thickness * pm0.thickness;
+  }
+
+  vol *= PI;
+  return vol;
+}
+
+/**
+ * Modifies thicknesses according Burgers flow.
+ */
+void Cloth::burgers_flow(double delta_t) {
 
 }
 
@@ -241,59 +411,66 @@ void Cloth::reset() {
 }
 
 void Cloth::deleteExtraPoints() {
-    for (int i = point_masses.size() - num_vertices; i >= 0; i-=num_vertices+1) {
-        point_masses.erase(point_masses.begin()+i);
-    }
+  // Delete all point masses except the main outer ring
+  for (int i = point_masses.size() - num_vertices - 1; i >= 0; i -= num_vertices + 1) {
+    vector<PointMass>::iterator first = point_masses.begin() + i + 1;
+    vector<PointMass>::iterator last = point_masses.begin() + i + num_vertices + 1;
+    point_masses.erase(first, last);
+  }
     
-    // delete all springs, and just add back the outer ring ones
+  // delete all springs, and just add back the outer ring ones
     
-    springs.clear();
+  springs.clear();
     
-    int point_index = 0;
+  int point_index = 0;
     
-    Spring left_spring = Spring(&(this->point_masses[point_masses.size() - 1]), &(this->point_masses[0]), STRUCTURAL);
-    springs.emplace_back(left_spring);
+  Spring left_spring = Spring(&(this->point_masses[point_masses.size() - 1]), &(this->point_masses[0]), STRUCTURAL);
+  springs.emplace_back(left_spring);
 
-    while (point_index < num_vertices - 1) {
-        left_spring = Spring(&(this->point_masses[point_index]), &(this->point_masses[(point_index + 1)]), STRUCTURAL);
-        springs.emplace_back(left_spring);
-        point_index += 1;
-    }
+  while (point_index < num_vertices - 1) {
+      left_spring = Spring(&(this->point_masses[point_index]), &(this->point_masses[(point_index + 1)]), STRUCTURAL);
+      springs.emplace_back(left_spring);
+      point_index += 1;
+  }
 }
 
 void Cloth::createExtraPoints() {
-    double angle = 2 * PI / num_vertices;
-    for (int i = 0; i < num_vertices; i++) {
-        double new_angle = 2 * PI / num_vertices;
-        for (int j = 0; j < num_vertices; j++) {
-            Vector3D position;
-            PointMass pm = point_masses[i];
-            position.y = pm.position.y + pm.thickness * sin(new_angle * j);
-            position.x = pm.position.x + pm.thickness * cos(new_angle * j) * cos(angle * i);
-            position.z = pm.position.z + pm.thickness * cos(new_angle * j) * sin(angle * i);
-            PointMass new_pm = PointMass(position, false, 0.0);
-            point_masses.emplace_back(new_pm);
-        }
-        int point_index = 0;
-        Spring left_spring = Spring(&(this->point_masses[point_masses.size() - 1]), &(this->point_masses[point_masses.size() - num_vertices]), STRUCTURAL);
-        springs.emplace_back(left_spring);
-        while (point_index < num_vertices - 1) {
-            left_spring = Spring(&(this->point_masses[point_masses.size() - num_vertices + point_index]), &(this->point_masses[point_masses.size() - num_vertices + point_index + 1]), STRUCTURAL);
-            springs.emplace_back(left_spring);
-            point_index += 1;
-        }
-    }
-    
-    int point_index = 0;
-    
-    Spring left_spring = Spring(&(this->point_masses[point_masses.size() - num_vertices - 1]), &(this->point_masses[0]), STRUCTURAL);
-    springs.emplace_back(left_spring);
+  double angle = 2 * PI / num_vertices;
+  for (int i = 0; i < num_vertices; i++) {
+    int main_ring_idx = i * (num_vertices + 1);
 
+    double new_angle = 2 * PI / num_vertices;
+    for (int j = 0; j < num_vertices; j++) {
+        Vector3D position;
+        PointMass pm = point_masses[main_ring_idx];
+        position.y = pm.position.y + pm.thickness * sin(new_angle * j);
+        position.x = pm.position.x + pm.thickness * cos(new_angle * j) * cos(angle * i);
+        position.z = pm.position.z + pm.thickness * cos(new_angle * j) * sin(angle * i);
+        PointMass new_pm = PointMass(position, false, 0.0);
+
+        vector<PointMass>::iterator it = point_masses.begin() + main_ring_idx + 1 + j;
+        point_masses.insert(it, new_pm);
+    }
+    int point_index = 0;
+    Spring left_spring = Spring(&(this->point_masses[point_masses.size() - 1]), &(this->point_masses[point_masses.size() - num_vertices]), STRUCTURAL);
+    springs.emplace_back(left_spring);
     while (point_index < num_vertices - 1) {
-        left_spring = Spring(&(this->point_masses[point_index * (num_vertices + 1)]), &(this->point_masses[(point_index + 1) * (num_vertices + 1)]), STRUCTURAL);
+        left_spring = Spring(&(this->point_masses[point_masses.size() - num_vertices + point_index]), &(this->point_masses[point_masses.size() - num_vertices + point_index + 1]), STRUCTURAL);
         springs.emplace_back(left_spring);
         point_index += 1;
     }
+  }
+    
+  int point_index = 0;
+    
+  Spring left_spring = Spring(&(this->point_masses[point_masses.size() - num_vertices - 1]), &(this->point_masses[0]), STRUCTURAL);
+  springs.emplace_back(left_spring);
+
+  while (point_index < num_vertices - 1) {
+      left_spring = Spring(&(this->point_masses[point_index * (num_vertices + 1)]), &(this->point_masses[(point_index + 1) * (num_vertices + 1)]), STRUCTURAL);
+      springs.emplace_back(left_spring);
+      point_index += 1;
+  }
 }
 
 void Cloth::buildClothMesh() {
