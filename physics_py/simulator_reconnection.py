@@ -10,40 +10,50 @@ import matplotlib.pyplot as plt
 from bubble_ring_functions_ext import *
 
 # Create 2 bubble rings
-N     = 20  #vertices
-nt    = 60  #time steps
+N     = 40  #vertices
+nt    = 30  #time steps
 theta = np.linspace(0,2*np.pi,N+1)
 R     = 0.5   #radius
-dt    = 0.01#time step
+dt    = 0.004#time step
 mind  = R * theta[1] #distance for resampling
 
 #Bubble ring 1
 r1_pos = np.array([R*np.cos(theta),R*np.sin(theta),np.zeros(N+1)]).T #first vertex repeat at end
 r1_C   = 2*np.ones(N+1) #edges, repeat for first edge
-r1_a   = 0.1*np.ones(N+1) #edges, repeat for first edge
+r1_a   = 0.04*np.ones(N+1) #edges, repeat for first edge
 r1_vol = volume(r1_pos,r1_a)
 r1_N   = N
 
 #Bubble ring 2
-r2_pos = np.array([R*np.cos(theta) - 1.25,R*np.sin(theta) - 0.3, np.zeros(N+1)]).T #first vertex repeat at end
+N     = 40  #vertices
+theta = np.linspace(0,2*np.pi,N+1)
+
+r2_pos = np.array([R*np.cos(theta) - 1,R*np.sin(theta), np.zeros(N+1) - 0.2]).T #first vertex repeat at end
 r2_C   = 2*np.ones(N+1) #edges, repeat for first edge
-r2_a   = 0.1*np.ones(N+1) #edges, repeat for first edge
+r2_a   = 0.04*np.ones(N+1) #edges, repeat for first edge
 r2_vol = volume(r2_pos,r2_a)
 r2_N   = N
 
-#Plot to check initial conditions
-# fig = plt.figure(figsize = (10,10))
-# ax = plt.axes(projection='3d')
-# plt.plot(r1_pos[:,0],r1_pos[:,1],r1_pos[:,2])
-# ax.scatter(r1_pos[:,0],r1_pos[:,1],r1_pos[:,2],s = 100)
+pos_list = [r1_pos, r2_pos]
+a_list   = [r1_a, r2_a]
+C_list   = [r1_C,r2_C]
+N_list   = [r1_N,r2_N]
+vol_list = [r1_vol,r2_vol]
 
-# plt.plot(r2_pos[:,0],r2_pos[:,1],r2_pos[:,2])
-# ax.scatter(r2_pos[:,0],r2_pos[:,1],r2_pos[:,2],s = 100)
+#%% Plot to check initial conditions
+fig = plt.figure(figsize = (10,10))
+ax = plt.axes(projection='3d')
+ax.set_box_aspect(aspect = (2,1,1))
 
+plt.plot(r1_pos[:,0],r1_pos[:,1],r1_pos[:,2])
+ax.scatter(r1_pos[:,0],r1_pos[:,1],r1_pos[:,2],s = 100)
+
+plt.plot(r2_pos[:,0],r2_pos[:,1],r2_pos[:,2])
+ax.scatter(r2_pos[:,0],r2_pos[:,1],r2_pos[:,2],s = 100)
 #%%
 #Frames for plotting
-frame   = [[np.copy(r1_pos), np.copy(r2_pos)]]
-frame_a = [[np.copy(r1_a), np.copy(r2_a)]]
+frame   = [np.copy(pos_list)]
+frame_a = [np.copy(a_list)]
 
 #Time integration
 for t in range(nt):
@@ -54,107 +64,108 @@ for t in range(nt):
     # k3 = vel(t + dt/2,pos_old + dt/2 * k2)
     # k4 = vel(t + dt  ,pos_old + dt * k3)
 
-    r1_posRK = np.copy(r1_pos)
-    r2_posRK = np.copy(r2_pos)
+    nRings = len(pos_list)
+    posRK  = np.copy(pos_list)
+
+    K1 = []
+    K2 = []
+    K3 = []
+    K4 = []
+    for i in range(nRings):
+        #Step 1
+        vel = velocity(posRK[i],C_list[i],a_list[i],pos_list,C_list,a_list)
+        K1.append(dt * vel)
+       
+        #Step 2
+        pos_old          = np.copy(posRK[i])
+        posRK[i][:-1,:] += 0.5 * K1[i]
+        posRK[i][-1,:]   = posRK[i][0,:] #Last element is first point
+
+        a_list[i] = modify_thickness(pos_old,posRK[i],a_list[i],N_list[i]) #Modify thickness over edges
+
+        vel = velocity(posRK[i],C_list[i],a_list[i],pos_list,C_list,a_list)
+        K2.append(dt * vel)
+  
+        #Step 3
+        pos_old          = np.copy(posRK[i])
+        posRK[i][:-1,:] += 0.5 * K2[i]
+        posRK[i][-1,:]   = posRK[i][0,:] #Last element is first point
     
-    #Step 1
-    r1_vel = velocity(r1_posRK,r1_C,r1_a,r2_pos,r2_C,r2_a)
-    r1_K1  = dt * r1_vel
-    r2_vel = velocity(r2_posRK,r2_C,r2_a,r1_pos,r1_C,r1_a)
-    r2_K1  = dt * r2_vel
+        a_list[i] = modify_thickness(pos_old,posRK[i],a_list[i],N_list[i]) #Modify thickness over edges
+
+        vel = velocity(posRK[i],C_list[i],a_list[i],pos_list,C_list,a_list)
+        K3.append(dt * vel)
+
+        #Step 4
+        pos_old          = np.copy(posRK[i])
+        posRK[i][:-1,:] += K3[i]
+        posRK[i][-1,:]   = posRK[i][0,:] #Last element is first point
     
-    #Step 2
-    r1_pos_old       = np.copy(r1_posRK)
-    r1_posRK[:-1,:] += 0.5 * r1_K1
-    r1_posRK[-1,:]   = r1_posRK[0,:] #Last element is first point
-    r2_pos_old       = np.copy(r2_posRK)
-    r2_posRK[:-1,:] += 0.5 * r2_K1
-    r2_posRK[-1,:]   = r2_posRK[0,:] #Last element is first point
-    
-    r1_a   = modify_thickness(r1_pos_old,r1_posRK,r1_a,r1_N) #Modify thickness over edges
-    r2_a   = modify_thickness(r2_pos_old,r2_posRK,r2_a,r2_N) #Modify thickness over edges
-    
-    r1_vel = velocity(r1_posRK,r1_C,r1_a,r2_pos,r2_C,r2_a)
-    r1_K2  = dt * r1_vel
-    r2_vel = velocity(r2_posRK,r2_C,r2_a,r1_pos,r1_C,r1_a)
-    r2_K2  = dt * r2_vel
+        a_list[i] = modify_thickness(pos_old,posRK[i],a_list[i],N_list[i]) #Modify thickness over edges
         
-    #Step 3
-    r1_pos_old       = np.copy(r1_posRK)
-    r1_posRK[:-1,:] += 0.5 * r1_K2
-    r1_posRK[-1,:]   = r1_posRK[0,:] #Last element is first point
-    r2_pos_old       = np.copy(r2_posRK)
-    r2_posRK[:-1,:] += 0.5 * r2_K2
-    r2_posRK[-1,:]   = r2_posRK[0,:] #Last element is first point
+        vel = velocity(posRK[i],C_list[i],a_list[i],pos_list,C_list,a_list)
+        K4.append(dt * vel)
     
-    r1_a   = modify_thickness(r1_pos_old,r1_posRK,r1_a,r1_N) #Modify thickness over edges
-    r2_a   = modify_thickness(r2_pos_old,r2_posRK,r2_a,r2_N) #Modify thickness over edges
     
-    r1_vel = velocity(r1_posRK,r1_C,r1_a,r2_pos,r2_C,r2_a)
-    r1_K3  = dt * r1_vel
-    r2_vel = velocity(r2_posRK,r2_C,r2_a,r1_pos,r1_C,r1_a)
-    r2_K3  = dt * r2_vel
-    
-    #Step 4
-    r1_pos_old       = np.copy(r1_posRK)
-    r1_posRK[:-1,:] += r1_K3
-    r1_posRK[-1,:]   = r1_posRK[0,:] #Last element is first point
-    r2_pos_old       = np.copy(r2_posRK)
-    r2_posRK[:-1,:] += r2_K3
-    r2_posRK[-1,:]   = r2_posRK[0,:] #Last element is first point
-    
-    r1_a   = modify_thickness(r1_pos_old,r1_posRK,r1_a,r1_N) #Modify thickness over edges
-    r2_a   = modify_thickness(r2_pos_old,r2_posRK,r2_a,r2_N) #Modify thickness over edges
-    
-    r1_vel = velocity(r1_posRK,r1_C,r1_a,r2_pos,r2_C,r2_a)
-    r1_K4  = dt * r1_vel
-    r2_vel = velocity(r2_posRK,r2_C,r2_a,r1_pos,r1_C,r1_a)
-    r2_K4  = dt * r2_vel
-    
+    for i in range(nRings):
     #RK4
-    r1_pos[:-1,:] += (r1_K1 + 2*r1_K2 + 2*r1_K3 + r1_K4)/6
-    r1_pos[-1,:]   = r1_pos[0,:]
-    r2_pos[:-1,:] += (r2_K1 + 2*r2_K2 + 2*r2_K3 + r2_K4)/6
-    r2_pos[-1,:]   = r2_pos[0,:]
-    
+        pos_list[i][:-1,:] += (K1[i] + 2*K2[i] + 2*K3[i] + K4[i])/6
+        pos_list[i][-1,:]   = pos_list[i][0,:]
+
     #Volume conservation (Inside air)
-    r1_vol1 = volume(r1_pos,r1_a)
-    r1_a    = r1_a * np.sqrt(r1_vol/r1_vol1)
-    r2_vol1 = volume(r2_pos,r2_a)
-    r2_a    = r2_a * np.sqrt(r2_vol/r2_vol1)
+
+        vol = volume(pos_list[i],a_list[i])
+        a_list[i] = a_list[i] * np.sqrt(vol_list[i]/vol)
     
     #Resample
-    r1_pos, r1_a, r1_C, r1_N = resample(r1_pos,r1_a,r1_C,mind)
-    r2_pos, r2_a, r2_C, r2_N = resample(r2_pos,r2_a,r2_C,mind)
+        pos_list[i], a_list[i], C_list[i], N_list[i] = resample(pos_list[i],a_list[i],C_list[i],mind)
 
     #Burgers thickness flow
-    r1_a[:-1] = burgers_flow(r1_pos,r1_C,r1_a,dt)
-    r1_a[-1]  = r1_a[0]
-    r2_a[:-1] = burgers_flow(r2_pos,r2_C,r2_a,dt)
-    r2_a[-1]  = r2_a[0]
-    
-    #Remove sharp coners (hairpins)
-    r1_pos, r1_a, r1_C, r1_N = hairpin_removal(r1_pos,r1_a,r1_C)
-    r2_pos, r2_a, r2_C, r2_N = hairpin_removal(r2_pos,r2_a,r2_C)
-    
-    #Resample
-    r1_pos, r1_a, r1_C, r1_N = resample(r1_pos,r1_a,r1_C,mind)
-    r2_pos, r2_a, r2_C, r2_N = resample(r2_pos,r2_a,r2_C,mind)
+        a_list[i][:-1] = burgers_flow(pos_list[i],C_list[i], a_list[i],dt)
+        a_list[i][-1]  = a_list[i][0]
 
-    frame.append([np.copy(r1_pos),np.copy(r2_pos)])
-    frame_a.append([np.copy(r1_a),np.copy(r2_a)])
+    
+    # Hairpin and Reconnection
+    for i in range(nRings):
+    #Remove sharp coners (hairpins)
+        pos_list[i], a_list[i], C_list[i], N_list[i] = hairpin_removal(pos_list[i],a_list[i],C_list[i])
+        
+    # Reconnection
+    pos_list,a_list,C_list = Reconnection(pos_list,a_list,C_list)
+    nRings = len(pos_list)
+    
+    # Resample
+    for i in range(nRings):
+        pos_list[i], a_list[i], C_list[i], N_list[i] = resample(pos_list[i],a_list[i],C_list[i],mind)
+        
+
+    frame.append(np.copy(pos_list))
+    frame_a.append(np.copy(a_list))
+
     
 #%%
 fig = plt.figure(figsize = (10,10))
 ax = plt.axes(projection='3d')
-ax.set_box_aspect((2,2,1))
+ax.set_box_aspect(aspect = (2,1,1))
+# ax.view_init(170, 60)
+ax.view_init(-160, 100)
+ax.invert_zaxis()    
 
 for t in range(nt+1):
-    if t%15 == 0:
-        ring1 = frame[t][0]
-        plt.plot(ring1[:,0],ring1[:,1],ring1[:,2])
-        ax.scatter(ring1[:,0],ring1[:,1],ring1[:,2],s = frame_a[t][0]*1000)
-        
-        ring2 = frame[t][1]
-        plt.plot(ring2[:,0],ring2[:,1],ring2[:,2])
-        ax.scatter(ring2[:,0],ring2[:,1],ring2[:,2],s = frame_a[t][1]*1000)
+# for t in range(14,25):
+    if t%5 == 0:
+        for i in range(len(frame[t])):
+            ring = frame[t][i]
+            plt.plot(ring[:,0],ring[:,1],ring[:,2])
+            ax.scatter(ring[:,0],ring[:,1],ring[:,2],s = frame_a[t][i][0]*1000)
+
+
+
+
+
+
+
+
+
+
+

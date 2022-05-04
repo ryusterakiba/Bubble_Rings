@@ -56,23 +56,23 @@ def boussinesq(v0,v1,C,a):
     coeff2 = np.pi * a**2 * C/ (256 * np.pi**2 * nu**2 + C**2)
     return coeff1 * Atg_n + coeff2 * np.cross(T,Atg_n)
 
-def velocity(pos,C,a,pos_ext,C_ext,a_ext):
+def velocity(pos,C,a,pos_list,C_list,a_list):
     #Calculates the velocity of the N vertices located at pos
     #Each edge has circulation C and thickness a
     #pos_ext are positions of other bubble ring
     N       = pos.shape[0] - 1
-    N_ext   = pos_ext.shape[0] - 1
     pos_pad = np.vstack((pos[-2,:],pos)) #has one vertex before start
     point_vel = np.zeros((N,3))
 
     for p in range(N):
         #Over all vertices of filament
-        for i in range(N): 
-            #Biot Savart sum over edges (TERM 1 uBSdisc)
-            point_vel[p,:] += biotsavartedge(pos[p,:],pos[i,:],pos[i+1,:],C[i],a[i])
-        for i in range(N_ext):
-            #Biot Savart sum over edges of the other ring
-            point_vel[p,:] += biotsavartedge(pos[p,:],pos_ext[i,:],pos_ext[i+1,:],C_ext[i],a_ext[i])
+        for f in range(len(pos_list)):
+            #Over all vortex rings
+            N_ext = pos_list[f].shape[0] - 1
+            for i in range(N_ext):
+                #Biot Savart sum over edges
+                point_vel[p,:] += biotsavartedge(pos[p,:],pos_list[f][i,:],pos_list[f][i+1,:],
+                                                  C_list[f][i],a_list[f][i])
             
         #Apply induction term  (TERM 2 uLIA)
         point_vel[p,:] += induction(pos_pad[p,:],pos_pad[p+1,:],pos_pad[p+2,:],C[p],C[p+1],a[p],a[p+1])
@@ -269,13 +269,19 @@ def velocity_flux(eS, eT, p, a1, a2):
     dSTp = np.linalg.norm(S + T)
     dSTm = np.linalg.norm(S - T)
     STp  = (S + T)/dSTp
-    STm  = (S - T)/dSTm
+    if dSTm == 0:
+        STm  = (S - T)
+    else:
+        STm  = (S - T)/dSTm
     
     #H matrix
     pSTp = np.dot(p,STp)
     pSTm = np.dot(p,STm)
     fSTp = -pSTp/dSTp
-    fSTm = -pSTm/dSTm
+    if dSTm == 0:
+        fSTm = 0
+    else:
+        fSTm = -pSTm/dSTm
     H    = np.array([-pSTm,-pSTp,0])
     
     #Define K
@@ -386,7 +392,7 @@ def neighbors(pos_list, a_list):
     aveEdge = np.mean(ds)
     
     #Selection of near points parallel
-    steps = np.floor(reconnection_length / aveEdge / 2.0)
+    steps = np.floor( aveEdge / reconnection_length * 2.0)
     
     baseSearchDistance = reconnection_length
     if len(pos_list) == 1:
@@ -395,13 +401,13 @@ def neighbors(pos_list, a_list):
         for i in range(N):
             #Iterate over all vertices
             nearpoints_i = [] #nearby points for vertex i
-            searchDistance = max(baseSearchDistance, a[i]) + a[i]*3
+            searchDistance = max(baseSearchDistance, a[i]) + a[i]*1.5
             for j in range(N):
                 distance = np.linalg.norm(pos[i,:] - pos[j,:])
                 if distance < searchDistance + a[j]:
                     nearpoints_i.append(j)
             nearpoints.append(nearpoints_i)
-    if len(pos_list) == 2:
+    elif len(pos_list) == 2:
         #Two bubble rings, check for reconnection points
         other_pos  = pos_list[1]
         other_a    = a_list[1]
@@ -409,7 +415,7 @@ def neighbors(pos_list, a_list):
         for i in range(N):
             #Iterate over all vertices
             nearpoints_i = [] #nearby points for vertex i
-            searchDistance = max(baseSearchDistance, a[i]) + a[i]*3
+            searchDistance = max(baseSearchDistance, a[i]) + a[i]*1.5
             for j in range(other_pos.shape[0] - 1):
                 distance = np.linalg.norm(pos[i,:] - other_pos[j,:])
                 if distance < searchDistance + other_a[j]:
@@ -422,38 +428,42 @@ def neighbors(pos_list, a_list):
             
 def is_reconnect(i1, i2, pos1, pos2, a1, a2, C1, C2, steps, nRings):
     if nRings == 1 and i1 == i2:
-        #Same vertex
+        # print('Same vertex')
         return 0, 0
     if (abs(C1[i1] - C2[i2]) > 1e-5 or abs(C1[i1]) < 1e-5 or abs(C2[i2]) < 1e-5):
-        #Different strength
+        print('Different strength')
         return 0, 0
     
     N1 = pos1.shape[0] - 1
     N2 = pos2.shape[0] - 1 
     
+    # print(np.linalg.norm(pos1[i1] - pos2[i2]))
+    
     left_neighbors = np.mod(np.arange(i1 - steps,i1 + steps + 1), N1)
     right_neighbors= np.mod(np.arange(i2 - steps,i2 + steps + 1), N2)
-    
+
     #Check if there is an overlap. not possible with 2 rings
     left_buffer = np.mod(np.arange(i1 - steps - 1 ,i1 + steps + 2), N1)
     right_buffer= np.mod(np.arange(i2 - steps - 1 ,i2 + steps + 2), N2)
     if nRings == 1:
         for i in range(len(left_buffer)):
             if any(right_buffer == left_buffer[i]):
+                # print('Overlap')
                 return 0, 0
 
     #Corner points
-    PL1 = pos1[left_neighbors[0],:]
-    PL2 = pos1[left_neighbors[-1],:]
-    PR1 = pos2[right_neighbors[0],:]
-    PR2 = pos2[right_neighbors[-1],:]
+    PL1 = pos1[int(left_neighbors[0]),:]
+    PL2 = pos1[int(left_neighbors[-1]),:]
+    PR1 = pos2[int(right_neighbors[0]),:]
+    PR2 = pos2[int(right_neighbors[-1]),:]
     
     Lnew = np.linalg.norm(PL1 - PR2) + np.linalg.norm(PL2 - PR1)
     Lold = np.linalg.norm(PL1 - PL2) + np.linalg.norm(PR1 - PR2)
     dL   = Lnew - Lold
     
     if dL > 0:
-        #No length shortening
+        # print('No length shortening')
+        # print(dL)
         return 0, 0
     
     a12 = np.sqrt(a1[i1] * a2[i2])
@@ -467,31 +477,33 @@ def is_reconnect(i1, i2, pos1, pos2, a1, a2, C1, C2, steps, nRings):
     
     if energy < 0:
         return 1, [left_neighbors, right_neighbors]
+    # print('Energy high',energy)
     return 0, 0
 
 def do_reconnect(left_neighbors, right_neighbors, pos1, pos2, a1, a2, C1, C2, nRings):
     #Do Splitting or Reconnection 
     if nRings == 1:
         #1 ring. pos1 = pos2, Split
+        print('Splitting')
         pos = pos1
         a   = a1
         C   = C1
         N   = pos.shape[0] - 1
         
-        i11 = left_neighbors[0]
-        i12 = left_neighbors[-1]
-        i21 = right_neighbors[0]
-        i22 = right_neighbors[-1]
+        i11 = int(left_neighbors[0])
+        i12 = int(left_neighbors[-1])
+        i21 = int(right_neighbors[0])
+        i22 = int(right_neighbors[-1])
         
         #new positions
         if i21 > i12:
-            idx1 = np.arange(i12,i21+1)
+            idx1 = np.arange(i12,i21+1).astype(int)
         else:
-            idx1 = np.concatenate((np.arange(i12,N), np.arange(0,i21+1)))
+            idx1 = np.concatenate((np.arange(i12,N), np.arange(0,i21+1))).astype(int)
         if i11 > i22:
-            idx2 = np.arange(i22,i11+1)
+            idx2 = np.arange(i22,i11+1).astype(int)
         else:
-            idx2 = np.concatenate((np.arange(i22,N),np.arange(0,i11+1)))
+            idx2 = np.concatenate((np.arange(i22,N),np.arange(0,i11+1))).astype(int)
                                   
         posN1 = pos[idx1,:]
         posN2 = pos[idx2,:]
@@ -499,8 +511,8 @@ def do_reconnect(left_neighbors, right_neighbors, pos1, pos2, a1, a2, C1, C2, nR
         aN1   = a[idx1]
         aN2   = a[idx2]
         #Average nearby a's for new edge
-        aN1[-1] = 0.25 * (aN1[0] + aN1[-2] + aN1[-1] + a[left_neighbors[-2]])
-        aN2[-1] = 0.25 * (aN2[0] + aN2[-2] + aN2[-1] + a[right_neighbors[-2]])
+        aN1[-1] = 0.25 * (aN1[0] + aN1[-2] + aN1[-1] + a[int(left_neighbors[-2])])
+        aN2[-1] = 0.25 * (aN2[0] + aN2[-2] + aN2[-1] + a[int(right_neighbors[-2])])
         
         #Shouldn't need to modify bc constant
         CN1   = C[idx1]
@@ -518,28 +530,29 @@ def do_reconnect(left_neighbors, right_neighbors, pos1, pos2, a1, a2, C1, C2, nR
         
     if nRings == 2:
         #2 rings, Reconnection
+        print('Reconnecting')
         N1 = pos1.shape[0] - 1
         N2 = pos2.shape[0] - 1
-        
-        i11 = left_neighbors[0]
-        i12 = left_neighbors[-1]
-        i21 = right_neighbors[0]
-        i22 = right_neighbors[-1]
+
+        i11 = int(left_neighbors[0])
+        i12 = int(left_neighbors[-1])
+        i21 = int(right_neighbors[0])
+        i22 = int(right_neighbors[-1])
         
         if i11 > i12:
-            idx1 = np.arange(i12,i11+1)
+            idx1 = np.arange(i12,i11+1).astype(int)
         else:
-            idx1 = np.concatenate((np.arange(i12,N1), np.arange(0,i11+1)))
+            idx1 = np.concatenate((np.arange(i12,N1), np.arange(0,i11+1))).astype(int)
         if i21 > i22:
-            idx2 = np.arange(i22,i21+1)
+            idx2 = np.arange(i22,i21+1).astype(int)
         else:
-            idx2 = np.concatenate((np.arange(i22,N2), np.arange(0,i21+1)))
+            idx2 = np.concatenate((np.arange(i22,N2), np.arange(0,i21+1))).astype(int)
             
         #Arange the new vertices
         pos = np.vstack((pos1[idx1],pos2[idx2],pos1[i12]))
         #Average nearby a's for new edge
-        ai11 = 0.25 * (a1[i11] + a1[idx1[-2]] + a2[i22] + a2[right_neighbors[-2]])
-        ai21 = 0.25 * (a2[i21] + a2[idx2[-2]] + a1[i12] + a1[left_neighbors[-2]])
+        ai11 = 0.25 * (a1[i11] + a1[idx1[-2]] + a2[i22] + a2[int(right_neighbors[-2])])
+        ai21 = 0.25 * (a2[i21] + a2[idx2[-2]] + a1[i12] + a1[int(left_neighbors[-2])])
         a   = np.hstack((a1[idx1[:-1]],ai11,a2[idx2[:-1]],ai21,a1[i12]))
         C   = np.hstack((C1[idx1],C2[idx2],C1[i12]))
         
@@ -555,6 +568,7 @@ def Reconnection(pos_list,a_list,C_list):
     
     #Get a list of nearby vertices from all primitives
     nearpoints, steps = neighbors(pos_list, a_list)
+    # print(steps)
     
     #Check if reconnection 
     for i in range(len(nearpoints)):
@@ -568,7 +582,7 @@ def Reconnection(pos_list,a_list,C_list):
                                                       a_list[0], a_list[nRings-1], C_list[0], C_list[nRings-1], nRings)
                 
                 return pos_list,a_list,C_list
-                
+        
     return pos_list,a_list,C_list
     
         
