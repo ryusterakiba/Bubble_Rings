@@ -16,6 +16,7 @@
 #include "collision/plane.h"
 #include "collision/sphere.h"
 #include "cloth.h"
+#include "bubbleRing.h"
 #include "clothSimulator.h"
 #include "json.hpp"
 #include "misc/file_utils.h"
@@ -156,7 +157,7 @@ void incompleteObjectError(const char *object, const char *attribute) {
   exit(-1);
 }
 
-bool loadObjectsFromFile(string filename, Cloth *cloth, ClothParameters *cp, vector<CollisionObject *>* objects, int sphere_num_lat, int sphere_num_lon) {
+bool loadObjectsFromFile(string filename, BubbleRing *cloth, ClothParameters *cp, vector<CollisionObject *>* objects, int sphere_num_lat, int sphere_num_lon) {
   // Read JSON from file
   ifstream i(filename);
   if (!i.good()) {
@@ -183,13 +184,10 @@ bool loadObjectsFromFile(string filename, Cloth *cloth, ClothParameters *cp, vec
     if (key == CLOTH) {
       // Cloth
       double width, height;
-      int num_width_points, num_height_points;
       float thickness;
       int num_vertices;
       double circulation;
       double initial_ring_radius;
-      e_orientation orientation;
-      vector<vector<int>> pinned;
 
         auto it_num_vertices = object.find("num_vertices");
         if (it_num_vertices != object.end()) {
@@ -227,19 +225,6 @@ bool loadObjectsFromFile(string filename, Cloth *cloth, ClothParameters *cp, vec
         incompleteObjectError("cloth", "height");
       }
 
-      auto it_num_width_points = object.find("num_width_points");
-      if (it_num_width_points != object.end()) {
-        num_width_points = *it_num_width_points;
-      } else {
-        incompleteObjectError("cloth", "num_width_points");
-      }
-
-      auto it_num_height_points = object.find("num_height_points");
-      if (it_num_height_points != object.end()) {
-        num_height_points = *it_num_height_points;
-      } else {
-        incompleteObjectError("cloth", "num_height_points");
-      }
 
       auto it_thickness = object.find("thickness");
       if (it_thickness != object.end()) {
@@ -248,32 +233,14 @@ bool loadObjectsFromFile(string filename, Cloth *cloth, ClothParameters *cp, vec
         incompleteObjectError("cloth", "thickness");
       }
 
-      auto it_orientation = object.find("orientation");
-      if (it_orientation != object.end()) {
-        orientation = *it_orientation;
-      } else {
-        incompleteObjectError("cloth", "orientation");
-      }
 
-      auto it_pinned = object.find("pinned");
-      if (it_pinned != object.end()) {
-        vector<json> points = *it_pinned;
-        for (auto pt : points) {
-          vector<int> point = pt;
-          pinned.push_back(point);
-        }
-      }
 
       cloth->width = width;
       cloth->height = height;
-      cloth->num_width_points = num_width_points;
-      cloth->num_height_points = num_height_points;
       cloth->thickness = thickness;
-      cloth->orientation = orientation;
       cloth->num_vertices = num_vertices;
       cloth->initial_ring_radius = initial_ring_radius;
       cloth->circulation = circulation;
-      cloth->pinned = pinned;
 
       // Cloth parameters
       bool enable_structural_constraints, enable_shearing_constraints, enable_bending_constraints;
@@ -424,7 +391,7 @@ int main(int argc, char **argv) {
   std::string project_root;
   bool found_project_root = find_project_root(search_paths, project_root);
   
-  Cloth cloth;
+  BubbleRing cloth;
   ClothParameters cp;
   vector<CollisionObject *> objects;
   
@@ -498,7 +465,7 @@ int main(int argc, char **argv) {
   createGLContexts();
 
   // Initialize the Cloth object
-  cloth.buildGrid();
+  cloth.buildRing();
   cloth.buildClothMesh();
 
   // Initialize the ClothSimulator object

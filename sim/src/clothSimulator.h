@@ -6,6 +6,7 @@
 
 #include "camera.h"
 #include "cloth.h"
+#include "bubbleRing.h"
 #include "collision/collisionObject.h"
 
 using namespace nanogui;
@@ -20,7 +21,7 @@ public:
 
   void init();
 
-  void loadCloth(Cloth *cloth);
+  void loadCloth(BubbleRing *cloth);
   void loadClothParameters(ClothParameters *cp);
   void loadCollisionObjects(vector<CollisionObject *> *objects);
   virtual bool isAlive();
@@ -62,7 +63,7 @@ private:
   CGL::Vector3D gravity = CGL::Vector3D(0, -9.8, 0);
   nanogui::Color color = nanogui::Color(1.0f, 1.0f, 1.0f, 1.0f);
 
-  Cloth *cloth;
+  BubbleRing *cloth;
   ClothParameters *cp;
   vector<CollisionObject *> *collision_objects;
 
