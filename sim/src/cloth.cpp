@@ -12,7 +12,7 @@ using namespace std;
 const double muRM = exp(-0.75);
 const double dRM = 0.5 * exp(0.25);
 const double nu = 1e-6;
-const Vector3D g = Vector3D(0, 0, -9.8);
+const Vector3D g = Vector3D(0, 9.8, 0);
 const double At = -1;
 
 Cloth::Cloth(int num_vertices, double initial_ring_radius) {
@@ -87,6 +87,9 @@ void Cloth::buildGrid() {
 void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParameters *cp,
                      vector<Vector3D> external_accelerations,
                      vector<CollisionObject *> *collision_objects) {
+  // This function performs 1 timestep of Runge Kutta
+  double delta_t = 1.0f / frames_per_sec / simulation_steps;
+
   // Remove thickness-rending points
   deleteExtraPoints();
   if (num_vertices != point_masses.size()) {
@@ -101,8 +104,11 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
     this->vol0 = volume();
   }
 
-  // This function performs 1 timestep of Runge Kutta
-  double delta_t = 1.0f / frames_per_sec / simulation_steps;
+  // Use temp_position for Runge Kutta calculations
+  for (int i = 0; i < point_masses.size(); i++) {
+    PointMass& pm = point_masses.at(i);
+    pm.temp_position = pm.position;
+  }
 
   // Step 1
   velocity();
@@ -116,8 +122,8 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
   // Step 2
   for (int i = 0; i < point_masses.size(); i++) {
     PointMass& pm = point_masses.at(i);
-    pm.last_position = pm.position;
-    pm.position += 0.5 * K1.at(i);
+    pm.last_position = pm.temp_position;
+    pm.temp_position += 0.5 * K1.at(i);
   }
   modify_thickness();
   velocity();
@@ -132,8 +138,8 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
   // Step 3
   for (int i = 0; i < point_masses.size(); i++) {
     PointMass& pm = point_masses.at(i);
-    pm.last_position = pm.position;
-    pm.position += 0.5 * K2.at(i);
+    pm.last_position = pm.temp_position;
+    pm.temp_position += 0.5 * K2.at(i);
   }
   modify_thickness();
   velocity();
@@ -148,8 +154,8 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
   // Step 4
   for (int i = 0; i < point_masses.size(); i++) {
     PointMass& pm = point_masses.at(i);
-    pm.last_position = pm.position;
-    pm.position += K3.at(i);
+    pm.last_position = pm.temp_position;
+    pm.temp_position += K3.at(i);
   }
   modify_thickness();
   velocity();
@@ -168,10 +174,10 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
   }
 
   // Volume conservation
-  /*double vol1 = volume();
+  double vol1 = volume();
   for (auto pm_iter = point_masses.begin(); pm_iter != point_masses.end(); pm_iter++) {
     pm_iter->thickness = pm_iter->thickness * sqrt(vol0 / vol1);
-  }*/
+  }
 
   // Resample number of points
   //resample();
@@ -187,6 +193,11 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
  * Update the point velocities.
  */
 void Cloth::velocity() {
+  // Initialize point velocities to 0 before calculations
+  for (auto pm_iter = point_masses.begin(); pm_iter != point_masses.end(); pm_iter++) {
+    pm_iter->point_velocity = Vector3D(0, 0, 0);
+  }
+
   for (int i = 0; i < num_vertices; i++) {
     // Over all vertices of filament
     PointMass& pm = point_masses.at(i);
@@ -198,9 +209,9 @@ void Cloth::velocity() {
     }
 
     // Apply induction term  (TERM 2 uLIA)
+    int i_minus1 = (i + point_masses.size() - 1) % point_masses.size();
     int i_plus1 = (i + 1) % point_masses.size();
-    int i_plus2 = (i + 2) % point_masses.size();
-    pm.point_velocity += induction(pm, point_masses.at(i_plus1), point_masses.at(i_plus2));
+    pm.point_velocity += induction(point_masses.at(i_minus1), pm, point_masses.at(i_plus1));
   }
 
   // Boussinesq term (TERM 3) evaluated at edges then interpolated to vertices
@@ -226,8 +237,8 @@ Vector3D Cloth::biotsavart_edge(PointMass p, PointMass v0, PointMass v1) {
   double a = v0.thickness;
   double C = v0.circulation;
 
-  Vector3D r0 = v0.position - p.position;
-  Vector3D r1 = v1.position - p.position;
+  Vector3D r0 = v0.temp_position - p.temp_position;
+  Vector3D r1 = v1.temp_position - p.temp_position;
   Vector3D T = r1 - r0;
   double a2mu = pow(a * muRM, 2);
   Vector3D crossr01 = cross(r0, r1);
@@ -246,10 +257,10 @@ Vector3D Cloth::induction(PointMass v0, PointMass v1, PointMass v2) {
   double a0 = v0.thickness;
   double a1 = v1.thickness;
 
-  double s0 = (v1.position - v0.position).norm();
-  double s1 = (v2.position - v1.position).norm();
-  Vector3D T0 = (v1.position - v0.position) / s0;
-  Vector3D T1 = (v2.position - v1.position) / s1;
+  double s0 = (v1.temp_position - v0.temp_position).norm();
+  double s1 = (v2.temp_position - v1.temp_position).norm();
+  Vector3D T0 = (v1.temp_position - v0.temp_position) / s0;
+  Vector3D T1 = (v2.temp_position - v1.temp_position) / s1;
   double C = (c0 + c1) / 2;
 
   Vector3D kB = 2 * cross(T0, T1) / (s0 + s1);
@@ -264,7 +275,7 @@ Vector3D Cloth::boussinesq(PointMass v0, PointMass v1) {
   double C = v0.circulation;
   double a = v0.thickness;
 
-  Vector3D edge = v1.position - v0.position;
+  Vector3D edge = v1.temp_position - v0.temp_position;
   double ds = edge.norm();
   Vector3D T = edge / ds;
   Vector3D Atg_n = At * g - dot(At * g, T) * T;
@@ -276,7 +287,7 @@ Vector3D Cloth::boussinesq(PointMass v0, PointMass v1) {
 
 /**
  * Updates the thickness at each edge (stored on PointMasses).
- * Uses each PointMass's position and last_position.
+ * Uses each PointMass's temp_position and last_position.
  * Sets values for each PointMass's thickness.
  */
 void Cloth::modify_thickness() {
@@ -286,7 +297,7 @@ void Cloth::modify_thickness() {
     PointMass& pm1 = point_masses.at(i_plus1);
 
     double l_old = (pm1.last_position - pm0.last_position).norm();
-    double l_new = (pm1.position - pm0.position).norm();
+    double l_new = (pm1.temp_position - pm0.temp_position).norm();
     pm0.thickness = pm0.thickness * sqrt(l_old / l_new);
   }
 }
@@ -294,9 +305,10 @@ void Cloth::modify_thickness() {
 /**
  * Resamples the number of the points on the bubble ring.
  * Modifies positions, thicknesses, C values.
+ * Also changes num_vertices of the Cloth.
  */
 void Cloth::resample() {
-
+  
 }
 
 /**
