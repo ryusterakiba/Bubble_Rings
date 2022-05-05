@@ -43,12 +43,16 @@ void Cloth::buildGrid() {
     //for (double a = 0.; a <= this->width; a+= this->width / (double(num_width_points) - 1)) {
       //  for (double b = 0.; b <= this->height; b+= this->height / (double(num_height_points) - 1)) {
     double angle = 2 * PI / num_vertices;
+    double tilt_angle_radians = PI / 180. * tilt_angle;
     for (int i = 0; i < num_vertices; i++) {
         Vector3D position;
         position.x = initial_ring_radius * cos(angle * i);
         // printf("%f\n", initial_ring_radius * cos(angle * i));
         position.z = initial_ring_radius * sin(angle * i);
         position.y = 0;
+        // applying rotation about z-axis
+        position.x = position.x * cos(tilt_angle_radians) - position.y * sin(tilt_angle_radians);
+        position.y = position.x * sin(tilt_angle_radians) + position.y * cos(tilt_angle_radians);
         PointMass pm = PointMass(position, false, 0.2);
         point_masses.emplace_back(pm);
         
@@ -59,6 +63,9 @@ void Cloth::buildGrid() {
             cs_position.y = pm.position.y + pm.thickness * sin(new_angle * j);
             cs_position.x = pm.position.x + pm.thickness * cos(new_angle * j) * cos(angle * i);
             cs_position.z = pm.position.z + pm.thickness * cos(new_angle * j) * sin(angle * i);
+            // applying rotation about z-axis
+            //cs_position.x = cs_position.x * cos(tilt_angle_radians) - cs_position.y * sin(tilt_angle_radians);
+            //cs_position.y = cs_position.x * sin(tilt_angle_radians) + cs_position.y * cos(tilt_angle_radians);
             PointMass new_pm = PointMass(cs_position, false, 0.0);
             point_masses.emplace_back(new_pm);
         }

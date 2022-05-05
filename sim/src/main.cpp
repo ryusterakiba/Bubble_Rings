@@ -190,6 +190,14 @@ bool loadObjectsFromFile(string filename, Cloth *cloth, ClothParameters *cp, vec
       double initial_ring_radius;
       e_orientation orientation;
       vector<vector<int>> pinned;
+      double tilt_angle;
+        
+        auto it_tilt_angle = object.find("tilt_angle");
+        if (it_tilt_angle != object.end()) {
+            tilt_angle = *it_tilt_angle;
+        } else {
+            incompleteObjectError("cloth", "tilt_angle");
+        }
 
         auto it_num_vertices = object.find("num_vertices");
         if (it_num_vertices != object.end()) {
@@ -274,6 +282,7 @@ bool loadObjectsFromFile(string filename, Cloth *cloth, ClothParameters *cp, vec
       cloth->initial_ring_radius = initial_ring_radius;
       cloth->circulation = circulation;
       cloth->pinned = pinned;
+      cloth->tilt_angle = tilt_angle;
 
       // Cloth parameters
       bool enable_structural_constraints, enable_shearing_constraints, enable_bending_constraints;

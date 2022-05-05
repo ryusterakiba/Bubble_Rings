@@ -81,6 +81,7 @@ struct Cloth {
   double circulation;
   double thickness;
   e_orientation orientation;
+  double tilt_angle;
 
   // Properties for physics
   double vol0 = -1; // FIXME? Set this value in simulate()
