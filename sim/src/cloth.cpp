@@ -13,7 +13,7 @@ using namespace std;
 const double muRM = exp(-0.75);
 const double dRM = 0.5 * exp(0.25);
 const double nu = 1e-6;
-const Vector3D g = Vector3D(0, 9.8, 0);
+const Vector3D g = Vector3D(0, -9.8, 0);
 const double At = -1;
 
 Cloth::Cloth(int num_vertices, double initial_ring_radius) {
@@ -43,7 +43,7 @@ void Cloth::buildGrid() {
       // point masses
       //for (double a = 0.; a <= this->width; a+= this->width / (double(num_width_points) - 1)) {
         //  for (double b = 0.; b <= this->height; b+= this->height / (double(num_height_points) - 1)) {
-    double angle = 2 * PI / num_vertices;
+    double angle = -2 * PI / num_vertices;
     for (int i = 0; i < num_vertices; i++) {
         Vector3D position;
         position.x = initial_ring_radius * cos(angle * i);
@@ -502,7 +502,7 @@ void Cloth::deleteExtraPoints() {
 }
 
 void Cloth::createExtraPoints() {
-    double angle = 2 * PI / num_vertices;
+    double angle = -2 * PI / num_vertices;
     for (int i = 0; i < num_vertices; i++) {
         int main_ring_idx = i * (num_vertices + 1);
 
