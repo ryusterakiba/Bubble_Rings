@@ -16,7 +16,7 @@ nu   = 1e-6
 g    = np.array([0,0,-9.8])
 At   = -1
 hairpin_angle = -0.8
-reconnection_length = 0.08
+reconnection_length = 0.04
 length_energy_factor = 20
 #%% Velocity solver
 
@@ -437,15 +437,14 @@ def is_reconnect(i1, i2, pos1, pos2, a1, a2, C1, C2, steps, nRings):
     N1 = pos1.shape[0] - 1
     N2 = pos2.shape[0] - 1 
     
-    # print(np.linalg.norm(pos1[i1] - pos2[i2]))
     
     left_neighbors = np.mod(np.arange(i1 - steps,i1 + steps + 1), N1)
     right_neighbors= np.mod(np.arange(i2 - steps,i2 + steps + 1), N2)
 
     #Check if there is an overlap. not possible with 2 rings
-    left_buffer = np.mod(np.arange(i1 - steps - 1 ,i1 + steps + 2), N1)
-    right_buffer= np.mod(np.arange(i2 - steps - 1 ,i2 + steps + 2), N2)
     if nRings == 1:
+        left_buffer = np.mod(np.arange(i1 - steps - 1 ,i1 + steps + 2), N1)
+        right_buffer= np.mod(np.arange(i2 - steps - 1 ,i2 + steps + 2), N2)
         for i in range(len(left_buffer)):
             if any(right_buffer == left_buffer[i]):
                 # print('Overlap')
@@ -526,7 +525,7 @@ def do_reconnect(left_neighbors, right_neighbors, pos1, pos2, a1, a2, C1, C2, nR
         CN1   = np.hstack((CN1,CN1[0]))
         CN2   = np.hstack((CN2,CN2[0]))
         
-        return [posN1,posN2], [aN1,aN2], [CN1,CN2]
+        return [posN1,posN2], [aN1,aN2], [CN1,-CN2]
         
     if nRings == 2:
         #2 rings, Reconnection
@@ -554,7 +553,7 @@ def do_reconnect(left_neighbors, right_neighbors, pos1, pos2, a1, a2, C1, C2, nR
         ai11 = 0.25 * (a1[i11] + a1[idx1[-2]] + a2[i22] + a2[int(right_neighbors[-2])])
         ai21 = 0.25 * (a2[i21] + a2[idx2[-2]] + a1[i12] + a1[int(left_neighbors[-2])])
         a   = np.hstack((a1[idx1[:-1]],ai11,a2[idx2[:-1]],ai21,a1[i12]))
-        C   = np.hstack((C1[idx1],C2[idx2],C1[i12]))
+        C   = -np.hstack((C1[idx1],C2[idx2],C1[i12]))
         
         return [pos],[a],[C]
     else:

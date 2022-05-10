@@ -11,10 +11,10 @@ from bubble_ring_functions_ext import *
 
 # Create 2 bubble rings
 N     = 40  #vertices
-nt    = 30  #time steps
+nt    = 100  #time steps
 theta = np.linspace(0,2*np.pi,N+1)
 R     = 0.5   #radius
-dt    = 0.004#time step
+dt    = 0.003#time step
 mind  = R * theta[1] #distance for resampling
 
 #Bubble ring 1
@@ -144,24 +144,32 @@ for t in range(nt):
 
     
 #%%
-fig = plt.figure(figsize = (10,10))
-ax = plt.axes(projection='3d')
-ax.set_box_aspect(aspect = (2,1,1))
-# ax.view_init(170, 60)
-ax.view_init(-160, 100)
-ax.invert_zaxis()    
+# fig = plt.figure(figsize = (10,10))
+# ax = plt.axes(projection='3d')
+# ax.set_box_aspect(aspect = (2,1,1))
+# # ax.view_init(170, 60)
+# ax.view_init(-160, 100)
+# ax.invert_zaxis()    
 
-for t in range(nt+1):
-# for t in range(14,25):
-    if t%5 == 0:
-        for i in range(len(frame[t])):
-            ring = frame[t][i]
-            plt.plot(ring[:,0],ring[:,1],ring[:,2])
-            ax.scatter(ring[:,0],ring[:,1],ring[:,2],s = frame_a[t][i][0]*1000)
+for t in range(nt + 1):
+    fig = plt.figure(figsize = (10,10))
+    ax = plt.axes(projection='3d')
+    ax.set_box_aspect(aspect = (2,1,1))
+    ax.axes.set_xlim3d(left=-2, right=1) 
+    ax.axes.set_ylim3d(bottom=-1, top=1) 
+    ax.axes.set_zlim3d(bottom=-.5, top=.8) 
 
+    for i in range(len(frame[t])):
+        ring = np.copy(frame[t][i])
+        # plt.plot(ring[:,0],ring[:,2],label = str(t))
+        plt.plot(ring[:,0],ring[:,1],ring[:,2])
+        ax.scatter(ring[:,0],ring[:,1],ring[:,2],s = frame_a[t][i]*1000) 
+        # plt.plot(frame_a[t][i])
 
-
-
+    # plt.draw()
+    # plt.show()
+    plt.savefig("bubble_reconnection/bubble" + str(t) + ".png",dpi=300)
+    plt.close(fig)
 
 
 
