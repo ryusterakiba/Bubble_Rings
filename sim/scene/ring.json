@@ -1,4 +1,9 @@
 {
+  "plane": {
+    "point": [0, 0, -1],
+    "normal": [0, 0, 50],
+    "friction": 0.5
+  },
   "cloth": {
     "damping": 0.2,
     "density": 150.0,
