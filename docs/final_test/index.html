@@ -1,0 +1,635 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, maximum-scale=1">
+    <title>Bubble Ring Simulation</title>
+    <link rel="icon" href="favicon.png" type="image/png">
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="js/fancybox/jquery.fancybox.css" type="text/css" media="screen" />
+    <link href="css/style.css" rel="stylesheet" type="text/css">
+    <link href="css/font-awesome.css" rel="stylesheet" type="text/css">
+    <link href="css/animate.css" rel="stylesheet" type="text/css">
+
+
+</head>
+<body>
+    <!--Header_section-->
+    <header id="hw">
+        <div class="container">
+            <div class="header_box">
+                <nav class="navbar navbar-inverse" role="navigation">
+                    <div class="navbar-header">
+                        <button type="button" id="nav-toggle" class="navbar-toggle" data-toggle="collapse" data-target="#main-nav"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+                        <a href="https://github.com/ryusterakiba/robot_conductor_ryu" class="scroll-top logo animated bounceInLeft fa fa-github fa-4x"></a>
+                    </div>
+                    <div id="main-nav" class="collapse navbar-collapse navStyle">
+                        <ul class="nav navbar-nav" id="mainNav">
+                            <li class="active"><a href="#Introduction" class="scroll-link">Introduction</a></li>
+
+                            <li><a href="#Design" class="scroll-link">Design</a></li>
+                            <li><a href="#Sensing" class="scroll-link">Sensing</a></li>
+                            <li><a href="#Planning" class="scroll-link">Planning</a></li>
+                            <li><a href="#Actuation" class="scroll-link">Actuation</a></li>
+                            <li><a href="#Results" class="scroll-link">Results</a></li>
+                            <li><a href="#Conclusion" class="scroll-link">Conclusion</a></li>
+                            <li><a href="#team" class="scroll-link">Team</a></li>
+                            <li><a href="#AdditionalMaterials" class="scroll-link">Additional Materials</a></li>
+
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+    <!--Header_section-->
+    <!--Introduction-->
+    <section id="Introduction" class="top_cont_outer">
+        <div class="hero_wrapper">
+            <div class="container">
+                <div class="Introduction">
+                    <div class="row">
+                        <div class="col-md-12">
+
+                            <div class="top_left_cont zoomIn wow animated">
+                                <h2>Robot Conductor with Baxter</h2>
+                                <h6 style="text-align: center">Reading music & Moving Baxter</h6>
+
+                                <h3>Project Goals</h3>
+                                <p>
+                                    Make Baxter accurately read sheet music and execute the arm motions
+                                    required for conducting an orchestra or ensemble with correct timing of the beats.
+                                </p>
+
+                                <h3>Interesting Aspects</h3>
+                                <p>
+                                    This Baxter conductor is able to recognize the following:
+                                    <ul style="list-style-type:disc">
+                                        <li><b>Time signature:</b> how many notes are in a measure</li>
+                                        <li><b>Rhythm:</b> duration of notes</li>
+                                        <li><b>Tempo:</b> speed of the song</li>
+                                        <li><b>Dynamics:</b> when a portion of the song changes volume</li>
+                                    </ul>
+                                    For time signature, Baxter is able to conduct songs in 4/4 time, recognize duration of ending
+                                    notes and adjust ending motions accordingly, keep a consistent speed with songs 75 BPM and slower
+                                    when conducting, and indicate crescendos with its left arm.
+                                </p>
+
+                                <h3>Potential Applications</h3>
+                                <p>
+                                    It can be very beneficial for younger students playing slower songs. The robot conductor can
+                                    teach students in band or orchestra to look up in order to keep a consistent speed as well as
+                                    make dynamic changes when necessary. For example, with students who are just learning music, it
+                                    might be easier for them to have a robot conductor as a visual aid rather than staring at the
+                                    music sheet itself. Visual cues are a lot easier to process in general, and we hope that the Baxter
+                                    conductor can be useful!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </section>
+    <!--Introduction-->
+    <!--Design-->
+    <section id="Design">
+        <div class="container">
+            <h2>Design</h2>
+
+
+            <p>
+                Our project's desired functionality is to control a robot conductor who reads a sheet of music from an image, understands
+                what cues need to be communicated to the musician, and convey those cues by executing arm motions at the proper time.
+            </p>
+            <br>
+            <br>
+            <div class="Design_block col-lg-12">
+
+                <h3 style="text-align: center">Components</h3>
+                <br>
+                <ul>
+                    <li class="col-lg-4">
+                        <b>Sensing:</b> Optical Music Recognition (OMR) software reads the music
+                        for the cues that need to be conducted
+                    </li>
+                    <li class="col-lg-4">
+                        <b>Planning:</b> Convert the music cues into robot arm motions
+                    </li>
+                    <li class="col-lg-4">
+                        <b>Actuation:</b> Execute the motions with the robot arms with the required timing
+                    </li>
+                </ul>
+
+            </div>
+
+            <div class="Design_block col-lg-12">
+                <br>
+                <br>
+                <h3 style="text-align: center">Design Choices for Motion</h3>
+                <p>
+                    We require our robot conductor to repeat a sequence of motions many times, so reproducibility of target poses is
+                    critical. To accomplish this, we chose to set target poses as robot joint positions instead of end effector poses.
+                    By doing this, we reduce the drift from desired positions that can accumulate over many iterations, and reduce the
+                    probability of the MoveIt path planner from choosing an undesirable roundabout path.
+                </p>
+
+                <figure>
+                    <img class="center" src="img/conductor_motion_44.png " alt="Conductor Motion">
+                    <figcaption style="text-align: center">Diagram of Conductor Motion in 4/4 Time</figcaption>
+                </figure>
+
+                <br>
+
+                <p>
+                    When a human conductor speeds up the tempo, the conducting motion pattern becomes more compact. For example the 4/4 pattern
+                    in the image will be proportionally scaled down. In recreating this on our robot conductor, we quickly realized that guiding
+                    the end effector poses to trace out a pattern would be very tedious. We chose to use joint positions to create target poses
+                    for the endpoints of each beat, which are the numbered corners in the image. For the same arm velocity, allocating a shorter
+                    time to go to each target position allows for the pattern to become smaller and the tempo of conducting to increase.
+                </p>
+            </div>
+
+            <!--Ending line of Design-->
+            <div class="Design_block">
+                <br>
+                <p>
+                    <strong>To see specific implementation details, please see the Sensing, Planning, and Actuation sections.</strong>
+                </p>
+            </div>
+        </div>
+
+    </section>
+    <!--Design-->
+    <!--Sensing-->
+    <section id="Sensing">
+        <div class="container">
+            <h2>Sensing</h2>
+            <div class="Sensing_wrapper">
+                <div class="row">
+                    <div class="col-lg-3">
+                        <div class="Sensing_icon delay-03s animated wow  zoomIn"> <span><i class="fa fa-camera-retro fa-lg"></i></span> </div>
+                        <div class="Sensing_block">
+                            <h3 class="animated fadeInUp wow">Music Recognition</h3>
+                            <p class="animated fadeInDown wow">Computer Vision/Optical Music Recognition by using Orchestra Software package</p>
+
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="Sensing_icon icon2  delay-03s animated wow zoomIn"> <span><i class="fa fa-pencil fa-lg"></i></span> </div>
+
+                        <div class="Sensing_block">
+                            <h3 class="animated fadeInUp wow">Input</h3>
+                            <p class="animated fadeInDown wow">Take sheet music as input</p>
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-3">
+                        <div class="Sensing_icon icon3  delay-03s animated wow zoomIn"> <span><i class="fa fa-file-image-o fa-lg"></i></span> </div>
+                        <div class="Sensing_block">
+
+                            <h3 class="animated fadeInUp wow">Image Processing</h3>
+                            <p class="animated fadeInDown wow">Noise Removal, Binarization, Staff Line Removal, Cutted Buckets, Segmentation and Detection, Recognition </p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="Sensing_icon icon3  delay-03s animated wow zoomIn"> <span><i class="fa fa-file-text fa-lg"></i></span> </div>
+                        <div class="Sensing_block">
+
+                            <h3 class="animated fadeInUp wow">Text Representation</h3>
+                            <p class="animated fadeInDown wow">Produce a text representation of the music which is machine-readable </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="Sensing_block">
+                <p style="text-align: center">
+                    <strong>Below is a visual summary of what Orchestra does.</strong>
+                </p>
+                <img src="img/Orchestra_images/orchestra_summary.png" class="center" alt="Orchestra Summary">
+
+                <br>
+
+                <p>
+                    The Orchestra software takes in an image file of sheet music as input, cleans up the image using image processing techniques,
+                    and then outputs the sheet music into a readable text format.
+                </p>
+
+                <br>
+
+                <p>
+                    First, the software takes an image file of a PDF of sheet music and removes any potential source of noise that it can find, such
+                    as markings or discoloration not related to the music. Then, it takes the cleaned image file and converts it to black and white
+                    colors so that it’s easier for the CV algorithm to parse through the image without having to deal with extra colors (i.e. a gray background).
+                    Orchestra gets rid of extraneous staff lines, and from this, the software breaks each line into separate arrays so that it’s easier to iterate
+                    through the song. Then, the time signature, note durations, and the measure bars are detected in order to figure out when a line starts and ends.
+                    From here, the specific time signature, pitch of the notes, the note durations, and chords are recognized and outputted into separate arrays.
+                    Orchestra is also able to recognize sharps, flats, and dotted notes.
+                </p>
+
+                <br>
+
+                <p>
+                    For the conductor motion, we only really care about the time signature, the note durations, and the measure endings. Unfortunately, the
+                    OMR software was inconsistent with the output when it came to songs that weren’t in 4/4 time, so we only considered songs in 4/4 time
+                    given the time constraints of the project. Also, due to the nature of the Baxter hardware, songs that had a higher tempo or faster speed
+                    were a lot harder to execute in practice, so we chose songs that were slower than 75 BPM in order for the Baxter arms to be able to execute the full movements.
+                </p>
+            </div>
+
+        </div>
+    </section>
+    <!--Sensing-->
+    <!--Planning-->
+    <section id="Planning">
+        <div class="inner_wrapper Planning-container fadeInLeft animated wow">
+            <div class="container">
+                <h2>Planning</h2>
+                <h6>System Design and Operational Diagrams</h6>
+
+                <div class="Planning_block">
+                    <h3 style="text-align: center">Parser</h3>
+                    <p>
+                        Given the input of the text representation of the sheet music from Orchestra, we had to make some fundamental
+                        assumptions about the song to conduct to maximize fluidity of the Baxter arm movements. For starters, the time signature
+                        was assumed to be in 4/4 time for the entire duration of the song, and the tempo was assumed to be 75 BPM or slower.
+                    </p>
+
+                    <p>
+                        From here, the parser iterates through a measure and conducts the 4/4 time motion for the right hand and sends it into right_arm_motions.
+                        For the left arm, it mirrors the right_arm_motions for a majority of the song and is sent into left_arm_motions.
+                        Depending on if there are dynamic changes, the left arm will indicate this by either raising its arm (crescendo)
+                        or lowering its arm (decrescendo). And for the ending measure, depending on the duration of the last note, both arms will be told to make a
+                        “hold” motion for the duration of the last note before finishing with an “end” motion.
+                    </p>
+                    <br>
+
+                </div>
+
+                <div class="inner_section">
+
+                    <div class="row">
+
+                        <div class="col-lg-12 Planning">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h3>Convert</h3>
+                                    <p>
+                                        Take text output of music and convert to robot commands
+                                    </p>
+                                    <img src="img/messages.jpg" alt="messages defination">
+
+                                </div><!-- /.col-md-6 -->
+                                <div class="col-md-6">
+                                    <h3>ROS</h3>
+                                    <p>Publish and subscribe system	</p>
+                                    <img src="img/subscribe.jpg" alt="subscribe Diagrams">
+                                </div><!-- /.col-md-6 -->
+
+                            </div><!-- /.row -->
+                        </div><!-- /.col-lg-12 -->
+                    </div>
+
+                </div>
+
+                <div class="Planning_block">
+                    <h3 style="text-align: center">Planner</h3>
+                    <p>
+                        The purpose of the planner is to plan the arm trajectory
+                        between positions at the correct speed.
+                    </p>
+
+                    <p>
+                        The PathPlanner class instantiates the MoveIt commander, MoveGroupCommander
+                        with both_arms of the Baxter robot. The plan_to_joint_goal function takes the
+                        target joint position of both arms as an input and uses MoveIt to plan a
+                        trajectory from the current joint position to the target joint position.
+                        This plan is computed using the inverse kinematics (IK) solver TRAC-IK and
+                        returns a RobotTrajectory message. To increase the trajectory speed, we scale
+                        the joint velocity within RobotTrajectory.JointTrajectory by a user-determined
+                        factor.
+                    </p>
+
+                    <br>
+
+                    <h3 style="text-align: center">Configuration</h3>
+                    <p>
+                        The main issue we encountered in implementing the conductor was getting accurate
+                        timings of the motions. We found that the TRAC-IK solver is significantly faster
+                        than the default KDL solver, drastically reducing the lag between successive motions.
+                        We include the TRAC-IK package and modify the Baxter MoveIt configuration kinematics.yaml
+                        file to switch IK solvers. Additionally, we turn off joint velocity limits in MoveIt
+                        configuration joint_limits.yaml, so velocity limits are set to Baxter maximum joint velocities.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+    <!--Planning-->
+    <!-- Actuation -->
+    <section id="Actuation" class="content">
+        <div class="inner_wrapper Planning-container fadeInLeft animated wow">
+            <div class="container">
+                <h2>Actuation</h2>
+                <h4 style="text-align: center">Baxter Conductor Motion</h4>
+
+                <div class="Actuation_block">
+                    <h3 style="text-align: center">Setup</h3>
+                    <p>
+                        To set up the execution of our Baxter motions, we use Baxter’s joint trajectory controller and
+                        start an action server with “rosrun baxter_interface joint_trajectory_action_server.py”.
+                        To set up the planning of our motions, we start MoveIt with “roslaunch baxter_conductor_moveit_config demo_baxter.launch”.
+                        Here, MoveIt is configured using our modified kinematics.yaml and joint_limits.yaml to use the TRAC-IK solver and Baxter
+                        joint velocity limits. This starts the move_group node which communicates with the JointTrajectoryActionServer to actuate
+                        the motors given a planned trajectory. The use of an action server allows us to cancel a plan during execution, which is
+                        important for timing.
+                    </p>
+                </div>
+
+
+                <div class="Actuation_block">
+                    <h3 style="text-align: center">Getting Goal Position Specifics</h3>
+                    <p>
+                        For conducting, there is a set of positions that the hands/arms are in at certain timings of the music in order to give visual
+                        cues to the musicians. For the right arm, these are the beats for a given time signature. For the left arm, in addition to the beats,
+                        there are additional movements for controlling the loudness/dynamics of the music. Finally, there is an ending motion to coordinate
+                        the stop of the music.
+                    </p>
+
+                    <br>
+                    <p>
+                        These positions were recreated by hand on the Baxter robot, and a helper function save_joint_vals.py was used in order to name and save
+                        the joint positions as text files in the motion/positions/ folder. These positions were recorded for each arm individually, so different
+                        sequences of left and right arm motions were supported.
+                    </p>
+                    <br>
+
+                    <p>
+                        Care was taken with setting each joint so that each connecting motion would have efficient joint movements, and pose symmetrical for
+                        both arms when applicable.
+                    </p>
+                </div>
+
+                <br>
+
+                <div class="Actuation_block">
+                    <h3 style="text-align: center">Execution and Timing</h3>
+                    <p>
+                        Execution of the robot commands sent by the music reader is done by the function conductor_motion.
+                        This node subscribes to the conductor_commands topic and executes the motions given in music_commands messages
+                        with music_commands.tempo setting the time allocated to each motion.
+                    </p>
+
+                    <br>
+
+                    <p>
+                        The planner is initialized and we iterate through the list of motions given for each arm. At each step, the joint
+                        position indicated by the motion name is retrieved from a text file stored in motion/positions/. The joint positions
+                        for each arm are combined to form a goal joint position for both arms, which is input into the planner, and a plan is output.
+                    </p>
+
+                    <br>
+
+                    <p>
+                        With this plan, we use the execute function in MoveGroupCommander with synchronous execution (wait = False) so that we can run a
+                        timer and stop the execution when the time allocated by tempo has passed. From wherever the arm stopped, a plan for the next step
+                        was calculated. This results in a compact right arm beat pattern when tempo is increased.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+    <!--Actuation -->
+    <!--page_section-->
+    <section class="page_section" id="Results">
+        <h2>Results</h2>
+        <!--page_section-->
+        <!--Results_logos-->
+        <div class="Results_logos">
+            <div class="container">
+
+                <img src="img/Sheet_music/hot_cross_buns.png" style="width:1120px" alt="Hot Cross Buns">
+
+                <iframe width="360" height="315" src="https://www.youtube.com/embed/CwRsXUbEWsk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <iframe width="360" height="315" src="https://www.youtube.com/embed/kMszsECiIWI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <iframe width="360" height="315" src="https://www.youtube.com/embed/t4SLEm65bQ8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <br>
+                <br>
+                <br>
+                <br>
+
+                <img src="img/Sheet_music/canon_in_d.png" style="float:left;width:560px;height:315px;" alt="Canon D">
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/iuCKFPoy_r0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+                <div class="Results_block">
+                    <p>
+                        Orchestra was able to successfully read music in 4/4, accurately read the pitch and duration of notes, and parse it in a readable format with no errors.
+                        From here, we were able to feed in the text format into our planning parser for further processing.
+                    </p>
+
+                    <br>
+
+                    <p>
+                        We were able to read the output text representation of the sheet music and send the appropriate information through ROS topics using a publish and subscribe system.
+                        Both the OMR software and the planner were configured to work reliably before the project showcase in order for Baxter to make the appropriate executions.
+                    </p>
+
+                    <br>
+
+                    <p>
+                        Baxter was able to execute the conducting motions for a simple case (Hot Cross Buns) and a more complex case (Canon in D). Tempos up to 75 beats per minute (BPM) were achieved.
+                    </p>
+
+                    <br>
+
+                    <p>
+                        Hot Cross Buns requires 4 sets (measures) of 4/4 conducting pattern with both arms with the last set being an ending sequence of two beats, a hold, and a cutoff.
+                        Baxter performs these actions with correct tempo at 60 BPM, staying synced with the music.
+                    </p>
+
+                    <br>
+
+                    <p>
+                        Canon in D has a more complex pattern which includes a left arm crescendo cue (where the arm rises over the course of a measure). To set up this crescendo motion,
+                        the left arm rests in a neutral position for the prior measure, and following the crescendo, resumes the 4/4 conducting pattern. While Baxter followed the
+                        music at 60 BPM well through the crescendo, the transition into resuming the 4/4 conducting pattern lagged behind the beat. The ending motion over a whole note (4 beats) was well executed.
+                    </p>
+
+                    <br>
+
+                    <p>
+                        A faster tempo 75 BPM for Hot Cross Buns was able to keep the timing with the music. However, the faster cutoffs of the motions caused a right arm motion to fail for one beat.
+                        Here, although the planner was unable to find a path for that beat, it was able to recover on the following motion. This recovery is a good sign of the robustness of the
+                        planning and execution design, since the conductor does not stop with a single error, which becomes even more important when conducting a long piece.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--Results_logos-->
+    <!--Conclusion-->
+    <section id="Conclusion">
+        <h2>Conclusion</h2>
+        <div class="container">
+            <div class="Conclusion_block">
+                <p>
+                    Overall, our group was very satisfied with our results. We were able to meet all of our milestone requirements that we initially set, and we were able to come up
+                    with a solution that was overall quite presentable. All of the smooth movements that we tried to implement, such as the cutoff, hold, crescendo, and
+                    transition motions, were successfully done.
+                </p>
+
+                <br>
+
+                <p>
+                    While we were testing the Orchestra OMR software with different types of sheet music so that an image file from a phone can be used as input, we realized that the
+                    OMR software only works consistently with images that only contain music without words such as the title and lyrics. Also, lots of musical symbols such as tempo markings,
+                    fermatas and time signatures other than 4/4 were also unrecognized and led to gibberish output. So we had to use MuseScore and manually type out the cleanest version of
+                    sheet music that we possibly could for Hot Cross Buns and Canon in D so that the software could read it properly. If we had more time, we would definitely modify more
+                    of the Orchestra OMR software itself and use more diverse sheet music as training data so that the CV algorithm is able to detect and read more symbols accurately.
+                </p>
+
+                <br>
+
+                <p>
+                    Currently, the speed of the arms can be specified in any range from 10 bpm to 80 bpm. The robot will intelligently adjust its limb speed in real-time to ensure that it always
+                    hits the next pose exactly when the next beat occurs. The robot will also execute smaller movements if the beats per minute is very high (this is to replicate human conductors since
+                    they will move their hands shorter distances if they need to conduct very fast).
+                </p>
+
+                <br>
+
+                <p>
+                    Above 75 BPM, we observed that the conductor would get repeatedly “stuck” at certain positions, like the faster Hot Cross Buns example. Since this is caused by
+                    bad paths between the cut off joint position and the next target, implementing a new set of joint positions for a smaller conducting pattern for faster tempos may
+                    help resolve this issue. There would be a range of tempos where the normal and smaller patterns are used, and within those, the timing will modify their sizes further.
+                </p>
+
+                <p>
+
+                    The entire application can be run with once single command that executes every required script. The user can run ./FullScript.sh and specity a beats per minute value, and the robot
+                    will execute all the required steps for conducting (recognizing the sheet music image, converting it to conductor motions, and executing those motions). Currently, the robot will conduct an
+                    image of sheet music that is stored in src/sensing/camera_output. Ideally, a future improvement would be to let the robot use the head camera to recognize a real piece of paper with sheet music (probably by placing
+                    an AR tag next to it), then storing the cropped image from the head camera in src/sensing/camera_output. This addition would connect perfectly to the code that we have already written.
+                </p>
+
+                <br>
+
+                <br>
+
+                <p>
+                    Our project goal in terms of application was in teaching/providing practice for young musicians. At a higher level, the conductor interprets the music and can add
+                    small nuances as well as adjust the sound of the orchestra in real time. Further improvements to our project may include adding more left hand motions:
+                    <ul style="list-style-type:disc; text-align: left;">
+                        <li>Cues for entrances of certain instruments</li>
+                        <li>Emphasizing accented notes</li>
+                        <li>Fermatas - hold until the conductor moves to next note</li>
+                    </ul>
+                </p>
+
+                <br>
+
+                <p>
+                    With a full orchestra and sensors, a real time feedback component can be added to listen to each section and adjust their volume with left hand gestures.
+                </p>
+            </div>
+        </div>>
+    </section>
+    <!--Conclusion-->
+
+    <section class="page_section team" id="team">
+        <!--main-section team-start-->
+        <div class="container">
+            <h2>Team</h2>
+            <div class="team_section clearfix">
+                <div class="team_area">
+                    <div class="team_box wow fadeInDown delay-03s">
+                        <div class="team_box_shadow"><a href="javascript:void(0)"></a></div>
+                        <img src="img/team-1.png" alt="">
+                        <ul>
+                            <li><a href="javascript:void(0)" class="fa fa-twitter"></a></li>
+                            <li><a href="javascript:void(0)" class="fa fa-facebook"></a></li>
+                            <li><a href="javascript:void(0)" class="fa fa-github"></a></li>
+                        </ul>
+                    </div>
+                    <h3 class="fadeInDown delay-03s">Cooper Collier</h3>
+                    <p>
+                        Cooper Collier is a 4th year CS major. He worked on improving the movement engine for the robot, in particular by controlling the speed of movements depending on the tempo of the song
+                    </p>
+                </div>
+                <div class="team_area">
+                    <div class="team_box  wow fadeInDown delay-06s">
+                        <div class="team_box_shadow"><a href="javascript:void(0)"></a></div>
+                        <img src="img/team-2.jpeg" alt="">
+                        <ul>
+                            <li><a href="javascript:void(0)" class="fa fa-twitter"></a></li>
+                            <li><a href="javascript:void(0)" class="fa fa-facebook"></a></li>
+                            <li><a href="javascript:void(0)" class="fa fa-github"></a></li>
+                        </ul>
+                    </div>
+                    <h3 class=" fadeInDown delay-06s">Dean Zhang</h3>
+                    <p>Dean Zhang is a 4th year EECS major. He worked on the sensing and planning portions of the project. He migrated and modified the OMR software, wrote the text representation parser and helped with the ROS publisher and subscriber nodes to send robot commands.</p>
+                </div>
+                <div class="team_area">
+                    <div class="team_box wow fadeInDown delay-09s">
+                        <div class="team_box_shadow"><a href="javascript:void(0)"></a></div>
+                        <img src="img/team-3.png" alt="">
+                        <ul>
+                            <li><a href="javascript:void(0)" class="fa fa-twitter"></a></li>
+                            <li><a href="javascript:void(0)" class="fa fa-facebook"></a></li>
+                            <li><a href="javascript:void(0)" class="fa fa-github"></a></li>
+                        </ul>
+                    </div>
+                    <h3 class="fadeInDown delay-09s">Fei Du</h3>
+                    <p>Fei Du is a 4th year EECS major. He worked on building the website and testing the package used in this project.</p>
+                </div>
+                <div class="team_area">
+                    <div class="team_box wow fadeInDown delay-09s">
+                        <div class="team_box_shadow"><a href="javascript:void(0)"></a></div>
+                        <img src="img/team-4.jpeg" alt="">
+                        <ul>
+                            <li><a href="javascript:void(0)" class="fa fa-twitter"></a></li>
+                            <li><a href="javascript:void(0)" class="fa fa-facebook"></a></li>
+                            <li><a href="javascript:void(0)" class="fa fa-github"></a></li>
+                        </ul>
+                    </div>
+                    <h3 class=" fadeInDown delay-09s">Ryu Akiba</h3>
+                    <p>Ryu Akiba is a 4th year applied mathematics major with a concentration in fluid mechanics. He enjoys working with data and mathematical models. He worked on the motion and timing of the robot conductor, as well as figuring out the MoveIt configuration.</p>
+
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--/Team-->
+    <!--Additional Materials-->
+    <section id="AdditionalMaterials">
+        <div class="AdditionalMaterials">
+            <h2>Additional Materials</h2>
+            <ul style="overflow:hidden; text-align: center;font-size: 25px;">
+                <li style="display:inline-block;"><a href="https://github.com/ryusterakiba/RobotConductor" class="fa fa-github 3x">Github    </a></li>
+                <li style="display:inline-block;"><a href="https://github.com/ryusterakiba/robot_conductor_ryu/tree/master/src/baxter_conductor_moveit_config/launch" class="fa fa-rocket 4x">Launch Files</a></li>
+                <li style="display:inline-block;"><a href="https://github.com/ryusterakiba/RobotConductor/blob/master/src/motion/msg/music_commands.msg" class="fa fa-envelope 4x">Msg File</a></li>
+                <li style="display:inline-block;"><a href="https://github.com/ryusterakiba/robot_conductor_ryu/tree/master/src/motion/positions" class="fa fa-twitter 4x">Positions</a></li>
+                <li style="display:inline-block;"><a href="https://github.com/ryusterakiba/robot_conductor_ryu/blob/master/src/motion/positions/position_description.txt" class="fa fa-arrows-alt 4x">Position Description</a></li>
+                <li style="display:inline-block;"><a href="https://github.com/ryusterakiba/robot_conductor_ryu/blob/master/src/motion/src/Setup.txt" class="fa fa-play">Setup</a></li>
+                <li style="display:inline-block;"><a href="https://github.com/AdelRizq/Orchestra" class="fa fa-github lg">Orchestra</a></li>
+                <li style="display:inline-block;"><a href="https://docs.google.com/presentation/d/10GYx_qkac9AWSsyx7thAvSx-rqxayOQLskg0w_szCi4/edit?usp=sharing" class="fa fa-file lg">Slides</a></li>
+
+            </ul>
+        </div>
+    </section>
+    <!--Additional Materials-->
+
+    <script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/jquery-scrolltofixed.js"></script>
+    <script type="text/javascript" src="js/jquery.nav.js"></script>
+    <script type="text/javascript" src="js/jquery.easing.1.3.js"></script>
+    <script type="text/javascript" src="js/jquery.isotope.js"></script>
+    <script src="js/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+    <script type="text/javascript" src="js/wow.js"></script>
+    <script type="text/javascript" src="js/custom.js"></script>
+</body>
+</html>

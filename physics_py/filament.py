@@ -102,13 +102,33 @@ for t in range(nt):
     frame_a.append(np.copy(a))
     
 #%%
-fig = plt.figure(figsize = (10,10))
-ax = plt.axes(projection='3d')
 
+    
 for t in range(nt+1):
-    if t%10 == 0:
-        plt.plot(frame[t][:,0],frame[t][:,1],frame[t][:,2])
-        ax.scatter(frame[t][:,0],frame[t][:,1],frame[t][:,2],s = frame_a[t]*1000)
+    fig = plt.figure(figsize = (10,10))
+    ax = plt.axes(projection='3d')
+    ax.set_box_aspect(aspect = (1,1,1))
+    ax.axes.set_xlim3d(left=-1, right=1) 
+    ax.axes.set_ylim3d(bottom=-1, top=1) 
+    ax.axes.set_zlim3d(bottom=0, top=2) 
+    
+    plt.plot(frame[t][:,0],frame[t][:,1],frame[t][:,2])
+    ax.scatter(frame[t][:,0],frame[t][:,1],frame[t][:,2],s = frame_a[t]*1000)
+    # plt.draw()
+    # plt.show()
+
+    plt.savefig("bubble_animation/bubble" + str(t) + ".png",dpi=300)
+        # writer.grab_frame()
         
-        
+            
 # plt.savefig("bubble_ring_py.png",dpi=300)
+
+
+#%%
+from matplotlib.animation import ffmpeg
+(
+    ffmpeg
+    .input('/bubble_animation/*.png', pattern_type='glob', framerate=25)
+    .output('movie.mp4')
+    .run()
+)
