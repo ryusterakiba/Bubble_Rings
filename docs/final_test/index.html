@@ -21,18 +21,17 @@
                 <nav class="navbar navbar-inverse" role="navigation">
                     <div class="navbar-header">
                         <button type="button" id="nav-toggle" class="navbar-toggle" data-toggle="collapse" data-target="#main-nav"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
-                        <a href="https://github.com/ryusterakiba/robot_conductor_ryu" class="scroll-top logo animated bounceInLeft fa fa-github fa-4x"></a>
+                        <a href="https://github.com/ryusterakiba/Bubble_Rings" class="scroll-top logo animated bounceInLeft fa fa-github fa-4x"></a>
                     </div>
                     <div id="main-nav" class="collapse navbar-collapse navStyle">
                         <ul class="nav navbar-nav" id="mainNav">
-                            <li class="active"><a href="#Introduction" class="scroll-link">Introduction</a></li>
+                            <li class="active"><a href="#Introduction" class="scroll-link">Summary</a></li>
 
-                            <li><a href="#Design" class="scroll-link">Design</a></li>
-                            <li><a href="#Sensing" class="scroll-link">Sensing</a></li>
-                            <li><a href="#Planning" class="scroll-link">Planning</a></li>
-                            <li><a href="#Actuation" class="scroll-link">Actuation</a></li>
+                            <li><a href="#Design" class="scroll-link">Description</a></li>
+                            <li><a href="#Sensing" class="scroll-link">Physics</a></li>
+                            <li><a href="#Planning" class="scroll-link">Rendering</a></li>
                             <li><a href="#Results" class="scroll-link">Results</a></li>
-                            <li><a href="#Conclusion" class="scroll-link">Conclusion</a></li>
+                            <li><a href="#Conclusion" class="scroll-link">References</a></li>
                             <li><a href="#team" class="scroll-link">Team</a></li>
                             <li><a href="#AdditionalMaterials" class="scroll-link">Additional Materials</a></li>
 
@@ -52,38 +51,30 @@
                         <div class="col-md-12">
 
                             <div class="top_left_cont zoomIn wow animated">
-                                <h2>Robot Conductor with Baxter</h2>
-                                <h6 style="text-align: center">Reading music & Moving Baxter</h6>
+                                <h2 align="center">Bubble Ring Simulation</h2>
 
-                                <h3>Project Goals</h3>
+                                <h3>Project Goal</h3>
+
                                 <p>
-                                    Make Baxter accurately read sheet music and execute the arm motions
-                                    required for conducting an orchestra or ensemble with correct timing of the beats.
+                                    We attempt to simulate the appearance and behavior of underwater "bubble rings" in a physically accurate manner.
+                                    The problem of rendering and physically describing bubble rings is important because it allows us to show that fascinating natural phenomena
+                                    can actually be simplified and modeled on a computer effectively.
                                 </p>
 
-                                <h3>Interesting Aspects</h3>
-                                <p>
-                                    This Baxter conductor is able to recognize the following:
-                                    <ul style="list-style-type:disc">
-                                        <li><b>Time signature:</b> how many notes are in a measure</li>
-                                        <li><b>Rhythm:</b> duration of notes</li>
-                                        <li><b>Tempo:</b> speed of the song</li>
-                                        <li><b>Dynamics:</b> when a portion of the song changes volume</li>
-                                    </ul>
-                                    For time signature, Baxter is able to conduct songs in 4/4 time, recognize duration of ending
-                                    notes and adjust ending motions accordingly, keep a consistent speed with songs 75 BPM and slower
-                                    when conducting, and indicate crescendos with its left arm.
+                                <h3>Project Video</h3>
+
+                                <p style="text-align:center">
+                                    <iframe width="600" height="400" src="https://www.youtube.com/embed/mf75uNi8fEw"
+                                            title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+                                    </iframe>
                                 </p>
 
-                                <h3>Potential Applications</h3>
+                                <h3>Project Summary</h3>
+
                                 <p>
-                                    It can be very beneficial for younger students playing slower songs. The robot conductor can
-                                    teach students in band or orchestra to look up in order to keep a consistent speed as well as
-                                    make dynamic changes when necessary. For example, with students who are just learning music, it
-                                    might be easier for them to have a robot conductor as a visual aid rather than staring at the
-                                    music sheet itself. Visual cues are a lot easier to process in general, and we hope that the Baxter
-                                    conductor can be useful!
+                                    Full summary/ Abstract here
                                 </p>
+
                             </div>
                         </div>
                     </div>
@@ -94,149 +85,200 @@
     <!--Design-->
     <section id="Design">
         <div class="container">
-            <h2>Design</h2>
-
-
-            <p>
-                Our project's desired functionality is to control a robot conductor who reads a sheet of music from an image, understands
-                what cues need to be communicated to the musician, and convey those cues by executing arm motions at the proper time.
-            </p>
-            <br>
-            <br>
-            <div class="Design_block col-lg-12">
-
-                <h3 style="text-align: center">Components</h3>
-                <br>
-                <ul>
-                    <li class="col-lg-4">
-                        <b>Sensing:</b> Optical Music Recognition (OMR) software reads the music
-                        for the cues that need to be conducted
-                    </li>
-                    <li class="col-lg-4">
-                        <b>Planning:</b> Convert the music cues into robot arm motions
-                    </li>
-                    <li class="col-lg-4">
-                        <b>Actuation:</b> Execute the motions with the robot arms with the required timing
-                    </li>
-                </ul>
-
-            </div>
-
+            <h2>Description</h2>
             <div class="Design_block col-lg-12">
                 <br>
-                <br>
-                <h3 style="text-align: center">Design Choices for Motion</h3>
                 <p>
-                    We require our robot conductor to repeat a sequence of motions many times, so reproducibility of target poses is
-                    critical. To accomplish this, we chose to set target poses as robot joint positions instead of end effector poses.
-                    By doing this, we reduce the drift from desired positions that can accumulate over many iterations, and reduce the
-                    probability of the MoveIt path planner from choosing an undesirable roundabout path.
+                    The motivation behind this project was...
                 </p>
-
-                <figure>
-                    <img class="center" src="img/conductor_motion_44.png " alt="Conductor Motion">
-                    <figcaption style="text-align: center">Diagram of Conductor Motion in 4/4 Time</figcaption>
-                </figure>
-
-                <br>
-
+                <br />
                 <p>
-                    When a human conductor speeds up the tempo, the conducting motion pattern becomes more compact. For example the 4/4 pattern
-                    in the image will be proportionally scaled down. In recreating this on our robot conductor, we quickly realized that guiding
-                    the end effector poses to trace out a pattern would be very tedious. We chose to use joint positions to create target poses
-                    for the endpoints of each beat, which are the numbered corners in the image. For the same arm velocity, allocating a shorter
-                    time to go to each target position allows for the pattern to become smaller and the tempo of conducting to increase.
+                    Bubble rings are...
                 </p>
-            </div>
-
-            <!--Ending line of Design-->
-            <div class="Design_block">
-                <br>
+                <br />
                 <p>
-                    <strong>To see specific implementation details, please see the Sensing, Planning, and Actuation sections.</strong>
+                    We divided up this project into two sections...
                 </p>
-            </div>
+            </div>      
         </div>
-
     </section>
     <!--Design-->
     <!--Sensing-->
     <section id="Sensing">
         <div class="container">
-            <h2>Sensing</h2>
-            <div class="Sensing_wrapper">
-                <div class="row">
-                    <div class="col-lg-3">
-                        <div class="Sensing_icon delay-03s animated wow  zoomIn"> <span><i class="fa fa-camera-retro fa-lg"></i></span> </div>
-                        <div class="Sensing_block">
-                            <h3 class="animated fadeInUp wow">Music Recognition</h3>
-                            <p class="animated fadeInDown wow">Computer Vision/Optical Music Recognition by using Orchestra Software package</p>
+            <h2>Physics</h2>
+            <div class="Planning_block">
+                <br />
+                <p>
+                    The fluid mechanics and vortex dynamics behind the evolution of bubble rings
+                    are quite complex and intriguing. Padilla et al., 2019 develop a simulation
+                    method for bubble rings and ink chandeliers by looking at the dynamics of vortex
+                    filaments. In this section, Ryu, the resident applied math/fluid mechanics person,
+                    will attempt to describe the physics and numerical algorithms presented by the paper.
+                    For a complete description, the readers are encouraged to read the paper,
+                    "On Bubble Rings and Ink Chandeliers" by Padilla et al., 2019.
+                </p>
+                <br />
+                <h3 align="left">1: Representation of the Bubble Ring</h3>
+                <div align="center">
+                    <table style="width=100%">
+                        <tr>
+                            <td align="middle">
+                                <img src="img/filament_diagram.png" width="480px" />
+                                <figcaption align="middle">Bubble Ring Diagram (Fig 6 Padilla, et al. 2019)</figcaption>
+                            </td>
 
-                        </div>
-                    </div>
-                    <div class="col-lg-3">
-                        <div class="Sensing_icon icon2  delay-03s animated wow zoomIn"> <span><i class="fa fa-pencil fa-lg"></i></span> </div>
-
-                        <div class="Sensing_block">
-                            <h3 class="animated fadeInUp wow">Input</h3>
-                            <p class="animated fadeInDown wow">Take sheet music as input</p>
-                        </div>
-
-                    </div>
-
-                    <div class="col-lg-3">
-                        <div class="Sensing_icon icon3  delay-03s animated wow zoomIn"> <span><i class="fa fa-file-image-o fa-lg"></i></span> </div>
-                        <div class="Sensing_block">
-
-                            <h3 class="animated fadeInUp wow">Image Processing</h3>
-                            <p class="animated fadeInDown wow">Noise Removal, Binarization, Staff Line Removal, Cutted Buckets, Segmentation and Detection, Recognition </p>
-                        </div>
-                    </div>
-                    <div class="col-lg-3">
-                        <div class="Sensing_icon icon3  delay-03s animated wow zoomIn"> <span><i class="fa fa-file-text fa-lg"></i></span> </div>
-                        <div class="Sensing_block">
-
-                            <h3 class="animated fadeInUp wow">Text Representation</h3>
-                            <p class="animated fadeInDown wow">Produce a text representation of the music which is machine-readable </p>
-                        </div>
-                    </div>
+                        </tr>
+                    </table>
                 </div>
+                <p>
+                    The bubble ring is represnted as a vortex filament, which is comprised of a closed center
+                    curve &gamma; in &#8477;<sup>3</sup> and a thickness <i>a</i> along the curve. This curve
+                    can be discretized and represented as a polygon. The vertices of the polygon carry
+                    position information, and the edges have length, direction (which is tangent to the curve), and
+                    thickness data. At a high level, the equations of motion are applied to the vertices to
+                    evolve them in time, and different equations are applied to model the air flow through the
+                    bubble ring based on the new positions, updating the thickness. Finally, distances between
+                    vertices are tracked for collisions and bubble rings are reconnected or split based on energy minimization
+                    principles.
+                </p>
+                <h3 align="left">2: Simulation</h3>
+                <div align="center">
+                    <table style="width=100%">
+                        <tr>
+                            <td align="middle">
+                                <img src="img/Bubble Ring Simulation.png" width="700px" />
+                                <figcaption align="middle">Process of evolving the bubble ring through time</figcaption>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <p>
+                    A bubble ring underwater experiences a buoyant force pushing it to the surface. In addition,
+                    there are lift forces from the fluid motion generated by the vortex, forces from thickness
+                    variations in the bubble ring, and dissipation. For a bubble ring, the buoyancy force
+                    is estimated by an Atwood number of -1 times gravity, thus it points up towards the
+                    water surface as expected.
+                </p>
+                <br />
+                <div align="center">
+                    <table style="width=100%">
+                        <tr>
+                            <td align="middle">
+                                <img src="img/equation18.png" width="700px" />
+                                <figcaption align="middle">Velocity Equation (Eq. 18 modified from Padilla, et al. 2019)</figcaption>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <p>
+                    The equations of motion eventually collapse into a first order differential equation for
+                    the velocity at each vertex for curve &gamma; given by Eq. 18 in Padilla et al., 2019 shown above
+                    in a modified form. Circulation <i>C</i>, Atwood number <i>At</i> = -1, kinematic viscosity
+                    &nu; = 1e-6 m<sup>2</sup>/s are given, and <i>a</i> is the thickness associated with a vertex.
+                    The velocity of vertex <i>v</i><sub>i</sub> is computed in three parts:
+                    Biot-Savart velocity, localized induction, and Boussinesq term indicated in the equation as Term 1, Term 2,
+                    and Term 3 respectively.
+                </p>
+                <br />
+                <p>
+                    Here, a term of interest for multiple bubble rings is the first Biot-Savart velocity term, since it
+                    is affected by the location and circulation of every vertex of every ring in the system.
+                </p>
+                <br />
+                <p>
+                    Given the velocity at each vertex computed by the equations of motions above, their position is evolved in time
+                    using a Runge-Kutta 4th order integrator. This involves computing four intermediate steps and summing together
+                    with proper weights. An important detail here is to modify thicknesses during these intermedaite steps to conserve
+                    the volume of the air inside the bubble ring as positions - and thus the size of the ring - change. An additional
+                    volume conservation scaling of thicknesses to the initial volume is applied after integration. These equations
+                    do not take into account the pressure of the water column nor the expansion of air as pressure decreases, which
+                    would make this scaling unrealistic.
+                </p>
+                <br />
+                <h3 align="left">3: Resampling</h3>
+                <div align="center">
+                    <table style="width=100%">
+                        <tr>
+                            <td align="middle">
+                                <img src="img/resampling.png" width="300px" />
+                                <figcaption align="middle">Evolution of bubble ring in Python with resampling</figcaption>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <p>
+                    With the above equations of motion implemented in Python, we can see the initial bubble ring in blue
+                    rising over time to its final state in purple. The bubble ring expands as it rises, and distances between
+                    vertices increases and can create numerical instabilities. A resampling method is needed to keep numerical
+                    stability. In Padilla, et al. 2019, a Houdini functionality handles this resampling. We implement resampling
+                    through a 1d interpolation over the length of the ring and find positions, thickness, and circulation along
+                    the ring at a standard length interval. This is shown above, where the distance between vertices stays constant
+                    as the ring expands.
+                </p>
+
+                <br />
+                <h3 align="left">4: Thickness Flow</h3>
+                <div align="center">
+                    <table style="width=100%">
+                        <tr>
+                            <td align="middle">
+                                <img src="img/equation27.png" width="300px" />
+                                <figcaption align="middle">Burgers's Equation in backward Euler form (Eq. 27 from Padilla, et al. 2019)</figcaption>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <p>
+                    After an update in position, the thickness of the bubble ring allowed to change according to
+                    Burgers's Equation rearranged into Eq. 27 in Padilla et al., 2019 for a backward Euler scheme.
+                    Here, the flux of air within the bubble ring is calculated, and the thickness along the ring is
+                    updated in time.
+                </p>
+                <br />
+                <h3 align="left">5: Collisions</h3>
+
+                <h4 align="left">5.1: Hairpin Removal</h4>
+                <p>
+                    Hairpins in this context refer to sharp corners in the bubble ring. Small scale features that result in
+                    these hairpins are difficult to resolve in simulation, and is reasonable to renormalize to avoid
+                    numerical instabilities. These hairpins appear most frequently in bubble ring collision scenarios near
+                    reconnection or splitting sections. Padilla, et al. 2019 do not mention this in thier paper, however
+                    hairpin removal appears in their Houdini implementation, and generally follows details from Chorin, 1992.
+                </p>
+
+                <p>
+                    For our implementation, we assume hairpins only occur between neighboring edges on the bubble ring. Thus we can
+                    iterate over all pairs of edges and compute the angle between them. If the angle is too small < 35 degrees, the
+                    two edges are merged into a single edge, and the vertices of the ring are updated accordingly. This effectively
+                    smoothens the ring.
+                </p>
+
+                <h4 align="left">5.2: Reconnection and Splitting</h4>
+                <div align="center">
+                    <table style="width=100%">
+                        <tr>
+                            <td align="middle">
+                                <img src="img/reconnection_fail.png" width="300px" />
+                                <figcaption align="middle">Failure of reconnection and splitting code</figcaption>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <br />
+                <p>
+                    The reconnection and splitting of bubble rings is mainly driven by proximity of filament segments
+                    and energy minimization. This reconnection or splitting criteria can be modeled through a method of
+                    Weissmann and Pinkall, 2010.
+                </p>
+                <br />
+                <p>
+
+                </p>
+
+
             </div>
 
-            <div class="Sensing_block">
-                <p style="text-align: center">
-                    <strong>Below is a visual summary of what Orchestra does.</strong>
-                </p>
-                <img src="img/Orchestra_images/orchestra_summary.png" class="center" alt="Orchestra Summary">
-
-                <br>
-
-                <p>
-                    The Orchestra software takes in an image file of sheet music as input, cleans up the image using image processing techniques,
-                    and then outputs the sheet music into a readable text format.
-                </p>
-
-                <br>
-
-                <p>
-                    First, the software takes an image file of a PDF of sheet music and removes any potential source of noise that it can find, such
-                    as markings or discoloration not related to the music. Then, it takes the cleaned image file and converts it to black and white
-                    colors so that it’s easier for the CV algorithm to parse through the image without having to deal with extra colors (i.e. a gray background).
-                    Orchestra gets rid of extraneous staff lines, and from this, the software breaks each line into separate arrays so that it’s easier to iterate
-                    through the song. Then, the time signature, note durations, and the measure bars are detected in order to figure out when a line starts and ends.
-                    From here, the specific time signature, pitch of the notes, the note durations, and chords are recognized and outputted into separate arrays.
-                    Orchestra is also able to recognize sharps, flats, and dotted notes.
-                </p>
-
-                <br>
-
-                <p>
-                    For the conductor motion, we only really care about the time signature, the note durations, and the measure endings. Unfortunately, the
-                    OMR software was inconsistent with the output when it came to songs that weren’t in 4/4 time, so we only considered songs in 4/4 time
-                    given the time constraints of the project. Also, due to the nature of the Baxter hardware, songs that had a higher tempo or faster speed
-                    were a lot harder to execute in practice, so we chose songs that were slower than 75 BPM in order for the Baxter arms to be able to execute the full movements.
-                </p>
-            </div>
 
         </div>
     </section>
@@ -245,7 +287,7 @@
     <section id="Planning">
         <div class="inner_wrapper Planning-container fadeInLeft animated wow">
             <div class="container">
-                <h2>Planning</h2>
+                <h2>Rendering</h2>
                 <h6>System Design and Operational Diagrams</h6>
 
                 <div class="Planning_block">
@@ -256,14 +298,6 @@
                         was assumed to be in 4/4 time for the entire duration of the song, and the tempo was assumed to be 75 BPM or slower.
                     </p>
 
-                    <p>
-                        From here, the parser iterates through a measure and conducts the 4/4 time motion for the right hand and sends it into right_arm_motions.
-                        For the left arm, it mirrors the right_arm_motions for a majority of the song and is sent into left_arm_motions.
-                        Depending on if there are dynamic changes, the left arm will indicate this by either raising its arm (crescendo)
-                        or lowering its arm (decrescendo). And for the ending measure, depending on the duration of the last note, both arms will be told to make a
-                        “hold” motion for the duration of the last note before finishing with an “end” motion.
-                    </p>
-                    <br>
 
                 </div>
 
@@ -278,13 +312,6 @@
                                     <p>
                                         Take text output of music and convert to robot commands
                                     </p>
-                                    <img src="img/messages.jpg" alt="messages defination">
-
-                                </div><!-- /.col-md-6 -->
-                                <div class="col-md-6">
-                                    <h3>ROS</h3>
-                                    <p>Publish and subscribe system	</p>
-                                    <img src="img/subscribe.jpg" alt="subscribe Diagrams">
                                 </div><!-- /.col-md-6 -->
 
                             </div><!-- /.row -->
@@ -295,114 +322,12 @@
 
                 <div class="Planning_block">
                     <h3 style="text-align: center">Planner</h3>
-                    <p>
-                        The purpose of the planner is to plan the arm trajectory
-                        between positions at the correct speed.
-                    </p>
-
-                    <p>
-                        The PathPlanner class instantiates the MoveIt commander, MoveGroupCommander
-                        with both_arms of the Baxter robot. The plan_to_joint_goal function takes the
-                        target joint position of both arms as an input and uses MoveIt to plan a
-                        trajectory from the current joint position to the target joint position.
-                        This plan is computed using the inverse kinematics (IK) solver TRAC-IK and
-                        returns a RobotTrajectory message. To increase the trajectory speed, we scale
-                        the joint velocity within RobotTrajectory.JointTrajectory by a user-determined
-                        factor.
-                    </p>
-
-                    <br>
-
-                    <h3 style="text-align: center">Configuration</h3>
-                    <p>
-                        The main issue we encountered in implementing the conductor was getting accurate
-                        timings of the motions. We found that the TRAC-IK solver is significantly faster
-                        than the default KDL solver, drastically reducing the lag between successive motions.
-                        We include the TRAC-IK package and modify the Baxter MoveIt configuration kinematics.yaml
-                        file to switch IK solvers. Additionally, we turn off joint velocity limits in MoveIt
-                        configuration joint_limits.yaml, so velocity limits are set to Baxter maximum joint velocities.
-                    </p>
                 </div>
 
             </div>
         </div>
     </section>
     <!--Planning-->
-    <!-- Actuation -->
-    <section id="Actuation" class="content">
-        <div class="inner_wrapper Planning-container fadeInLeft animated wow">
-            <div class="container">
-                <h2>Actuation</h2>
-                <h4 style="text-align: center">Baxter Conductor Motion</h4>
-
-                <div class="Actuation_block">
-                    <h3 style="text-align: center">Setup</h3>
-                    <p>
-                        To set up the execution of our Baxter motions, we use Baxter’s joint trajectory controller and
-                        start an action server with “rosrun baxter_interface joint_trajectory_action_server.py”.
-                        To set up the planning of our motions, we start MoveIt with “roslaunch baxter_conductor_moveit_config demo_baxter.launch”.
-                        Here, MoveIt is configured using our modified kinematics.yaml and joint_limits.yaml to use the TRAC-IK solver and Baxter
-                        joint velocity limits. This starts the move_group node which communicates with the JointTrajectoryActionServer to actuate
-                        the motors given a planned trajectory. The use of an action server allows us to cancel a plan during execution, which is
-                        important for timing.
-                    </p>
-                </div>
-
-
-                <div class="Actuation_block">
-                    <h3 style="text-align: center">Getting Goal Position Specifics</h3>
-                    <p>
-                        For conducting, there is a set of positions that the hands/arms are in at certain timings of the music in order to give visual
-                        cues to the musicians. For the right arm, these are the beats for a given time signature. For the left arm, in addition to the beats,
-                        there are additional movements for controlling the loudness/dynamics of the music. Finally, there is an ending motion to coordinate
-                        the stop of the music.
-                    </p>
-
-                    <br>
-                    <p>
-                        These positions were recreated by hand on the Baxter robot, and a helper function save_joint_vals.py was used in order to name and save
-                        the joint positions as text files in the motion/positions/ folder. These positions were recorded for each arm individually, so different
-                        sequences of left and right arm motions were supported.
-                    </p>
-                    <br>
-
-                    <p>
-                        Care was taken with setting each joint so that each connecting motion would have efficient joint movements, and pose symmetrical for
-                        both arms when applicable.
-                    </p>
-                </div>
-
-                <br>
-
-                <div class="Actuation_block">
-                    <h3 style="text-align: center">Execution and Timing</h3>
-                    <p>
-                        Execution of the robot commands sent by the music reader is done by the function conductor_motion.
-                        This node subscribes to the conductor_commands topic and executes the motions given in music_commands messages
-                        with music_commands.tempo setting the time allocated to each motion.
-                    </p>
-
-                    <br>
-
-                    <p>
-                        The planner is initialized and we iterate through the list of motions given for each arm. At each step, the joint
-                        position indicated by the motion name is retrieved from a text file stored in motion/positions/. The joint positions
-                        for each arm are combined to form a goal joint position for both arms, which is input into the planner, and a plan is output.
-                    </p>
-
-                    <br>
-
-                    <p>
-                        With this plan, we use the execute function in MoveGroupCommander with synchronous execution (wait = False) so that we can run a
-                        timer and stop the execution when the time allocated by tempo has passed. From wherever the arm stopped, a plan for the next step
-                        was calculated. This results in a compact right arm beat pattern when tempo is increased.
-                    </p>
-                </div>
-
-            </div>
-        </div>
-    </section>
-    <!--Actuation -->
     <!--page_section-->
     <section class="page_section" id="Results">
         <h2>Results</h2>
@@ -411,60 +336,19 @@
         <div class="Results_logos">
             <div class="container">
 
-                <img src="img/Sheet_music/hot_cross_buns.png" style="width:1120px" alt="Hot Cross Buns">
-
-                <iframe width="360" height="315" src="https://www.youtube.com/embed/CwRsXUbEWsk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                <iframe width="360" height="315" src="https://www.youtube.com/embed/kMszsECiIWI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                <iframe width="360" height="315" src="https://www.youtube.com/embed/t4SLEm65bQ8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <iframe width="600" height="400" src="https://www.youtube.com/embed/mf75uNi8fEw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 <br>
                 <br>
                 <br>
                 <br>
-
-                <img src="img/Sheet_music/canon_in_d.png" style="float:left;width:560px;height:315px;" alt="Canon D">
-                <iframe width="560" height="315" src="https://www.youtube.com/embed/iuCKFPoy_r0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
                 <div class="Results_block">
                     <p>
-                        Orchestra was able to successfully read music in 4/4, accurately read the pitch and duration of notes, and parse it in a readable format with no errors.
-                        From here, we were able to feed in the text format into our planning parser for further processing.
+                        Result comments
                     </p>
 
                     <br>
 
-                    <p>
-                        We were able to read the output text representation of the sheet music and send the appropriate information through ROS topics using a publish and subscribe system.
-                        Both the OMR software and the planner were configured to work reliably before the project showcase in order for Baxter to make the appropriate executions.
-                    </p>
-
-                    <br>
-
-                    <p>
-                        Baxter was able to execute the conducting motions for a simple case (Hot Cross Buns) and a more complex case (Canon in D). Tempos up to 75 beats per minute (BPM) were achieved.
-                    </p>
-
-                    <br>
-
-                    <p>
-                        Hot Cross Buns requires 4 sets (measures) of 4/4 conducting pattern with both arms with the last set being an ending sequence of two beats, a hold, and a cutoff.
-                        Baxter performs these actions with correct tempo at 60 BPM, staying synced with the music.
-                    </p>
-
-                    <br>
-
-                    <p>
-                        Canon in D has a more complex pattern which includes a left arm crescendo cue (where the arm rises over the course of a measure). To set up this crescendo motion,
-                        the left arm rests in a neutral position for the prior measure, and following the crescendo, resumes the 4/4 conducting pattern. While Baxter followed the
-                        music at 60 BPM well through the crescendo, the transition into resuming the 4/4 conducting pattern lagged behind the beat. The ending motion over a whole note (4 beats) was well executed.
-                    </p>
-
-                    <br>
-
-                    <p>
-                        A faster tempo 75 BPM for Hot Cross Buns was able to keep the timing with the music. However, the faster cutoffs of the motions caused a right arm motion to fail for one beat.
-                        Here, although the planner was unable to find a path for that beat, it was able to recover on the following motion. This recovery is a good sign of the robustness of the
-                        planning and execution design, since the conductor does not stop with a single error, which becomes even more important when conducting a long piece.
-                    </p>
                 </div>
             </div>
         </div>
@@ -472,68 +356,15 @@
     <!--Results_logos-->
     <!--Conclusion-->
     <section id="Conclusion">
-        <h2>Conclusion</h2>
+        <h2>References</h2>
         <div class="container">
             <div class="Conclusion_block">
                 <p>
-                    Overall, our group was very satisfied with our results. We were able to meet all of our milestone requirements that we initially set, and we were able to come up
-                    with a solution that was overall quite presentable. All of the smooth movements that we tried to implement, such as the cutoff, hold, crescendo, and
-                    transition motions, were successfully done.
+                    Conclusion stuff
                 </p>
 
                 <br>
 
-                <p>
-                    While we were testing the Orchestra OMR software with different types of sheet music so that an image file from a phone can be used as input, we realized that the
-                    OMR software only works consistently with images that only contain music without words such as the title and lyrics. Also, lots of musical symbols such as tempo markings,
-                    fermatas and time signatures other than 4/4 were also unrecognized and led to gibberish output. So we had to use MuseScore and manually type out the cleanest version of
-                    sheet music that we possibly could for Hot Cross Buns and Canon in D so that the software could read it properly. If we had more time, we would definitely modify more
-                    of the Orchestra OMR software itself and use more diverse sheet music as training data so that the CV algorithm is able to detect and read more symbols accurately.
-                </p>
-
-                <br>
-
-                <p>
-                    Currently, the speed of the arms can be specified in any range from 10 bpm to 80 bpm. The robot will intelligently adjust its limb speed in real-time to ensure that it always
-                    hits the next pose exactly when the next beat occurs. The robot will also execute smaller movements if the beats per minute is very high (this is to replicate human conductors since
-                    they will move their hands shorter distances if they need to conduct very fast).
-                </p>
-
-                <br>
-
-                <p>
-                    Above 75 BPM, we observed that the conductor would get repeatedly “stuck” at certain positions, like the faster Hot Cross Buns example. Since this is caused by
-                    bad paths between the cut off joint position and the next target, implementing a new set of joint positions for a smaller conducting pattern for faster tempos may
-                    help resolve this issue. There would be a range of tempos where the normal and smaller patterns are used, and within those, the timing will modify their sizes further.
-                </p>
-
-                <p>
-
-                    The entire application can be run with once single command that executes every required script. The user can run ./FullScript.sh and specity a beats per minute value, and the robot
-                    will execute all the required steps for conducting (recognizing the sheet music image, converting it to conductor motions, and executing those motions). Currently, the robot will conduct an
-                    image of sheet music that is stored in src/sensing/camera_output. Ideally, a future improvement would be to let the robot use the head camera to recognize a real piece of paper with sheet music (probably by placing
-                    an AR tag next to it), then storing the cropped image from the head camera in src/sensing/camera_output. This addition would connect perfectly to the code that we have already written.
-                </p>
-
-                <br>
-
-                <br>
-
-                <p>
-                    Our project goal in terms of application was in teaching/providing practice for young musicians. At a higher level, the conductor interprets the music and can add
-                    small nuances as well as adjust the sound of the orchestra in real time. Further improvements to our project may include adding more left hand motions:
-                    <ul style="list-style-type:disc; text-align: left;">
-                        <li>Cues for entrances of certain instruments</li>
-                        <li>Emphasizing accented notes</li>
-                        <li>Fermatas - hold until the conductor moves to next note</li>
-                    </ul>
-                </p>
-
-                <br>
-
-                <p>
-                    With a full orchestra and sensors, a real time feedback component can be added to listen to each section and adjust their volume with left hand gestures.
-                </p>
             </div>
         </div>>
     </section>
