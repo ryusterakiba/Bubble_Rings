@@ -72,7 +72,22 @@
                                 <h3>Project Summary</h3>
 
                                 <p>
-                                    Full summary/ Abstract here
+                                    Ryu first learned about bubble rings during a seminar about vortex physics. He eventually introduced the idea in a graphics context to the rest of the group, 
+                                    as well as a paper by Marcel Padilla and others, and everybody was on board. The group split the project into 2 main components: rendering/translation in C++ and
+                                    physical simulation. Based on factors such as the buoyant force, gravity, and the vortex's circulation itself, a first order, fluid dynamical, differential equation was key. 
+                                    To prevent the accumulation of numerical errors over time, straying the bubble ring too far off course (something which would occur when using Euler integration), the group 
+                                    researched stable Runge Kutta 4th order integration, a method which is implemented in both the resulting project's Python and C++ code. Additionally, the group used resampling 
+                                    to make sure that expansion of a bubble ring is numerically stable via linear interpolation. In order to make sure these concepts translated well to code, the group began its 
+                                    implementation in Python using well-established and documented libraries like NumPy. In fact, the Python code even features an implementation of multiple bubble rings colliding 
+                                    with each other, disconnecting, as well as reconnecting. To continue, rendering involved harnessing the Project 4 framework provided in C++. A bubble ring is structured in the 
+                                    following way: to create an overarching shape for the ring, we prescribe a Filament (formerly Cloth) object which is simply point masses arranged circularly. Then, to provide 
+                                    depth and 3-dimensionality to the bubble ring, each point mass in the filament has an associated thickness (which can actually vary based on our implementation!). Around each
+                                    point mass in a filament, we arrange other point masses around it to generate a cross-section of that thickness. These point-masses are all meshed together via triangles connecting
+                                    vertices in adjacent cross sections, making sure the code works in a cyclical fashion. A background and texture was also provided resembling water (using a cube map environment reflected
+                                    by specular materials). The simulate function and some helper functions translate Python functionality to work with C++ rendering features. Overall, the group was extremely pleased with 
+                                    the results. Not only did we render and physically simulate a single bubble ring with tilt/rotation in C++, we were able to visualize multiple bubble rings interfering with each other 
+                                    in Python, one of our reach goals! Ultimately, the group believes that we effectively organized the scope and complexity of the project so we could achieve such interesting results for 
+                                    a natural phenomena!
                                 </p>
 
                             </div>
