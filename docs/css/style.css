@@ -216,10 +216,12 @@ p {
 ---------------------------------*/
 
 .top_cont_outer {
-    background: #ED5441;
+    background: #000000;
     /* position: relative; */
-	background:url(../img/slide-1.jpeg) top center no-repeat;
-	background-size: cover;
+    background: url(../img/slide-1.jpeg) top center no-repeat;
+    background-size: cover;
+    background-color: #000000;
+    opacity: 1.8;
 }
 
 .hero_section {
@@ -267,7 +269,7 @@ p {
 
 .top_left_cont p {
 font-size: 20px;
-color: #C3C3C3;
+color: #fff;
 margin: 0 0 30px 0;
 line-height: 33px;
 text-align: left; /* used to be center */
