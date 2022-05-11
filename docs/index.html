@@ -378,12 +378,55 @@
                 <h2>Rendering</h2>
 
                 <div class="Planning_block">
-                    <h3 style="text-align: center">rendering</h3>
                     <p>
-                        Some text
+                        In the previous section, we described our methods to simulate the evolution of bubble rings. In this section, we outline how we translate the physics/mathematical models into a rendering.
+                    </p>
+                    <h3 align="left">1. Starting Point</h3>
+                    <p>
+                        The starting point for our simulation system is Project 4:Clothsim. We chose this as our starting point because it could already render and simulate wireframes, so we could focus on creating the bubble ring’s wireframe and developing proper shaders for it instead of creating the entire system from scratch.
+                    </p>
+                    
+                    <h3 align="left">2. Classes and Building the Wireframe</h3>
+                    <p>
+                        In Project 4, we referenced cloth, pointmass, and spring classes. For our implementation, we did away with the spring class and modified the cloth class to instead represent a bubble ring. This required storing some additional properties like ring radius, tilt angle (the starting tilt of the bubble ring), and the number of vertices in the bubble ring. We also modified the pointmass class to store the radius of the bubble ring at that point.
+                    </p>
+                    <br>
+                    <p>
+                        We built the wireframe in cloth::buildGrid() by first instantiating the outer pointmasses that define the bubble ring’s shape. Then we created a loop of pointmasses around each pointmass in the outer frame at a certain radius. This gives the bubble ring shape in three dimensions.
                     </p>
 
-
+                    <h3 align="left">3. Meshing and Shading</h3>
+                    <div align="center">
+                        <table style="width=100%">
+                            <tr>
+                                <td align="middle">
+                                    <img src="img/mesh.png" width="300px" />
+                                    <figcaption align="middle">Meshing process for one segment of the bubble ring.</figcaption>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <p>
+                        Meshing proved to be challenging because the existing code in cloth::buildClothMesh() was specifically built to mesh a two-dimensional cloth. The bubble ring is three-dimensional, however, so we had to overhaul the existing code by rethinking the relationships between adjacent triangles on the mesh. What helped us with linking the triangles of the mesh together was realizing that the bubble ring is similar to a cloth that has been wrapped around to itself along the long edge, and then connected along the two circular segments that arise.  Additionally, we had to be sure to only create triangles along the outside of the mesh, which involved pointer arithmetic to skip over the pointmasses in the bubble ring frame that are inside the bubble ring.
+                    </p>
+                    <br>
+                    <p>
+                        To shade the bubble ring, we used a cube-mapped version of water caustics as the environment which is specularly reflected by the bubble ring itself. This allows us to simulate the appearance of reflective ripples on the bubble ring’s surface. Additionally, we created a background by placing planes around the bubble ring that also mirrored the environment, so the bubble ring appears to be rising through water.
+                    </p>
+                    <div align="center">
+                        <table style="width=100%">
+                            <tr>
+                                <td align="middle">
+                                    <img src="img/varying-thickness-ring.png" width="300px" height="300px"/>
+                                    <figcaption align="middle">A bubble ring rendered with a tilt and a varying thickness.</figcaption>
+                                </td>
+                                <td align="middle">
+                                    <img src="img/textured-ring.png" width="300px" height="300px"/>
+                                    <figcaption align="middle">A textured version of the bubble ring.</figcaption>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
 
 
@@ -505,51 +548,38 @@
                     <div class="team_box wow fadeInDown delay-03s">
                         <div class="team_box_shadow"><a href="javascript:void(0)"></a></div>
                         <img src="img/team-1.png" alt="">
-                        <ul>
-                            <li><a href="javascript:void(0)" class="fa fa-linkedin"></a></li>
-                            <li><a href="javascript:void(0)" class="fa fa-github"></a></li>
-                        </ul>
                     </div>
-                    <h3 class="fadeInDown delay-03s">Cooper Collier</h3>
-                    <p>
-                        Cooper Collier is a 4th year CS major. He worked on improving the movement engine for the robot, in particular by controlling the speed of movements depending on the tempo of the song
-                    </p>
+                    <h3 class="fadeInDown delay-03s">Ryu Akiba</h3>
+                    <p>Ryu Akiba is a 4th year applied mathematics major with a concentration in fluid mechanics. He enjoys working with data and mathematical models. He worked on the physics understanding and Python implementation of the bubble ring simulation.</p>
                 </div>
                 <div class="team_area">
                     <div class="team_box  wow fadeInDown delay-06s">
                         <div class="team_box_shadow"><a href="javascript:void(0)"></a></div>
                         <img src="img/team-2.jpeg" alt="">
-                        <ul>
-                            <li><a href="javascript:void(0)" class="fa fa-linkedin"></a></li>
-                            <li><a href="javascript:void(0)" class="fa fa-github"></a></li>
                         </ul>
                     </div>
-                    <h3 class=" fadeInDown delay-06s">Dean Zhang</h3>
-                    <p>Dean Zhang is a 4th year EECS major. He worked on the sensing and planning portions of the project. He migrated and modified the OMR software, wrote the text representation parser and helped with the ROS publisher and subscriber nodes to send robot commands.</p>
+                    <h3 class=" fadeInDown delay-06s">Marco Gellecanao</h3>
+                    <p>Marco Gellecanao is a 4th year computer science major. Given the working Python implementation of the bubble ring physics, he worked on implementing the same logic in C++ for integration with the rendering parts of the project.</p>
                 </div>
                 <div class="team_area">
                     <div class="team_box wow fadeInDown delay-09s">
                         <div class="team_box_shadow"><a href="javascript:void(0)"></a></div>
                         <img src="img/team-3.png" alt="">
-                        <ul>
-                            <li><a href="javascript:void(0)" class="fa fa-linkedin"></a></li>
-                            <li><a href="javascript:void(0)" class="fa fa-github"></a></li>
-                        </ul>
                     </div>
-                    <h3 class="fadeInDown delay-09s">Fei Du</h3>
-                    <p>Fei Du is a 4th year EECS major. He worked on building the website and testing the package used in this project.</p>
+                    <h3 class="fadeInDown delay-09s">Srinivasan Madhavan</h3>
+                    <p>Seenu Madhavan is a 3rd year EECS major. He worked on building, meshing, and shading the bubble ring and its
+                            environment. </p>
+
                 </div>
                 <div class="team_area">
                     <div class="team_box wow fadeInDown delay-09s">
                         <div class="team_box_shadow"><a href="javascript:void(0)"></a></div>
                         <img src="img/team-4.jpeg" alt="">
-                        <ul>
-                            <li><a href="https://www.linkedin.com/in/ryu-akiba/" class="fa fa-linkedin"></a></li>
-                            <li><a href="https://github.com/ryusterakiba" class="fa fa-github"></a></li>
-                        </ul>
                     </div>
-                    <h3 class=" fadeInDown delay-09s">Ryu Akiba</h3>
-                    <p>Ryu Akiba is a 4th year applied mathematics major with a concentration in fluid mechanics. He enjoys working with data and mathematical models. He worked on the physics understanding and Python implementation of the bubble ring simulation.</p>
+                    <h3 class=" fadeInDown delay-09s">Aditya Prasad</h3>
+                    <p>
+                        Aditya Prasad is a third year EECS major who attained an interest in graphics from playing video games when he was younger. He worked with Srinivasan on this project for the rendering portion of the project, while Ryu and Marco worked on the simulation portion.
+                    </p>
 
                 </div>
             </div>
