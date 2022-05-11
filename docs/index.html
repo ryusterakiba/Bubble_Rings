@@ -1,74 +1,546 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!doctype html>
+<html>
 <head>
-<style>
-  body {
-    padding: 100px;
-    width: 1000px;
-    margin: auto;
-    text-align: left;
-    font-weight: 300;
-    font-family: 'Open Sans', sans-serif;
-    color: #121212;
-  }
-  h1, h2, h3, h4 {
-    font-family: 'Source Sans Pro', sans-serif;
-  }
-</style>
-<title>CS 184 Final Project</title>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, maximum-scale=1">
+    <title>Bubble Ring Simulation</title>
+    <link rel="icon" href="favicon.png" type="image/png">
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="js/fancybox/jquery.fancybox.css" type="text/css" media="screen" />
+    <link href="css/style.css" rel="stylesheet" type="text/css">
+    <link href="css/font-awesome.css" rel="stylesheet" type="text/css">
+    <link href="css/animate.css" rel="stylesheet" type="text/css">
+
+
 </head>
-
-
 <body>
+    <!--Header_section-->
+    <header id="hw">
+        <div class="container">
+            <div class="header_box">
+                <nav class="navbar navbar-inverse" role="navigation">
+                    <div class="navbar-header">
+                        <button type="button" id="nav-toggle" class="navbar-toggle" data-toggle="collapse" data-target="#main-nav"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+                        <a href="https://github.com/ryusterakiba/Bubble_Rings" class="scroll-top logo animated bounceInLeft fa fa-github fa-4x"></a>
+                    </div>
+                    <div id="main-nav" class="collapse navbar-collapse navStyle">
+                        <ul class="nav navbar-nav" id="mainNav">
+                            <li class="active"><a href="#Introduction" class="scroll-link">Summary</a></li>
 
-<h1 align="middle">CS 184: Computer Graphics and Imaging, Spring 2022</h1>
-<h1 align="middle">Final Project: Bubble Ring Simulation </h1>
-<h2 align="middle">Ryu Akiba, Marco Gellecanao, Srinivasan Madhavan, Aditya Prasad</h2>
-<div align="center">
-    <table style="width=100%">
-        <tr>
-            <td align="middle">
-                <img src="images/bubble_reconnection_crop.gif" width="480px" />
-                <figcaption align="middle">Bubble Ring Reconnection</figcaption>
-            </td>
+                            <li><a href="#Design" class="scroll-link">Description</a></li>
+                            <li><a href="#Sensing" class="scroll-link">Physics</a></li>
+                            <li><a href="#Planning" class="scroll-link">Rendering</a></li>
+                            <li><a href="#Results" class="scroll-link">Results</a></li>
+                            <li><a href="#Conclusion" class="scroll-link">References</a></li>
+                            <li><a href="#team" class="scroll-link">Team</a></li>
+                            <li><a href="#AdditionalMaterials" class="scroll-link">Additional Materials</a></li>
 
-        </tr>
-    </table>
-</div>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+    <!--Header_section-->
+    <!--Introduction-->
+    <section id="Introduction" class="top_cont_outer">
+        <div class="hero_wrapper">
+            <div class="container">
+                <div class="Introduction">
+                    <div class="row">
+                        <div class="col-md-12">
 
-<div>
+                            <div class="top_left_cont zoomIn wow animated">
+                                <h2 align="center">Bubble Ring Simulation</h2>
 
-    <h2 align="middle">Summary</h2>
-    <p>
-        Simulation and rendering of the evolution of underwater bubble rings according to fluid dynamics.
-    </p>
-    <br /><br />
-    <a href="/proposal/index.html">Project Proposal</a>
-    <br /><br />
-    <a href="/milestone/index.html">Milestone Status Report</a>
-    <br /><br />
-    <a href="/final_test/index.html">Final (test environment)</a>
+                                <h3>Project Goal</h3>
 
-    <h2 align="middle">Technical Approach</h2>
+                                <p>
+                                    We attempt to simulate the appearance and behavior of underwater "bubble rings" in a physically accurate manner.
+                                    The problem of rendering and physically describing bubble rings is important because it allows us to show that fascinating natural phenomena
+                                    can actually be simplified and modeled on a computer effectively.
+                                </p>
 
-    <h2 align="middle">Results</h2>
+                                <h3>Project Video</h3>
 
-    <h2 align="middle">References</h2>
+                                <p style="text-align:center">
+                                    <iframe width="600" height="400" src="https://www.youtube.com/embed/mf75uNi8fEw"
+                                            title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+                                    </iframe>
+                                </p>
 
-    <h2 align="middle">Team Member Roles</h2>
+                                <h3>Project Summary</h3>
 
-</div>
+                                <p>
+                                    Full summary/ Abstract here
+                                </p>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </section>
+    <!--Introduction-->
+    <!--Design-->
+    <section id="Design">
+        <div class="container">
+            <h2>Description</h2>
+            <div class="Design_block col-lg-12">
+                <br>
+                <p>
+                    The motivation behind this project was...
+                </p>
+                <br />
+                <p>
+                    Bubble rings are...
+                </p>
+                <br />
+                <p>
+                    We divided up this project into two sections...
+                </p>
+            </div>
+        </div>
+    </section>
+    <!--Design-->
+    <!--Sensing-->
+    <section id="Sensing">
+        <div class="container">
+            <h2>Physics</h2>
+            <div class="Planning_block">
+                <br />
+                <p>
+                    The fluid mechanics and vortex dynamics behind the evolution of bubble rings
+                    are quite complex and intriguing. Padilla et al., 2019 develop a simulation
+                    method for bubble rings and ink chandeliers by looking at the dynamics of vortex
+                    filaments. In this section, Ryu, the resident applied math/fluid mechanics person,
+                    will attempt to describe the physics and numerical algorithms presented by the paper.
+                    For a complete description, the readers are encouraged to read the paper,
+                    "On Bubble Rings and Ink Chandeliers" by Padilla et al., 2019.
+                </p>
+                <br />
+                <h3 align="left">1: Representation of the Bubble Ring</h3>
+                <div align="center">
+                    <table style="width=100%">
+                        <tr>
+                            <td align="middle">
+                                <img src="img/filament_diagram.png" width="480px" />
+                                <figcaption align="middle">Bubble Ring Diagram (Fig 6 Padilla, et al. 2019)</figcaption>
+                            </td>
+
+                        </tr>
+                    </table>
+                </div>
+                <p>
+                    The bubble ring is represnted as a vortex filament, which is comprised of a closed center
+                    curve &gamma; in &#8477;<sup>3</sup> and a thickness <i>a</i> along the curve. This curve
+                    can be discretized and represented as a polygon. The vertices of the polygon carry
+                    position information, and the edges have length, direction (which is tangent to the curve), and
+                    thickness data. At a high level, the equations of motion are applied to the vertices to
+                    evolve them in time, and different equations are applied to model the air flow through the
+                    bubble ring based on the new positions, updating the thickness. Finally, distances between
+                    vertices are tracked for collisions and bubble rings are reconnected or split based on energy minimization
+                    principles.
+                </p>
+                <h3 align="left">2: Simulation</h3>
+                <div align="center">
+                    <table style="width=100%">
+                        <tr>
+                            <td align="middle">
+                                <img src="img/Bubble Ring Simulation.png" width="700px" />
+                                <figcaption align="middle">Process of evolving the bubble ring through time</figcaption>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <p>
+                    A bubble ring underwater experiences a buoyant force pushing it to the surface. In addition,
+                    there are lift forces from the fluid motion generated by the vortex, forces from thickness
+                    variations in the bubble ring, and dissipation. For a bubble ring, the buoyancy force
+                    is estimated by an Atwood number of -1 times gravity, thus it points up towards the
+                    water surface as expected.
+                </p>
+                <br />
+                <div align="center">
+                    <table style="width=100%">
+                        <tr>
+                            <td align="middle">
+                                <img src="img/equation18.png" width="700px" />
+                                <figcaption align="middle">Velocity Equation (Eq. 18 modified from Padilla, et al. 2019)</figcaption>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <p>
+                    The equations of motion eventually collapse into a first order differential equation for
+                    the velocity at each vertex for curve &gamma; given by Eq. 18 in Padilla et al., 2019 shown above
+                    in a modified form. Circulation <i>C</i>, Atwood number <i>At</i> = -1, kinematic viscosity
+                    &nu; = 1e-6 m<sup>2</sup>/s are given, and <i>a</i> is the thickness associated with a vertex.
+                    The velocity of vertex <i>v</i><sub>i</sub> is computed in three parts:
+                    Biot-Savart velocity, localized induction, and Boussinesq term indicated in the equation as Term 1, Term 2,
+                    and Term 3 respectively.
+                </p>
+                <br />
+                <p>
+                    Here, a term of interest for multiple bubble rings is the first Biot-Savart velocity term, since it
+                    is affected by the location and circulation of every vertex of every ring in the system.
+                </p>
+                <br />
+                <p>
+                    Given the velocity at each vertex computed by the equations of motions above, their position is evolved in time
+                    using a Runge-Kutta 4th order integrator. This involves computing four intermediate steps and summing together
+                    with proper weights. An important detail here is to modify thicknesses during these intermedaite steps to conserve
+                    the volume of the air inside the bubble ring as positions - and thus the size of the ring - change. An additional
+                    volume conservation scaling of thicknesses to the initial volume is applied after integration. These equations
+                    do not take into account the pressure of the water column nor the expansion of air as pressure decreases, which
+                    would make this scaling unrealistic.
+                </p>
+                <br />
+                <h3 align="left">3: Resampling</h3>
+                <div align="center">
+                    <table style="width=100%">
+                        <tr>
+                            <td align="middle">
+                                <img src="img/resampling.png" width="300px" />
+                                <figcaption align="middle">Evolution of bubble ring in Python with resampling</figcaption>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <p>
+                    With the above equations of motion implemented in Python, we can see the initial bubble ring in blue
+                    rising over time to its final state in purple. The bubble ring expands as it rises, and distances between
+                    vertices increases and can create numerical instabilities. A resampling method is needed to keep numerical
+                    stability. In Padilla, et al. 2019, a Houdini functionality handles this resampling. We implement resampling
+                    through a 1d interpolation over the length of the ring and find positions, thickness, and circulation along
+                    the ring at a standard length interval. This is shown above, where the distance between vertices stays constant
+                    as the ring expands.
+                </p>
+
+                <br />
+                <h3 align="left">4: Thickness Flow</h3>
+                <div align="center">
+                    <table style="width=100%">
+                        <tr>
+                            <td align="middle">
+                                <img src="img/equation27.png" width="300px" />
+                                <figcaption align="middle">Burgers's Equation in backward Euler form (Eq. 27 from Padilla, et al. 2019)</figcaption>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <p>
+                    After an update in position, the thickness of the bubble ring allowed to change according to
+                    Burgers's Equation rearranged into Eq. 27 in Padilla et al., 2019 for a backward Euler scheme.
+                    Here, the flux of air within the bubble ring is calculated, and the thickness along the ring is
+                    updated in time.
+                </p>
+                <br />
+                <h3 align="left">5: Collisions</h3>
+                <h4 align="left">5.1: Hairpin Removal</h4>
+                <p>
+                    Hairpins in this context refer to sharp corners in the bubble ring. Small scale features that result in
+                    these hairpins are difficult to resolve in simulation, and is reasonable to renormalize to avoid
+                    numerical instabilities. These hairpins appear most frequently in bubble ring collision scenarios near
+                    reconnection or splitting sections. Padilla, et al. 2019 do not mention this in thier paper, however
+                    hairpin removal appears in their Houdini implementation, and generally follows details from Chorin, 1993.
+                </p>
+
+                <p>
+                    For our implementation, we assume hairpins only occur between neighboring edges on the bubble ring. Thus we can
+                    iterate over all pairs of edges and compute the angle between them. If the angle is too small < 35 degrees, the
+                    two edges are merged into a single edge, and the vertices of the ring are updated accordingly. This effectively
+                    smoothens the ring.
+                </p>
+                <br />
+                <h4 align="left">5.2: Reconnection and Splitting Criteria</h4>
+                <div align="center">
+                    <table style="width=100%">
+                        <tr>
+                            <td align="middle">
+                                <img src="img/reconnection_diagram.png" width="600px" />
+                                <figcaption align="middle">Diagram from Weissmann and Pinkall, 2010</figcaption>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <br />
+                <p>
+                    The reconnection and splitting of bubble rings is mainly driven by proximity of filament segments
+                    and energy minimization. This reconnection or splitting criteria can be modeled through a method of
+                    Weissmann and Pinkall, 2010. A modification is made by Padilla et al., 2019 to check this criterion over pairs
+                    of curve segments instead of individual edges.
+                </p>
+                <br />
+                <p>
+                    For each vertex, the distance to every other vertex in the system is computed and those which are near are
+                    recorded. Then, we iterate over these pairs of vertices and find the pair of
+                    curve segments given by the vertices and 2-3 neighboring vertices on each side. The two curve segments and
+                    the new reconnection segments are shown above as &#948;. This is the region where the reconnection criterion is
+                    computed.
+                </p>
+                <div align="center">
+                    <table style="width=100%">
+                        <tr>
+                            <td align="middle">
+                                <img src="img/equation10.png" width="300px" />
+                                <figcaption align="middle">Eq. 10 modified from Weissmann and Pinkall, 2010</figcaption>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <br />
+                <p>
+                    The reconnection criterion is given by the equation above, where &#955; is the length energy factor,
+                    &#916;L is the difference between the distances of the new reconnection segments and the old segments,
+                    C is the mean circulation of the four corner vertices, and &#916;E is an energy associated with &#948;.
+                    This energy is given by a flux of the velocity field generated by the two rings through the reconnected
+                    ring and is detailed in Appendix A of Weissmann and Pinkall, 2010. This criterion also applies for
+                    splitting, which is the opposite direction of the diagram above.
+                </p>
+                <br />
+
+                <h4 align="left">5.3: Reconnection and Splitting</h4>
+                <div align="center">
+                    <table style="width=100%">
+                        <tr>
+                            <td align="middle">
+                                <img src="img/reconnection_fail.png" width="300px" />
+                                <figcaption align="middle">Failure of reconnection code</figcaption>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <p>
+                    After a pair of segments passing the reconnecting criteria is found, reconnection commences. This
+                    involves an indexing nightmare of connecting the correct segments together and creating the updated
+                    position, thickness, and circulation vectors in the correct orientation. Failure of indexing and/or
+                    the reconnection criterion results in a jumbled mess shown above.
+                </p>
+                <br />
+                <h4 align="left">5.4: Python Implementation</h4>
+                <p>
+                    Due to the complexity of the physics and difficulty of reading through the Houdini implementation by Padilla, et al. 2019,
+                    this was first implemented in Python rather than C++. This allowed for work on the physics to run parallel to the rendering
+                    and was much easier to debug and visualize with matplotlib.
+                </p>
+                <br />
+                <p>
+                    The position, thickness, and circulation of the bubble rings were kept in NumPy arrays. One main change in translating Houdini code
+                    to Python was understanding the indexing and iterations over vertices or edges. The major difficulty encountered here was
+                    understanding what parts of the papers and their equations corresponded to the sample Houdini implementation.
+                </p>
+                <br />
+
+                <h4 align="left">5.5: C++ Implementation</h4>
+                <p>
+                    Once the C++ framework - which relied on the rendering described in the following section - was built, the Python code was
+                    again translated to C++. This was implemented directly into the Cloth::simulate() function from Project 4, replacing the
+                    existing integration scheme. Of the sections shown in the chart in Section 2, the Runge Kutta 4th order integrator with
+                    the velocity and thickness modifications was implemented successfully in C++ along with volume conservation. The other sections
+                    of resampling, thickness flow, and reconnection unfortunately did not make it into the C++ simulation. However, these
+                    were successfully implemented in Python.
+                </p>
+
+            </div>
+
+
+        </div>
+    </section>
+    <!--Sensing-->
+    <!--Planning-->
+    <section id="Planning">
+        <div class="inner_wrapper Planning-container fadeInLeft animated wow">
+            <div class="container">
+                <h2>Rendering</h2>
+                <h6>System Design and Operational Diagrams</h6>
+
+                <div class="Planning_block">
+                    <h3 style="text-align: center">Parser</h3>
+                    <p>
+                        Given the input of the text representation of the sheet music from Orchestra, we had to make some fundamental
+                        assumptions about the song to conduct to maximize fluidity of the Baxter arm movements. For starters, the time signature
+                        was assumed to be in 4/4 time for the entire duration of the song, and the tempo was assumed to be 75 BPM or slower.
+                    </p>
+
+
+                </div>
+
+                <div class="inner_section">
+
+                    <div class="row">
+
+                        <div class="col-lg-12 Planning">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h3>Convert</h3>
+                                    <p>
+                                        Take text output of music and convert to robot commands
+                                    </p>
+                                </div><!-- /.col-md-6 -->
+
+                            </div><!-- /.row -->
+                        </div><!-- /.col-lg-12 -->
+                    </div>
+
+                </div>
+
+                <div class="Planning_block">
+                    <h3 style="text-align: center">Planner</h3>
+                </div>
+
+            </div>
+        </div>
+    </section>
+    <!--Planning-->
+    <!--page_section-->
+    <section class="page_section" id="Results">
+        <h2>Results</h2>
+        <!--page_section-->
+        <!--Results_logos-->
+        <div class="Results_logos">
+            <div class="container">
+
+                <iframe width="600" height="400" src="https://www.youtube.com/embed/mf75uNi8fEw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <br>
+                <br>
+                <br>
+                <br>
+
+                <div class="Results_block">
+                    <p>
+                        Result comments
+                    </p>
+
+                    <br>
+
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--Results_logos-->
+    <!--Conclusion-->
+    <section id="Conclusion">
+        <h2>References</h2>
+        <div class="container">
+            <div class="Conclusion_block">
+                <p>
+                    Chorin, Alexandre Joel. "Hairpin removal in vortex interactions II." Journal of Computational Physics 107.1 (1993): 1-9.
+                </p>
+                <br>
+
+                <p>
+                    Padilla, Marcel, et al. "On bubble rings and ink chandeliers." ACM Transactions on Graphics (TOG) 38.4 (2019): 1-14.
+                    <a href="url">https://cseweb.ucsd.edu/~alchern/projects/BubbleRingsInkChandeliers/</a>
+                </p>
+                <br>
+                <p>
+                    Weißmann, Steffen, and Ulrich Pinkall. "Filament-based smoke with vortex shedding and variational reconnection." ACM SIGGRAPH 2010 papers. 2010. 1-12.
+                </p>
+                <br>
+                <p>
+                    Berkeley CS 184 Spring 2022 Project 4: Cloth Simulation code
+                </p>
+
+            </div>
+        </div>>
+    </section>
+    <!--Conclusion-->
+
+    <section class="page_section team" id="team">
+        <!--main-section team-start-->
+        <div class="container">
+            <h2>Team</h2>
+            <div class="team_section clearfix">
+                <div class="team_area">
+                    <div class="team_box wow fadeInDown delay-03s">
+                        <div class="team_box_shadow"><a href="javascript:void(0)"></a></div>
+                        <img src="img/team-1.png" alt="">
+                        <ul>
+                            <li><a href="javascript:void(0)" class="fa fa-linkedin"></a></li>
+                            <li><a href="javascript:void(0)" class="fa fa-github"></a></li>
+                        </ul>
+                    </div>
+                    <h3 class="fadeInDown delay-03s">Cooper Collier</h3>
+                    <p>
+                        Cooper Collier is a 4th year CS major. He worked on improving the movement engine for the robot, in particular by controlling the speed of movements depending on the tempo of the song
+                    </p>
+                </div>
+                <div class="team_area">
+                    <div class="team_box  wow fadeInDown delay-06s">
+                        <div class="team_box_shadow"><a href="javascript:void(0)"></a></div>
+                        <img src="img/team-2.jpeg" alt="">
+                        <ul>
+                            <li><a href="javascript:void(0)" class="fa fa-linkedin"></a></li>
+                            <li><a href="javascript:void(0)" class="fa fa-github"></a></li>
+                        </ul>
+                    </div>
+                    <h3 class=" fadeInDown delay-06s">Dean Zhang</h3>
+                    <p>Dean Zhang is a 4th year EECS major. He worked on the sensing and planning portions of the project. He migrated and modified the OMR software, wrote the text representation parser and helped with the ROS publisher and subscriber nodes to send robot commands.</p>
+                </div>
+                <div class="team_area">
+                    <div class="team_box wow fadeInDown delay-09s">
+                        <div class="team_box_shadow"><a href="javascript:void(0)"></a></div>
+                        <img src="img/team-3.png" alt="">
+                        <ul>
+                            <li><a href="javascript:void(0)" class="fa fa-linkedin"></a></li>
+                            <li><a href="javascript:void(0)" class="fa fa-github"></a></li>
+                        </ul>
+                    </div>
+                    <h3 class="fadeInDown delay-09s">Fei Du</h3>
+                    <p>Fei Du is a 4th year EECS major. He worked on building the website and testing the package used in this project.</p>
+                </div>
+                <div class="team_area">
+                    <div class="team_box wow fadeInDown delay-09s">
+                        <div class="team_box_shadow"><a href="javascript:void(0)"></a></div>
+                        <img src="img/team-4.jpeg" alt="">
+                        <ul>
+                            <li><a href="https://www.linkedin.com/in/ryu-akiba/" class="fa fa-linkedin"></a></li>
+                            <li><a href="https://github.com/ryusterakiba" class="fa fa-github"></a></li>
+                        </ul>
+                    </div>
+                    <h3 class=" fadeInDown delay-09s">Ryu Akiba</h3>
+                    <p>Ryu Akiba is a 4th year applied mathematics major with a concentration in fluid mechanics. He enjoys working with data and mathematical models. He worked on the physics understanding and Python implementation of the bubble ring simulation.</p>
+
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--/Team-->
+    <!--Additional Materials-->
+    <section id="AdditionalMaterials">
+        <div class="AdditionalMaterials">
+            <h2>Additional Materials</h2>
+            <ul style="overflow:hidden; text-align: center;font-size: 25px;">
+                <li style="display:inline-block;"><a href="https://github.com/ryusterakiba/Bubble_Rings" class="fa fa-github 3x">Github    </a></li>
+                <li style="display:inline-block;"><a href="/proposal/index.html" class="fa fa-rocket 4x">Project Proposal</a></li>
+                <li style="display:inline-block;"><a href="/milestone/index.html" class="fa fa-rocket 4x">Milestone Report</a></li>
+                <li style="display:inline-block;"><a href="https://docs.google.com/presentation/d/1mfttTd0Macl3F1Lrt1mVxGrlcG73LPYyASJ_4s-pmAY/edit?usp=sharing" class="fa fa-file lg">Presentation Slides</a></li>
+
+            </ul>
+        </div>
+    </section>
+    <!--Additional Materials-->
+
+    <script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/jquery-scrolltofixed.js"></script>
+    <script type="text/javascript" src="js/jquery.nav.js"></script>
+    <script type="text/javascript" src="js/jquery.easing.1.3.js"></script>
+    <script type="text/javascript" src="js/jquery.isotope.js"></script>
+    <script src="js/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+    <script type="text/javascript" src="js/wow.js"></script>
+    <script type="text/javascript" src="js/custom.js"></script>
+    <script>
+        var links = document.body.getElementsByTagName("a")
+        var a = window.location.href.indexOf(".io")
+        var repo_name = window.location.href.substring(a + 3)
+        for (var i = 0; i < links.length; i++) {
+            var link = links[i]
+            var actual_name = link.href.substring(link.href.indexOf(".io") + 4)
+            link.href = repo_name + actual_name
+        }
+    </script>
 </body>
-<script>
-		var links = document.body.getElementsByTagName("a")
-		var a = window.location.href.indexOf(".io")
-		var repo_name = window.location.href.substring(a+3)
-		for(var i = 0; i < links.length; i++){
-			var link = links[i]
-			var actual_name = link.href.substring(link.href.indexOf(".io")+4)
-			link.href = repo_name + actual_name
-		}
-</script>
 </html>
